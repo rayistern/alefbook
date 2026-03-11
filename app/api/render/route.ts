@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/storage/supabase'
+import { getOrCreateUserId } from '@/lib/storage/user'
 import { renderPageToImage } from '@/lib/rendering/puppeteer'
 import { loadPageHTML } from '@/lib/templates/loader'
 import { getPageStates } from '@/lib/templates/page-state'
@@ -7,7 +8,7 @@ import { createHash } from 'crypto'
 
 export async function POST(req: Request) {
   const { userId: clerkId } = await auth()
-  if (!clerkId) return new Response('Unauthorized', { status: 401 })
+  if (!clerkId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
   const { projectId, pageNumbers } = body as {
@@ -16,27 +17,23 @@ export async function POST(req: Request) {
   }
 
   if (!projectId || !pageNumbers?.length) {
-    return new Response('Missing required fields', { status: 400 })
+    return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
   // Verify project ownership
   const supabase = createClient()
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_id', clerkId)
-    .single()
+  const dbUserId = await getOrCreateUserId(clerkId)
 
-  if (!user) return new Response('User not found', { status: 404 })
+  if (!dbUserId) return Response.json({ error: 'User not found' }, { status: 404 })
 
   const { data: project } = await supabase
     .from('projects')
     .select('user_id')
     .eq('id', projectId)
-    .eq('user_id', user.id)
+    .eq('user_id', dbUserId)
     .single()
 
-  if (!project) return new Response('Project not found', { status: 404 })
+  if (!project) return Response.json({ error: 'Project not found' }, { status: 404 })
 
   const projectPageStates = await getPageStates(projectId)
   const renderUrls: Record<number, string> = {}

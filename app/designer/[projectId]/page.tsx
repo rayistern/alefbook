@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/storage/supabase'
+import { getOrCreateUserId } from '@/lib/storage/user'
 import { loadTemplateMeta } from '@/lib/templates/loader'
 import { getProjectUploads, getUploadDisplayUrl } from '@/lib/storage/uploads'
 import { DesignerShell } from '@/components/designer/DesignerShell'
@@ -16,21 +17,17 @@ export default async function DesignerPage({ params }: DesignerPageProps) {
 
   const supabase = createClient()
 
-  // Get DB user
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_id', clerkId)
-    .single()
+  // Get or create DB user (handles webhook race condition)
+  const dbUserId = await getOrCreateUserId(clerkId)
 
-  if (!user) redirect('/dashboard')
+  if (!dbUserId) redirect('/dashboard')
 
   // Load project (with ownership check)
   const { data: project } = await supabase
     .from('projects')
     .select('*')
     .eq('id', params.projectId)
-    .eq('user_id', user.id)
+    .eq('user_id', dbUserId)
     .single()
 
   if (!project) redirect('/dashboard')

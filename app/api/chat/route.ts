@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/storage/supabase'
+import { getOrCreateUserId } from '@/lib/storage/user'
 import { checkLimit } from '@/lib/rate-limit/upstash'
 import { runDesignerLoop } from '@/lib/ai/designer-agent'
 import { loadTemplateMeta } from '@/lib/templates/loader'
@@ -9,7 +10,7 @@ import { loadAllPageStates } from '@/lib/templates/loader'
 
 export async function POST(req: Request) {
   const { userId: clerkId } = await auth()
-  if (!clerkId) return new Response('Unauthorized', { status: 401 })
+  if (!clerkId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   // Rate limit check
   const limitResult = await checkLimit('aiCalls', clerkId)
@@ -26,27 +27,23 @@ export async function POST(req: Request) {
   const { message, projectId, currentPage } = body
 
   if (!message || !projectId || !currentPage) {
-    return new Response('Missing required fields', { status: 400 })
+    return Response.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
   // Verify project ownership
   const supabase = createClient()
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_id', clerkId)
-    .single()
+  const dbUserId = await getOrCreateUserId(clerkId)
 
-  if (!user) return new Response('User not found', { status: 404 })
+  if (!dbUserId) return Response.json({ error: 'User not found' }, { status: 404 })
 
   const { data: project } = await supabase
     .from('projects')
     .select('*')
     .eq('id', projectId)
-    .eq('user_id', user.id)
+    .eq('user_id', dbUserId)
     .single()
 
-  if (!project) return new Response('Project not found', { status: 404 })
+  if (!project) return Response.json({ error: 'Project not found' }, { status: 404 })
 
   // Save user message
   await supabase.from('messages').insert({

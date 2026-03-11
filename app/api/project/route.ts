@@ -1,43 +1,13 @@
-import { auth, clerkClient } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/storage/supabase'
+import { getOrCreateUserId } from '@/lib/storage/user'
 import { NextRequest } from 'next/server'
-
-async function getUserId(clerkId: string): Promise<string | null> {
-  const supabase = createClient()
-  const { data } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_id', clerkId)
-    .single()
-  return data?.id ?? null
-}
-
-async function getOrCreateUserId(clerkId: string): Promise<string | null> {
-  const existing = await getUserId(clerkId)
-  if (existing) return existing
-
-  // User authenticated via Clerk but not yet in DB (webhook race condition).
-  // Auto-provision the record.
-  const client = await clerkClient()
-  const clerkUser = await client.users.getUser(clerkId)
-  const email = clerkUser.emailAddresses?.[0]?.emailAddress
-  if (!email) return null
-
-  const supabase = createClient()
-  const { data } = await supabase
-    .from('users')
-    .upsert({ clerk_id: clerkId, email }, { onConflict: 'clerk_id' })
-    .select('id')
-    .single()
-
-  return data?.id ?? null
-}
 
 // GET /api/project — list user's projects
 // GET /api/project?id=xxx — get single project
 export async function GET(req: NextRequest) {
   const { userId: clerkId } = await auth()
-  if (!clerkId) return new Response('Unauthorized', { status: 401 })
+  if (!clerkId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createClient()
   const dbUserId = await getOrCreateUserId(clerkId)
@@ -54,7 +24,7 @@ export async function GET(req: NextRequest) {
       .single()
 
     if (error || !data) {
-      return new Response('Project not found', { status: 404 })
+      return Response.json({ error: 'Project not found' }, { status: 404 })
     }
     return Response.json(data)
   }
@@ -66,7 +36,7 @@ export async function GET(req: NextRequest) {
     .order('updated_at', { ascending: false })
 
   if (error) {
-    return new Response('Failed to load projects', { status: 500 })
+    return Response.json({ error: 'Failed to load projects' }, { status: 500 })
   }
 
   return Response.json({ projects: data })
@@ -75,7 +45,7 @@ export async function GET(req: NextRequest) {
 // POST /api/project — create new project
 export async function POST(req: Request) {
   const { userId: clerkId } = await auth()
-  if (!clerkId) return new Response('Unauthorized', { status: 401 })
+  if (!clerkId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createClient()
   const dbUserId = await getOrCreateUserId(clerkId)
@@ -99,7 +69,7 @@ export async function POST(req: Request) {
     .single()
 
   if (error) {
-    return new Response('Failed to create project', { status: 500 })
+    return Response.json({ error: 'Failed to create project' }, { status: 500 })
   }
 
   return Response.json(data, { status: 201 })
@@ -108,7 +78,7 @@ export async function POST(req: Request) {
 // PATCH /api/project — update project
 export async function PATCH(req: Request) {
   const { userId: clerkId } = await auth()
-  if (!clerkId) return new Response('Unauthorized', { status: 401 })
+  if (!clerkId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createClient()
   const dbUserId = await getOrCreateUserId(clerkId)
@@ -117,7 +87,7 @@ export async function PATCH(req: Request) {
   const body = await req.json()
   const { id, ...updates } = body
 
-  if (!id) return new Response('Missing project id', { status: 400 })
+  if (!id) return Response.json({ error: 'Missing project id' }, { status: 400 })
 
   // Verify ownership
   const { data: existing } = await supabase
@@ -127,7 +97,7 @@ export async function PATCH(req: Request) {
     .single()
 
   if (!existing || existing.user_id !== dbUserId) {
-    return new Response('Project not found', { status: 404 })
+    return Response.json({ error: 'Project not found' }, { status: 404 })
   }
 
   const { data, error } = await supabase
@@ -138,7 +108,7 @@ export async function PATCH(req: Request) {
     .single()
 
   if (error) {
-    return new Response('Failed to update project', { status: 500 })
+    return Response.json({ error: 'Failed to update project' }, { status: 500 })
   }
 
   return Response.json(data)
@@ -147,7 +117,7 @@ export async function PATCH(req: Request) {
 // DELETE /api/project — delete project
 export async function DELETE(req: NextRequest) {
   const { userId: clerkId } = await auth()
-  if (!clerkId) return new Response('Unauthorized', { status: 401 })
+  if (!clerkId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createClient()
   const dbUserId = await getOrCreateUserId(clerkId)
@@ -164,7 +134,7 @@ export async function DELETE(req: NextRequest) {
     .single()
 
   if (!existing || existing.user_id !== dbUserId) {
-    return new Response('Project not found', { status: 404 })
+    return Response.json({ error: 'Project not found' }, { status: 404 })
   }
 
   const { error } = await supabase
@@ -173,8 +143,8 @@ export async function DELETE(req: NextRequest) {
     .eq('id', projectId)
 
   if (error) {
-    return new Response('Failed to delete project', { status: 500 })
+    return Response.json({ error: 'Failed to delete project' }, { status: 500 })
   }
 
-  return new Response('OK', { status: 200 })
+  return Response.json({ ok: true })
 }
