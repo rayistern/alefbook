@@ -6,8 +6,12 @@ import { getPageStates } from '@/lib/templates/page-state'
 import { NextRequest } from 'next/server'
 
 export async function GET(req: NextRequest) {
+  console.log('[PageHTML] GET /api/page-html called:', req.nextUrl.searchParams.toString())
   const { userId: clerkId } = await auth()
-  if (!clerkId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!clerkId) {
+    console.log('[PageHTML] Unauthorized')
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const projectId = req.nextUrl.searchParams.get('projectId')
   const pageNum = Number(req.nextUrl.searchParams.get('page'))
@@ -27,10 +31,14 @@ export async function GET(req: NextRequest) {
     .eq('user_id', dbUserId)
     .single()
 
-  if (!project) return Response.json({ error: 'Project not found' }, { status: 404 })
+  if (!project) {
+    console.log('[PageHTML] Project not found')
+    return Response.json({ error: 'Project not found' }, { status: 404 })
+  }
 
   const projectPageStates = await getPageStates(projectId)
   const html = loadPageHTML(pageNum, projectPageStates[String(pageNum)])
+  console.log(`[PageHTML] Page ${pageNum}: HTML loaded, length=${html.length}`)
 
   return new Response(html, {
     headers: {

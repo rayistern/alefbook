@@ -12,35 +12,46 @@ interface DesignerPageProps {
 }
 
 export default async function DesignerPage({ params }: DesignerPageProps) {
+  console.log('[Designer] Loading page for project:', params.projectId)
+
   const { userId: clerkId } = await auth()
-  if (!clerkId) redirect('/sign-in')
+  if (!clerkId) {
+    console.log('[Designer] No clerkId, redirecting to sign-in')
+    redirect('/sign-in')
+  }
+  console.log('[Designer] Authenticated as clerkId:', clerkId)
 
   const supabase = createClient()
 
   // Get or create DB user (handles webhook race condition)
   const dbUserId = await getOrCreateUserId(clerkId)
+  console.log('[Designer] DB user ID:', dbUserId)
 
   if (!dbUserId) redirect('/dashboard')
 
   // Load project (with ownership check)
-  const { data: project } = await supabase
+  const { data: project, error: projectError } = await supabase
     .from('projects')
     .select('*')
     .eq('id', params.projectId)
     .eq('user_id', dbUserId)
     .single()
 
+  console.log('[Designer] Project loaded:', project?.id, 'error:', projectError?.message)
   if (!project) redirect('/dashboard')
 
   // Load template metadata
   const templateMeta = loadTemplateMeta()
+  console.log('[Designer] Template loaded:', templateMeta.page_count, 'pages,', templateMeta.pages.length, 'page entries')
 
   // Load chat messages
-  const { data: messages } = await supabase
+  const { data: messages, error: msgError } = await supabase
     .from('messages')
     .select('id, role, content, created_at')
     .eq('project_id', params.projectId)
     .order('created_at', { ascending: true })
+
+  console.log('[Designer] Messages loaded:', messages?.length ?? 0, 'error:', msgError?.message)
 
   const chatMessages: ChatMessage[] = (messages ?? []).map(m => ({
     id: m.id,
@@ -51,6 +62,7 @@ export default async function DesignerPage({ params }: DesignerPageProps) {
 
   // Load uploads
   const uploads = await getProjectUploads(params.projectId)
+  console.log('[Designer] Uploads loaded:', uploads.length)
   const uploadImages = await Promise.all(
     uploads.map(async u => ({
       id: u.id,
@@ -62,12 +74,15 @@ export default async function DesignerPage({ params }: DesignerPageProps) {
   // Determine which pages have been edited
   const pageStates = (project.page_states ?? {}) as Record<string, string>
   const editedPages = Object.keys(pageStates).map(Number)
+  console.log('[Designer] Edited pages:', editedPages)
 
   // Build initial render URLs from cached renders
-  const { data: renders } = await supabase
+  const { data: renders, error: renderError } = await supabase
     .from('renders')
     .select('page_number, image_path')
     .eq('project_id', params.projectId)
+
+  console.log('[Designer] Cached renders:', renders?.length ?? 0, 'error:', renderError?.message)
 
   const renderUrls: Record<number, string> = {}
   for (const render of renders ?? []) {
@@ -76,6 +91,17 @@ export default async function DesignerPage({ params }: DesignerPageProps) {
       .getPublicUrl(render.image_path)
     renderUrls[render.page_number] = urlData.publicUrl
   }
+
+  console.log('[Designer] Passing to DesignerShell:', {
+    projectId: params.projectId,
+    projectName: project.name,
+    totalPages: templateMeta.page_count,
+    pagesCount: templateMeta.pages.length,
+    messagesCount: chatMessages.length,
+    uploadsCount: uploadImages.length,
+    renderUrlsCount: Object.keys(renderUrls).length,
+    editedPagesCount: editedPages.length,
+  })
 
   return (
     <DesignerShell
