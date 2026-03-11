@@ -23,12 +23,12 @@ export function PageThumbnail({
     <button
       onClick={onClick}
       className={cn(
-        'relative flex flex-col items-center gap-1 rounded p-1 transition-colors hover:bg-accent',
-        isActive && 'ring-2 ring-primary'
+        'relative flex flex-col items-center gap-1 rounded-lg p-1 transition-all hover:bg-secondary',
+        isActive && 'ring-2 ring-primary bg-secondary'
       )}
       title={`${label} (page ${pageNumber})`}
     >
-      <div className="relative h-[60px] w-[60px] overflow-hidden rounded border bg-white">
+      <div className="relative h-[60px] w-[60px] overflow-hidden rounded border border-border/50 bg-white">
         {thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -43,7 +43,7 @@ export function PageThumbnail({
           </div>
         )}
         {isEdited && (
-          <div className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-green-500" />
+          <div className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-primary shadow-sm" />
         )}
       </div>
       <span className="max-w-[60px] truncate text-[10px] text-muted-foreground">

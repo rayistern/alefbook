@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { UserButton } from '@clerk/nextjs'
 import { ChatPanel, type ChatMessage } from './ChatPanel'
 import { PageViewer } from './PageViewer'
@@ -72,7 +73,6 @@ export function DesignerShell({
   const [uploading, setUploading] = useState(false)
   const [mobileView, setMobileView] = useState<'chat' | 'page' | 'photos'>('chat')
 
-  // Render current page on mount / page change if no cached render
   useEffect(() => {
     if (!renderUrls[currentPage]) {
       renderPage(currentPage)
@@ -141,12 +141,10 @@ export function DesignerShell({
         }
         setMessages(prev => [...prev, assistantMsg])
 
-        // Update renders
         if (data.renderUrls) {
           setRenderUrls(prev => ({ ...prev, ...data.renderUrls }))
         }
 
-        // Mark pages as edited
         if (data.updatedPages) {
           setEditedPages(prev => {
             const next = new Set(prev)
@@ -254,13 +252,21 @@ export function DesignerShell({
   }, [projectId, shopifyStoreUrl, shopifyVariantId])
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col bg-background">
       {/* Header */}
-      <header className="flex h-14 items-center justify-between border-b px-4">
+      <header className="flex h-14 items-center justify-between border-b border-border/50 bg-card px-4">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
+          <Image
+            src="/images/LOGO11B-2X1.png"
+            alt="AlefBook"
+            width={100}
+            height={50}
+            className="hidden h-7 w-auto sm:block"
+          />
+          <span className="text-sm font-medium text-muted-foreground">/</span>
           <h1 className="text-sm font-semibold">{projectName}</h1>
         </div>
         <div className="flex items-center gap-2">
@@ -334,7 +340,7 @@ export function DesignerShell({
             <SheetTrigger asChild>
               <div />
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent className="bg-card">
               <SheetTitle>Photos & Pages</SheetTitle>
               <Sidebar
                 uploads={uploads}
@@ -352,10 +358,10 @@ export function DesignerShell({
         )}
 
         {/* Mobile bottom navigation */}
-        <nav className="flex border-t">
+        <nav className="flex border-t border-border/50 bg-card">
           <button
             onClick={() => setMobileView('chat')}
-            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs ${
+            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs transition-colors ${
               mobileView === 'chat' ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
@@ -364,7 +370,7 @@ export function DesignerShell({
           </button>
           <button
             onClick={() => setMobileView('page')}
-            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs ${
+            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs transition-colors ${
               mobileView === 'page' ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
@@ -373,7 +379,7 @@ export function DesignerShell({
           </button>
           <button
             onClick={() => setMobileView('photos')}
-            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs ${
+            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs transition-colors ${
               mobileView === 'photos' ? 'text-primary' : 'text-muted-foreground'
             }`}
           >

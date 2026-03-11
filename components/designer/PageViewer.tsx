@@ -23,11 +23,11 @@ export function PageViewer({
   onPreviewPdf,
 }: PageViewerProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
+    <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-background p-4">
       <div className="relative">
         {/* Page render display */}
         <div
-          className="relative overflow-hidden rounded-lg border bg-white shadow-md"
+          className="relative overflow-hidden rounded-lg border border-border/50 bg-white shadow-lg shadow-black/20"
           style={{ width: 540, height: 540 }}
         >
           {renderUrl ? (
@@ -44,12 +44,12 @@ export function PageViewer({
               />
               {isWorking && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="rounded-lg bg-black/60 px-4 py-2 text-sm text-white">
+                  <div className="rounded-lg bg-black/70 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
                     Designing...
                     {passInfo && ` (pass ${passInfo.current}/${passInfo.total})`}
                   </div>
                   {/* Shimmer overlay */}
-                  <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                  <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/5 to-transparent" />
                 </div>
               )}
             </>

@@ -49,13 +49,21 @@ export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelPr
   )
 
   return (
-    <div className="flex h-full w-full md:w-[320px] flex-col border-r">
-      <div className="border-b px-4 py-3">
+    <div className="flex h-full w-full md:w-[320px] flex-col border-r border-border/50 bg-card">
+      <div className="border-b border-border/50 px-4 py-3">
         <h2 className="font-semibold">Chat</h2>
       </div>
 
       <ScrollArea className="flex-1 p-4">
         <div ref={scrollRef} className="space-y-4">
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+              <p className="text-sm text-muted-foreground">
+                Describe changes to your Haggadah and the AI will design them for you.
+              </p>
+            </div>
+          )}
+
           {messages.map(msg => (
             <div
               key={msg.id}
@@ -65,7 +73,7 @@ export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelPr
                 className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
                   msg.role === 'user'
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
+                    : 'bg-secondary text-secondary-foreground'
                 }`}
               >
                 {msg.content}
@@ -75,9 +83,14 @@ export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelPr
 
           {isWorking && (
             <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-lg bg-muted px-3 py-2 text-sm">
-                <span className="inline-flex items-center gap-1">
-                  <span className="animate-pulse">
+              <div className="max-w-[85%] rounded-lg bg-secondary px-3 py-2 text-sm text-secondary-foreground">
+                <span className="inline-flex items-center gap-2">
+                  <span className="flex gap-1">
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:0ms]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:150ms]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:300ms]" />
+                  </span>
+                  <span>
                     Designing...
                     {passInfo && ` (pass ${passInfo.current}/${passInfo.total})`}
                   </span>
@@ -88,7 +101,7 @@ export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelPr
         </div>
       </ScrollArea>
 
-      <div className="border-t p-4">
+      <div className="border-t border-border/50 p-4">
         <div className="flex gap-2">
           <Textarea
             ref={textareaRef}
@@ -97,7 +110,7 @@ export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelPr
             onKeyDown={handleKeyDown}
             placeholder={isWorking ? 'Working...' : 'Describe your changes...'}
             disabled={isWorking}
-            className="min-h-[44px] max-h-[120px] resize-none"
+            className="min-h-[44px] max-h-[120px] resize-none bg-secondary border-border/50"
             rows={1}
           />
           <Button

@@ -55,9 +55,9 @@ export function Sidebar({
   )
 
   return (
-    <div className="flex h-full w-[280px] flex-col border-l">
+    <div className="flex h-full w-[280px] flex-col border-l border-border/50 bg-card">
       {/* My Photos section */}
-      <div className="border-b px-4 py-3">
+      <div className="border-b border-border/50 px-4 py-3">
         <h3 className="font-semibold">My Photos</h3>
       </div>
 
@@ -71,7 +71,7 @@ export function Sidebar({
         />
         <Button
           variant="outline"
-          className="w-full"
+          className="w-full border-dashed border-border/70 hover:border-primary/50 hover:bg-primary/5"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
         >
@@ -85,7 +85,7 @@ export function Sidebar({
               <button
                 key={upload.id}
                 onClick={() => onPhotoClick(upload.filename)}
-                className="group relative aspect-square overflow-hidden rounded border transition-colors hover:ring-2 hover:ring-primary"
+                className="group relative aspect-square overflow-hidden rounded-lg border border-border/50 transition-all hover:ring-2 hover:ring-primary"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -93,7 +93,7 @@ export function Sidebar({
                   alt={upload.filename}
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/30">
                   <ImageIcon className="h-5 w-5 text-white opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
               </button>
@@ -106,10 +106,10 @@ export function Sidebar({
         )}
       </div>
 
-      <Separator />
+      <Separator className="bg-border/50" />
 
       {/* All Pages section */}
-      <div className="border-b px-4 py-3">
+      <div className="border-b border-border/50 px-4 py-3">
         <h3 className="font-semibold">All Pages</h3>
       </div>
 

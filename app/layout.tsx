@@ -16,9 +16,17 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body>
+    <ClerkProvider appearance={{
+        variables: {
+          colorBackground: '#121212',
+          colorText: '#f5f5f5',
+          colorPrimary: '#d4a843',
+          colorInputBackground: '#1f1f1f',
+          colorInputText: '#f5f5f5',
+        },
+      }}>
+      <html lang="en" className="dark">
+        <body className="scrollbar-thin">
           <TooltipProvider>
             {children}
           </TooltipProvider>
