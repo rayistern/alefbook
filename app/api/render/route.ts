@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/storage/supabase'
 import { renderPageToImage } from '@/lib/rendering/puppeteer'
-import { loadPageHTML, loadTemplateMeta } from '@/lib/templates/loader'
+import { loadPageHTML } from '@/lib/templates/loader'
 import { getPageStates } from '@/lib/templates/page-state'
 import { createHash } from 'crypto'
 
