@@ -2,196 +2,216 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>Page 1 — Front Cover [PLACEHOLDER]</title>
+<meta name="viewport" content="width=576">
+<title>Page 1 — Front Cover</title>
 <style>
-  /*
-   * PLACEHOLDER — Front Cover
-   * Replace with full conversion from IDML Spread_ucc.xml (the cover spread).
-   * The cover has complex illustrated elements, rotated graphics, and decorative
-   * polygons — see Spread_ucc.xml for full structure.
-   * 
-   * CSS classes the Phase 2 app will target:
-   *   .image-slot       — user photo overlay
-   *   .english-text     — toggleable English elements
-   *   .page-title-he    — main Hebrew title
-   */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  :root {
-    --color-bg:       #1a0a00;   /* dark cover background */
-    --color-gold:     #cf9f32;   /* approximate gold from cover design */
-    --color-cream:    #fff8ee;
-    --font-hebrew:    'Adobe Hebrew', serif;
-    --font-display:   'BadaBoom BB', 'ACME Secret Agent BB', cursive;
+  /* @font-face — only fonts used on this page */
+  @font-face {
+    font-family: 'Yiddishkeit';
+    src: url('../../../Document fonts/Yiddishkeit 2.0 AAA Black.otf') format('opentype');
+    font-weight: 900;
+  }
+  @font-face {
+    font-family: 'Fredoka One';
+    src: url('../../../Document fonts/FredokaOne-Regular.otf') format('opentype');
+    font-weight: 400;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* Colors — converted from IDML CMYK swatches
+     R = 255*(1-C)*(1-K), G = 255*(1-M)*(1-K), B = 255*(1-Y)*(1-K) */
+  :root {
+    --color-mainHebrew: #095354;  /* CMYK(89,1,0,67) — teal for titles */
+  }
 
   .bleed-wrapper {
-    width: 576px; height: 576px;
-    padding: 18px;
-    background: var(--color-bg);
+    width: 576px;
+    height: 576px;
     overflow: hidden;
+    position: relative;
   }
 
   .page {
-    width: 540px; height: 540px;
+    width: 540px;
+    height: 540px;
     position: relative;
-    background: var(--color-bg);
+    margin: 18px;
     overflow: hidden;
   }
 
-  /* ---- Image slot: user photo (behind all other elements) ---- */
-  .image-slot {
+  /* Background extends into bleed */
+  .bg-bleed {
     position: absolute;
-    left: 0; top: 0;
-    width: 540px; height: 540px;
-    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 576px;
+    height: 576px;
+    z-index: 0;
   }
-  .image-slot img {
-    width: 100%; height: 100%;
+  .bg-bleed img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     display: block;
   }
-  .image-slot-placeholder {
-    width: 100%; height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #2a1500;
-    color: #888;
-    font-family: sans-serif;
-    font-size: 14px;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .image-slot-placeholder::before {
-    content: "📷";
-    font-size: 32px;
-  }
-  .image-slot img[src=""] ~ .image-slot-placeholder,
-  .image-slot img:not([src]) ~ .image-slot-placeholder { display: flex; }
-  .image-slot img[src]:not([src=""]) ~ .image-slot-placeholder { display: none; }
 
-  /* ---- Cover overlay (sits on top of photo) ---- */
-  .cover-overlay {
+  .el {
     position: absolute;
-    left: 0; top: 0; right: 0; bottom: 0;
-    z-index: 2;
-    background: linear-gradient(
-      to bottom,
-      rgba(0,0,0,0.55) 0%,
-      rgba(0,0,0,0.1)  40%,
-      rgba(0,0,0,0.1)  60%,
-      rgba(0,0,0,0.65) 100%
-    );
   }
 
-  /* ---- Title area ---- */
-  .cover-title-area {
-    position: absolute;
-    left: 0; top: 60px;
-    width: 540px;
-    text-align: center;
-    z-index: 3;
-  }
-
-  .cover-title-he {
-    font-family: var(--font-hebrew);
-    font-size: 52px;
-    font-weight: bold;
-    color: var(--color-gold);
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-    display: block;
-    line-height: 1.2;
+  .hebrew-text {
     direction: rtl;
+    unicode-bidi: embed;
   }
 
-  .cover-subtitle-he {
-    font-family: var(--font-hebrew);
-    font-size: 28px;
-    color: var(--color-cream);
-    display: block;
-    margin-top: 8px;
-    direction: rtl;
-  }
-
-  .cover-subtitle-en {
-    font-family: 'DIN Next LT Pro', Arial, sans-serif;
-    font-size: 18px;
-    color: var(--color-cream);
-    display: block;
-    margin-top: 4px;
+  .english-text {
     direction: ltr;
-    letter-spacing: 0.05em;
-  }
-
-  /* ---- Bottom area ---- */
-  .cover-bottom {
-    position: absolute;
-    left: 20px; bottom: 30px;
-    width: 500px;
-    text-align: center;
-    z-index: 3;
-  }
-
-  .family-name {
-    font-family: var(--font-display);
-    font-size: 24px;
-    color: var(--color-gold);
-    letter-spacing: 0.1em;
-  }
-
-  /* ---- Placeholder guide overlay (remove in production) ---- */
-  .placeholder-notice {
-    position: absolute;
-    top: 4px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255,165,0,0.85);
-    color: #000;
-    font-family: monospace;
-    font-size: 9px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    z-index: 99;
-    white-space: nowrap;
+    unicode-bidi: embed;
   }
 </style>
 </head>
 <body>
 <div class="bleed-wrapper">
-<div class="page" id="page-001"
-  data-page-number="1"
-  data-section="cover"
-  data-is-fixed-liturgy="false">
-
-  <div class="placeholder-notice">⚠ PLACEHOLDER — Replace with IDML cover conversion</div>
-
-  <!-- IMAGE SLOT: user photo (full bleed, behind all) -->
-  <div class="image-slot"
-    data-slot-id="cover"
-    data-slot-label="Cover Photo">
-    <img src="" alt="Cover photo" />
-    <div class="image-slot-placeholder">Add your cover photo here</div>
+  <!-- Background parchment extends into bleed area -->
+  <div class="bg-bleed">
+    <img src="../../../images/LB1A.jpg" alt="Parchment background" />
   </div>
 
-  <!-- Gradient overlay -->
-  <div class="cover-overlay"></div>
+  <div class="page" id="page-001" data-page-number="1" data-section="cover" data-is-fixed-liturgy="false">
 
-  <!-- Title -->
-  <div class="cover-title-area">
-    <span class="cover-title-he">הַגָּדָה שֶׁל פֶּסַח</span>
-    <span class="cover-subtitle-he">לְשֵׁם יִחוּד</span>
-    <span class="cover-subtitle-en english-text">The Passover Haggadah</span>
-  </div>
+    <!-- ======================================================
+         Matzah images (Asset 5matzawhole.png)
+         3 matzahs at various positions and rotations
+         ====================================================== -->
 
-  <!-- Bottom: family name (editable) -->
-  <div class="cover-bottom">
-    <div class="family-name" data-field="family_name">
-      The [Family Name] Family
+    <!-- Matzah u3317: no rotation, left side
+         Spread center (-292, -58.4) → page px (150.7, 192.2)
+         Local size 185×185.7 pt = 246.7×247.6 px -->
+    <div class="el" style="
+      left: 27px; top: 68px;
+      width: 247px; height: 248px;
+      z-index: 2;
+    ">
+      <img src="../../../images/Asset 5matzawhole.png" alt="Matzah"
+        style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
-  </div>
 
-</div>
+    <!-- Matzah u3312: rotated 55.5°, upper-left
+         Spread center (-263.9, -96.4) → page px (188.1, 141.4) -->
+    <div class="el" style="
+      left: 65px; top: 18px;
+      width: 247px; height: 248px;
+      z-index: 3;
+      transform: rotate(55.5deg);
+    ">
+      <img src="../../../images/Asset 5matzawhole.png" alt="Matzah rotated"
+        style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- Matzah u330b: rotated −90.2°, upper-right
+         Spread center (-157.3, -114.5) → page px (330.2, 117.4) -->
+    <div class="el" style="
+      left: 207px; top: -6px;
+      width: 247px; height: 248px;
+      z-index: 4;
+      transform: rotate(-90.2deg);
+    ">
+      <img src="../../../images/Asset 5matzawhole.png" alt="Matzah rotated"
+        style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- ======================================================
+         Cup images (Asset 4cup.png)
+         5 cups scattered in the middle area
+         ====================================================== -->
+
+    <!-- Cup u3358: spread center (-185.7, 47.7) → page px (292.5, 338.5) -->
+    <div class="el" style="
+      left: 225px; top: 167px;
+      width: 135px; height: 343px;
+      z-index: 5;
+    ">
+      <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
+        style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- Cup u335b: spread center (-185.7, 47.7) → page px (292.5, 329.2) -->
+    <div class="el" style="
+      left: 225px; top: 158px;
+      width: 135px; height: 342px;
+      z-index: 6;
+    ">
+      <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
+        style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- Cup u3321: spread center (-146.4, 49.7) → page px (344.9, 336.3) -->
+    <div class="el" style="
+      left: 278px; top: 170px;
+      width: 135px; height: 333px;
+      z-index: 7;
+    ">
+      <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
+        style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- Cup u331c: spread center (-92.8, 46.2) → page px (416.3, 331.6) -->
+    <div class="el" style="
+      left: 349px; top: 165px;
+      width: 135px; height: 333px;
+      z-index: 8;
+    ">
+      <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
+        style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- Cup u3325: spread center (-34.6, 56.7) → page px (493.8, 345.6) -->
+    <div class="el" style="
+      left: 427px; top: 179px;
+      width: 135px; height: 333px;
+      z-index: 9;
+    ">
+      <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
+        style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- ======================================================
+         Hebrew title "הגדה של פסח"
+         Story u332d — Yiddishkeit 2.0 AAA Black, 50pt, center-aligned
+         Spread center (-191.0, 101.6) → page px (276.0, 384.0)
+         ====================================================== -->
+    <div class="el hebrew-text" style="
+      left: 153px; top: 357px;
+      width: 246px; height: 53px;
+      z-index: 40;
+      text-align: center;
+      font-family: 'Yiddishkeit', serif;
+      font-weight: 900;
+      font-size: 66.7px;
+      color: var(--color-mainHebrew);
+      line-height: 53px;
+      white-space: nowrap;
+    ">הגדה של פסח</div>
+
+    <!-- ======================================================
+         English title "My Passover Haggadah"
+         Story u3344 — Fredoka One Regular, 28pt, center-aligned
+         Spread center (-120.2, 141.6) → page px (276.0, 437.3)
+         ====================================================== -->
+    <div class="el english-text" style="
+      left: 59px; top: 411px;
+      width: 435px; height: 53px;
+      z-index: 41;
+      text-align: center;
+      font-family: 'Fredoka One', cursive;
+      font-weight: 400;
+      font-size: 37.3px;
+      color: var(--color-mainHebrew);
+      line-height: 53px;
+    ">My Passover Haggadah</div>
+
+  </div>
 </div>
 </body>
 </html>

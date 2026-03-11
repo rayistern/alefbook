@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=576">
+<title>Page II</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @font-face {
+    font-family: 'Minion Pro';
+    src: url('../../../Document fonts/MinionPro-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Yiddishkeit 2.0 AAA';
+    src: url('../../../Document fonts/Yiddishkeit 2.0 AAA Black.otf') format('opentype');
+    font-weight: 900;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Yiddishkeit 2.0 AAA';
+    src: url('../../../Document fonts/Yiddishkeit 2.0 AAA Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'Yiddishkeit 2.0 AAA';
+    src: url('../../../Document fonts/Yiddishkeit 2.0 AAA Regular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  .bleed-wrapper {
+    width: 576px; height: 576px;
+    overflow: hidden; position: relative;
+  }
+
+  .page {
+    width: 540px; height: 540px;
+    position: relative; margin: 18px;
+    overflow: hidden;
+  }
+
+  .bg-bleed {
+    position: absolute;
+    left: 0; top: 0;
+    width: 576px; height: 576px;
+    z-index: 0;
+  }
+  .bg-bleed img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+
+  .el { position: absolute; }
+  .hebrew-text { direction: rtl; unicode-bidi: embed; }
+  .english-text { direction: ltr; unicode-bidi: embed; }
+</style>
+</head>
+<body>
+<div class="bleed-wrapper">
+  <div class="bg-bleed">
+    <img src="../../../images/GREEN1A.jpg" alt="" />
+  </div>
+
+  <div class="page" id="page-0II"
+       data-page-number="II"
+       data-section="interior"
+       data-is-fixed-liturgy="false">
+
+    <div class="el" style="
+      left: 118.4px; top: 73.6px;
+      width: 291.2px; height: 290.7px;
+      z-index: 3;
+      
+    ">
+      <img src="../../../images/Asset 16plate.png" alt=""
+        style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+    <div class="el hebrew-text" style="
+      left: 58.5px; top: 40.4px;
+      width: 411.1px; height: 25.9px;
+      z-index: 4;
+      text-align: center;
+      overflow: hidden;
+      
+      
+    "><span style="font-family: 'Yiddishkeit 2.0 AAA', serif; font-size: 26.7px; font-weight: 700; color: #095354">ב''ה</span></div>
+    <div class="el hebrew-text" style="
+      left: 68.9px; top: 379.9px;
+      width: 390.3px; height: 40.1px;
+      z-index: 5;
+      text-align: center;
+      overflow: hidden;
+      
+      
+    "><span style="font-family: 'Shesek FM', serif; font-size: 37.3px; color: #888888">לַה</span><span style="font-family: 'Shesek FM', serif; font-size: 37.3px; color: #888888">׳</span><span style="font-family: 'Shesek FM', serif; font-size: 37.3px; color: #888888"> הָאָרֶץ וּמְלוֹאָהּ</span></div>
+    <div class="el hebrew-text" style="
+      left: 172.8px; top: 427.2px;
+      width: 385.2px; height: 31.3px;
+      z-index: 6;
+      text-align: center;
+      overflow: hidden;
+      
+      
+    "><span style="font-family: 'Shesek FM', serif; font-size: 28.0px">סֵפֶר זֶה שַׁיָּךְ ל-</span></div>
+    <div class="el english-text" style="
+      left: -28.8px; top: 429.9px;
+      width: 367.2px; height: 25.9px;
+      z-index: 7;
+      text-align: center;
+      overflow: hidden;
+      
+      
+    "><span style="font-family: 'DashNess', serif; font-size: 28.0px; font-weight: 500">This book belongs to</span><span style="font-family: 'Minion Pro', serif; font-size: 28.0px">:</span></div>
+
+  </div>
+</div>
+</body>
+</html>
