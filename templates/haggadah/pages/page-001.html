@@ -7,166 +7,22 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ============================================================
-     @font-face declarations — fonts from ../../../Document fonts/
-     ============================================================ */
+  /* @font-face — only fonts used on this page */
   @font-face {
     font-family: 'Yiddishkeit';
     src: url('../../../Document fonts/Yiddishkeit 2.0 AAA Black.otf') format('opentype');
     font-weight: 900;
   }
   @font-face {
-    font-family: 'Yiddishkeit';
-    src: url('../../../Document fonts/Yiddishkeit 2.0 AAA Bold.otf') format('opentype');
-    font-weight: 700;
-  }
-  @font-face {
-    font-family: 'Yiddishkeit';
-    src: url('../../../Document fonts/Yiddishkeit 2.0 AAA Regular.otf') format('opentype');
-    font-weight: 400;
-  }
-  @font-face {
     font-family: 'Fredoka One';
     src: url('../../../Document fonts/FredokaOne-Regular.otf') format('opentype');
     font-weight: 400;
   }
-  @font-face {
-    font-family: 'BadaBoom BB';
-    src: url('../../../Document fonts/BadaboomBB_Reg.otf') format('opentype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'DIN Next LT Pro';
-    src: url('../../../Document fonts/DINNextLTPro-Bold.otf') format('opentype');
-    font-weight: 700;
-  }
-  @font-face {
-    font-family: 'DIN Next LT Pro';
-    src: url('../../../Document fonts/DINNextLTPro-LightItalic.otf') format('opentype');
-    font-weight: 300;
-    font-style: italic;
-  }
-  @font-face {
-    font-family: 'DIN Next LT Pro';
-    src: url('../../../Document fonts/DINNextLTPro-Black.otf') format('opentype');
-    font-weight: 900;
-  }
-  @font-face {
-    font-family: 'Palooka BB';
-    src: url('../../../Document fonts/PalookaBB_ital.otf') format('opentype');
-    font-style: italic;
-  }
-  @font-face {
-    font-family: 'ACME Secret Agent BB';
-    src: url('../../../Document fonts/ACMESecretAgentBB_Reg.otf') format('opentype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'ACME Secret Agent BB';
-    src: url('../../../Document fonts/ACMESecretAgentBB_Ital.otf') format('opentype');
-    font-weight: 400;
-    font-style: italic;
-  }
-  @font-face {
-    font-family: 'Anime Ace 3 BB';
-    src: url('../../../Document fonts/AnimeAce3BB_Regular.otf') format('opentype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'Anime Ace 3 BB';
-    src: url('../../../Document fonts/AnimeAce3BB_Bold.otf') format('opentype');
-    font-weight: 700;
-  }
-  @font-face {
-    font-family: 'Anime Ace 3 BB';
-    src: url('../../../Document fonts/AnimeAce3BB_BoldItalic.otf') format('opentype');
-    font-weight: 700;
-    font-style: italic;
-  }
-  @font-face {
-    font-family: 'Secular One';
-    src: url('../../../Document fonts/SecularOne-Regular.ttf') format('truetype');
-    font-weight: 400;
-  }
-  /* "Personalize Me" ransom-note fonts */
-  @font-face {
-    font-family: 'Berlin Sans FB Demi';
-    src: url('../../../Document fonts/BRLNSDB.TTF') format('truetype');
-    font-weight: 700;
-  }
-  @font-face {
-    font-family: 'Copperplate Gothic Bold';
-    src: url('../../../Document fonts/COPRGTB.TTF') format('truetype');
-    font-weight: 700;
-  }
-  @font-face {
-    font-family: 'Rubik';
-    src: url('../../../Document fonts/Rubik-Bold.ttf') format('truetype');
-    font-weight: 700;
-  }
-  @font-face {
-    font-family: 'Bauhaus 93';
-    src: url('../../../Document fonts/BAUHS93.TTF') format('truetype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'Bernard MT Condensed';
-    src: url('../../../Document fonts/BERNHC.TTF') format('truetype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'Cooper Black';
-    src: url('../../../Document fonts/COOPBL.TTF') format('truetype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'Arial Black';
-    src: url('../../../Document fonts/ariblk.ttf') format('truetype');
-    font-weight: 900;
-  }
-  @font-face {
-    font-family: 'Lucida Bright';
-    src: url('../../../Document fonts/LBRITE.TTF') format('truetype');
-    font-weight: 400;
-  }
-  @font-face {
-    font-family: 'Assistant';
-    src: url('../../../Document fonts/Assistant-ExtraBold.ttf') format('truetype');
-    font-weight: 800;
-  }
-  @font-face {
-    font-family: 'Segoe Print';
-    src: url('../../../Document fonts/segoeprb.ttf') format('truetype');
-    font-weight: 700;
-  }
-  @font-face {
-    font-family: 'High Tower Text';
-    src: url('../../../Document fonts/HTOWERTI.TTF') format('truetype');
-    font-style: italic;
-  }
 
-  /* ============================================================
-     Color variables — converted from IDML CMYK/RGB to hex
-     CMYK→RGB: R=255*(1-C)*(1-K), G=255*(1-M)*(1-K), B=255*(1-Y)*(1-K)
-     ============================================================ */
+  /* Colors — converted from IDML CMYK swatches
+     R = 255*(1-C)*(1-K), G = 255*(1-M)*(1-K), B = 255*(1-Y)*(1-K) */
   :root {
-    --color-mainHebrew:     #095354;  /* CMYK(89,1,0,67) */
-    --color-orange-bar:     #ff941f;  /* CMYK(0,42,88,0) → C=0 M=42 J=88 N=0 */
-    --color-yellow:         #ffe800;  /* RGB(255,232,0) → Black copy 5 */
-    --color-letre:          #001ae6;  /* CMYK(100,90,10,0) */
-    --color-paper:          #ffffff;  /* CMYK(0,0,0,0) */
-    --color-rouge:          #bb0000;  /* CMYK(18,100,100,10) */
-    --color-cyan100:        #00ffff;  /* CMYK(100,0,0,0) → C=100 M=0 J=0 N=0 */
-    --color-green:          #40f200;  /* CMYK(75,5,100,0) → C=75 M=5 J=100 N=0 */
-    --color-texte:          #0055ab;  /* CMYK(100,50.6,0,32.9) */
-    --color-pink-red:       #f7333b;  /* CMYK(3,80,77,0) → C=3 M=80 J=77 N=0 */
-    --color-jaune:          #ebd603;  /* CMYK(8,16,99,0) */
-    --color-light-green:    #61fa5e;  /* CMYK(62,2,63,0) → C=62 M=2 J=63 N=0 */
-    --color-pantone-pink:   #f91a4f;  /* CMYK(2.4,89.8,69,0) → PANTONE P 52-15 C */
-    --color-deep-blue:      #001fb5;  /* CMYK(100,87,23,8) → C=100 M=87 J=23 N=8 */
-    --color-black:          #000000;
-    --color-dark-brown:     #040606;  /* CMYK(84,73,73,91) → c84m73y73k91 */
-    --color-red:            #ff0000;  /* CMYK(0,100,100,0) → c0m100y100k0 */
+    --color-mainHebrew: #095354;  /* CMYK(89,1,0,67) — teal for titles */
   }
 
   .bleed-wrapper {
@@ -204,7 +60,6 @@
     position: absolute;
   }
 
-  /* ---- Hebrew text styling ---- */
   .hebrew-text {
     direction: rtl;
     unicode-bidi: embed;
@@ -226,31 +81,27 @@
   <div class="page" id="page-001" data-page-number="1" data-section="cover" data-is-fixed-liturgy="false">
 
     <!-- ======================================================
-         LAYER 2: Matzah images (Asset 5matzawhole.png)
+         Matzah images (Asset 5matzawhole.png)
          3 matzahs at various positions and rotations
          ====================================================== -->
 
-    <!-- Matzah 3 (u3317): no rotation, left side
-         IDML center spread: (-292, -58.4), page px: (150.7, 192.2)
-         Size: 185pt x 185.7pt = 246.7px x 247.6px -->
+    <!-- Matzah u3317: no rotation, left side
+         Spread center (-292, -58.4) → page px (150.7, 192.2)
+         Local size 185×185.7 pt = 246.7×247.6 px -->
     <div class="el" style="
-      left: 27px;
-      top: 68px;
-      width: 247px;
-      height: 248px;
+      left: 27px; top: 68px;
+      width: 247px; height: 248px;
       z-index: 2;
     ">
       <img src="../../../images/Asset 5matzawhole.png" alt="Matzah"
         style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
 
-    <!-- Matzah 2 (u3312): rotated 55.5deg, upper-left area
-         IDML center: (188.1, 141.4) -->
+    <!-- Matzah u3312: rotated 55.5°, upper-left
+         Spread center (-263.9, -96.4) → page px (188.1, 141.4) -->
     <div class="el" style="
-      left: 65px;
-      top: 18px;
-      width: 247px;
-      height: 248px;
+      left: 65px; top: 18px;
+      width: 247px; height: 248px;
       z-index: 3;
       transform: rotate(55.5deg);
     ">
@@ -258,13 +109,11 @@
         style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
 
-    <!-- Matzah 1 (u330b): rotated -90.2deg, upper area
-         IDML center: (330.2, 117.4) -->
+    <!-- Matzah u330b: rotated −90.2°, upper-right
+         Spread center (-157.3, -114.5) → page px (330.2, 117.4) -->
     <div class="el" style="
-      left: 207px;
-      top: -6px;
-      width: 247px;
-      height: 248px;
+      left: 207px; top: -6px;
+      width: 247px; height: 248px;
       z-index: 4;
       transform: rotate(-90.2deg);
     ">
@@ -273,64 +122,54 @@
     </div>
 
     <!-- ======================================================
-         LAYER 3: Cup images (Asset 4cup.png)
-         Multiple cups scattered in the middle area
+         Cup images (Asset 4cup.png)
+         5 cups scattered in the middle area
          ====================================================== -->
 
-    <!-- Cup u3358: center (292.5, 338.5) -->
+    <!-- Cup u3358: spread center (-185.7, 47.7) → page px (292.5, 338.5) -->
     <div class="el" style="
-      left: 225px;
-      top: 167px;
-      width: 135px;
-      height: 343px;
+      left: 225px; top: 167px;
+      width: 135px; height: 343px;
       z-index: 5;
     ">
       <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
         style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
 
-    <!-- Cup u335b: center (292.5, 329.2) -->
+    <!-- Cup u335b: spread center (-185.7, 47.7) → page px (292.5, 329.2) -->
     <div class="el" style="
-      left: 225px;
-      top: 158px;
-      width: 135px;
-      height: 342px;
+      left: 225px; top: 158px;
+      width: 135px; height: 342px;
       z-index: 6;
     ">
       <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
         style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
 
-    <!-- Cup u3321: center (344.9, 336.3) -->
+    <!-- Cup u3321: spread center (-146.4, 49.7) → page px (344.9, 336.3) -->
     <div class="el" style="
-      left: 278px;
-      top: 170px;
-      width: 135px;
-      height: 333px;
+      left: 278px; top: 170px;
+      width: 135px; height: 333px;
       z-index: 7;
     ">
       <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
         style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
 
-    <!-- Cup u331c: center (416.3, 331.6) -->
+    <!-- Cup u331c: spread center (-92.8, 46.2) → page px (416.3, 331.6) -->
     <div class="el" style="
-      left: 349px;
-      top: 165px;
-      width: 135px;
-      height: 333px;
+      left: 349px; top: 165px;
+      width: 135px; height: 333px;
       z-index: 8;
     ">
       <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
         style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
 
-    <!-- Cup u3325: center (493.8, 345.6) -->
+    <!-- Cup u3325: spread center (-34.6, 56.7) → page px (493.8, 345.6) -->
     <div class="el" style="
-      left: 427px;
-      top: 179px;
-      width: 135px;
-      height: 333px;
+      left: 427px; top: 179px;
+      width: 135px; height: 333px;
       z-index: 9;
     ">
       <img src="../../../images/Asset 4cup.png" alt="Kiddush cup"
@@ -338,257 +177,13 @@
     </div>
 
     <!-- ======================================================
-         LAYER 4: AdobeStock decorative images (right-side bleed area)
-         These extend beyond the page edge in the IDML layout
-         ====================================================== -->
-
-    <!-- AdobeStock u336f: rotated 90deg, right side -->
-    <div class="el" style="
-      left: 553px;
-      top: -31px;
-      width: 256px;
-      height: 282px;
-      z-index: 10;
-      transform: rotate(90deg);
-    ">
-      <img src="../../../images/AdobeStock_108838120.jpeg" alt="Decorative"
-        style="width: 100%; height: 100%; object-fit: cover;" />
-    </div>
-
-    <!-- AdobeStock u336b: rotated 90deg -->
-    <div class="el" style="
-      left: 563px;
-      top: 10px;
-      width: 237px;
-      height: 282px;
-      z-index: 11;
-      transform: rotate(90deg);
-    ">
-      <img src="../../../images/AdobeStock_108838120.jpeg" alt="Decorative"
-        style="width: 100%; height: 100%; object-fit: cover;" />
-    </div>
-
-    <!-- AdobeStock u3375: flipped (180deg) -->
-    <div class="el" style="
-      left: 557px;
-      top: -18px;
-      width: 494px;
-      height: 269px;
-      z-index: 12;
-      transform: rotate(180deg);
-    ">
-      <img src="../../../images/AdobeStock_108838120.jpeg" alt="Decorative"
-        style="width: 100%; height: 100%; object-fit: cover;" />
-    </div>
-
-    <!-- ======================================================
-         LAYER 5: Orange accent bar
-         IDML: u339c, fill=Color/C=0 M=42 J=88 N=0
-         ====================================================== -->
-    <div class="el" style="
-      left: 569px;
-      top: 284px;
-      width: 228px;
-      height: 95px;
-      z-index: 20;
-      background-color: var(--color-orange-bar);
-    "></div>
-
-    <!-- ======================================================
-         LAYER 6: "Personalize Me" ransom-note text
-         IDML: u339e, story u33a1
-         Each letter has different font, size, and color
-         ====================================================== -->
-    <div class="el english-text" style="
-      left: 569px;
-      top: 286px;
-      width: 228px;
-      height: 33px;
-      z-index: 21;
-      text-align: center;
-      line-height: 33px;
-      letter-spacing: 2px;
-    ">
-      <span style="font-family: 'Berlin Sans FB Demi', sans-serif; font-size: 25.1px; font-weight: 700; color: var(--color-cyan100);">P</span><span style="font-family: 'Copperplate Gothic Bold', serif; font-size: 20.5px; color: var(--color-black);">e</span><span style="font-family: 'Rubik', sans-serif; font-size: 22.1px; font-weight: 700; color: var(--color-green);">r</span><span style="font-family: 'Bauhaus 93', sans-serif; font-size: 25.1px; color: var(--color-texte);">s</span><span style="font-family: 'Bernard MT Condensed', serif; font-size: 17.5px; color: var(--color-pink-red);">o</span><span style="font-family: 'Cooper Black', serif; font-size: 24.3px; color: var(--color-jaune);">n</span><span style="font-family: 'Arial Black', sans-serif; font-size: 22.8px; font-weight: 900; color: var(--color-green);">a</span><span style="font-family: 'Lucida Bright', serif; font-size: 25.1px; color: var(--color-light-green);">l</span><span style="font-family: 'Assistant', sans-serif; font-size: 22.1px; font-weight: 800; color: var(--color-rouge);">i</span><span style="font-family: 'Segoe Print', cursive; font-size: 23.6px; font-weight: 700; color: var(--color-paper);">z</span><span style="font-family: 'High Tower Text', serif; font-size: 31.9px; font-style: italic; color: var(--color-pantone-pink);">e</span><span style="font-family: 'Berlin Sans FB Demi', sans-serif; font-size: 25.1px; font-weight: 700; color: var(--color-paper);">&nbsp;</span><span style="font-family: 'Berlin Sans FB Demi', sans-serif; font-size: 25.1px; font-weight: 700; color: var(--color-deep-blue);">M</span><span style="font-family: 'Berlin Sans FB Demi', sans-serif; font-size: 25.1px; font-weight: 700; color: var(--color-green);">e</span>
-    </div>
-
-    <!-- ======================================================
-         LAYER 7: "PICTURES · COLORS · STYLE"
-         IDML: u33b5, story u33b8
-         ====================================================== -->
-    <div class="el english-text" style="
-      left: 569px;
-      top: 320px;
-      width: 228px;
-      height: 15px;
-      z-index: 22;
-      text-align: center;
-      font-family: 'DIN Next LT Pro', sans-serif;
-      font-weight: 700;
-      font-size: 12.2px;
-      color: var(--color-paper);
-      line-height: 15px;
-      letter-spacing: 0.5px;
-    ">PICTURES · COLORS · STYLE</div>
-
-    <!-- ======================================================
-         LAYER 8: "Design your own Jewish books"
-         IDML: u33cc, story u33cf
-         ====================================================== -->
-    <div class="el english-text" style="
-      left: 569px;
-      top: 339px;
-      width: 228px;
-      height: 15px;
-      z-index: 23;
-      text-align: center;
-      font-family: 'DIN Next LT Pro', sans-serif;
-      font-weight: 300;
-      font-style: italic;
-      font-size: 11.1px;
-      color: var(--color-paper);
-      line-height: 15px;
-    ">Design your own Jewish books</div>
-
-    <!-- ======================================================
-         LAYER 9: "www.alefbook.org"
-         IDML: u33e3, story u33e6
-         ====================================================== -->
-    <div class="el english-text" style="
-      left: 569px;
-      top: 353px;
-      width: 228px;
-      height: 17px;
-      z-index: 24;
-      text-align: center;
-      font-family: 'DIN Next LT Pro', sans-serif;
-      font-weight: 900;
-      font-size: 20.3px;
-      color: var(--color-rouge);
-      line-height: 17px;
-    ">www.alefbook.org</div>
-
-    <!-- ======================================================
-         LAYER 10: Logo (LOGO11B-2X1.psd → converted to .png)
-         IDML: u3393
-         ====================================================== -->
-    <div class="el" style="
-      left: 597px;
-      top: 384px;
-      width: 178px;
-      height: 88px;
-      z-index: 25;
-    ">
-      <img src="../../../images/LOGO11B-2X1.png" alt="Alef Book Logo"
-        style="width: 100%; height: 100%; object-fit: contain;" />
-    </div>
-
-    <!-- ======================================================
-         LAYER 11: Copyright text
-         IDML: u337c, story u337f
-         ====================================================== -->
-    <div class="el english-text" style="
-      left: 592px;
-      top: 472px;
-      width: 188px;
-      height: 68px;
-      z-index: 26;
-      text-align: center;
-      font-family: 'Secular One', sans-serif;
-      color: var(--color-letre);
-      line-height: 1.3;
-    ">
-      <div style="font-size: 8.1px; margin-bottom: 4px;">Personalized books and Judaica for every child.</div>
-      <div style="font-size: 9.1px;">© 2022 Alef Book. All rights reserved.<br>English translation from Rabbi A. Green, London 1897, modified and updated.</div>
-    </div>
-
-    <!-- ======================================================
-         LAYER 12: "Sample!!!" promotional text
-         IDML: u3401, story u3404 — rotated -11.8deg
-         BadaBoom BB font, yellow color, escalating sizes
-         ====================================================== -->
-    <div class="el english-text" style="
-      left: 873px;
-      top: 284px;
-      width: 246px;
-      height: 52px;
-      z-index: 35;
-      transform: rotate(-11.8deg);
-      transform-origin: center center;
-      font-family: 'BadaBoom BB', Impact, sans-serif;
-      color: var(--color-yellow);
-      line-height: 52px;
-      white-space: nowrap;
-    "><span style="font-size: 44px;">S</span><span style="font-size: 46.7px;">a</span><span style="font-size: 49.3px;">m</span><span style="font-size: 50.7px;">p</span><span style="font-size: 54.7px;">l</span><span style="font-size: 56px;">e!</span><span style="font-size: 58.7px;">!</span><span style="font-size: 62.7px;">!</span></div>
-
-    <!-- ======================================================
-         LAYER 13: Polygons (Sample badge/sticker)
-         These form a decorative shape behind the Sample text
-         ====================================================== -->
-
-    <!-- Polygon u33fd: dark border shape -->
-    <svg class="el" style="left: 848px; top: 277px; width: 267px; height: 205px; z-index: 30; transform: rotate(-8.2deg);" viewBox="0 0 267 205" preserveAspectRatio="none">
-      <polygon points="0,0 267,0 267,205 0,205" fill="var(--color-dark-brown)" />
-    </svg>
-
-    <!-- Polygon u33fe: red fill -->
-    <svg class="el" style="left: 856px; top: 281px; width: 245px; height: 190px; z-index: 31; transform: rotate(-8.2deg);" viewBox="0 0 245 190" preserveAspectRatio="none">
-      <polygon points="0,0 245,0 245,190 0,190" fill="var(--color-red)" />
-    </svg>
-
-    <!-- ======================================================
-         LAYER 14: "Order your copies today!"
-         IDML: u3418, story u341b — rotated -10.8deg
-         ====================================================== -->
-    <div class="el english-text" style="
-      left: 832px;
-      top: 345px;
-      width: 296px;
-      height: 54px;
-      z-index: 36;
-      transform: rotate(-10.8deg);
-      transform-origin: center center;
-      font-family: 'Palooka BB', cursive;
-      font-style: italic;
-      font-size: 25.3px;
-      color: var(--color-paper);
-      text-align: center;
-      line-height: 54px;
-    ">Order your copies today!</div>
-
-    <!-- ======================================================
-         LAYER 15: "mailed DIRECT FOR PESACH..."
-         IDML: u342f, story u3432 — rotated -11deg
-         ====================================================== -->
-    <div class="el english-text" style="
-      left: 913px;
-      top: 369px;
-      width: 164px;
-      height: 98px;
-      z-index: 37;
-      transform: rotate(-11deg);
-      transform-origin: center center;
-      text-align: center;
-      color: var(--color-paper);
-      line-height: 1.4;
-    ">
-      <span style="font-family: 'ACME Secret Agent BB', sans-serif; font-style: italic; font-size: 16px;">mailed </span>
-      <span style="font-family: 'Anime Ace 3 BB', sans-serif; font-weight: 700; font-style: italic; font-size: 16px;">DIRECT</span>
-      <span style="font-family: 'Anime Ace 3 BB', sans-serif; font-size: 16px;"> </span>
-      <span style="font-family: 'ACME Secret Agent BB', sans-serif; font-style: italic; font-size: 16px;">FOR PESACH...</span>
-    </div>
-
-    <!-- ======================================================
-         LAYER 16: Hebrew title "הגדה של פסח"
-         IDML: u3328, story u332d
-         Yiddishkeit 2.0 AAA Black, 50pt, mainHebrew color
-         Center-aligned, positioned lower-center of page
+         Hebrew title "הגדה של פסח"
+         Story u332d — Yiddishkeit 2.0 AAA Black, 50pt, center-aligned
+         Spread center (-191.0, 101.6) → page px (276.0, 384.0)
          ====================================================== -->
     <div class="el hebrew-text" style="
-      left: 153px;
-      top: 357px;
-      width: 246px;
-      height: 53px;
+      left: 153px; top: 357px;
+      width: 246px; height: 53px;
       z-index: 40;
       text-align: center;
       font-family: 'Yiddishkeit', serif;
@@ -600,16 +195,13 @@
     ">הגדה של פסח</div>
 
     <!-- ======================================================
-         LAYER 17: English title "My Passover Haggadah"
-         IDML: u3341, story u3344
-         Fredoka One Regular, 28pt, mainHebrew color
-         Center-aligned, below Hebrew title
+         English title "My Passover Haggadah"
+         Story u3344 — Fredoka One Regular, 28pt, center-aligned
+         Spread center (-120.2, 141.6) → page px (276.0, 437.3)
          ====================================================== -->
     <div class="el english-text" style="
-      left: 59px;
-      top: 411px;
-      width: 435px;
-      height: 53px;
+      left: 59px; top: 411px;
+      width: 435px; height: 53px;
       z-index: 41;
       text-align: center;
       font-family: 'Fredoka One', cursive;
