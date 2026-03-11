@@ -203,7 +203,7 @@ async function reviewRender(params: {
           type: 'text' as const,
           text: `Review pass ${params.passNumber}. The design instruction was: "${params.instructions}". Check the following rendered page(s):`,
         },
-        ...Object.entries(params.renders).map(([pageNum, buffer]) => ({
+        ...Object.entries(params.renders).map(([_pageNum, buffer]) => ({
           type: 'image_url' as const,
           image_url: {
             url: `data:image/png;base64,${buffer.toString('base64')}`,
@@ -248,7 +248,7 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
   // Step 1: determine intent — which pages to touch and what to do
   const { targetPages, instructions } = await parseIntent(params)
 
-  let currentPageStates = { ...params.pageStates }
+  const currentPageStates = { ...params.pageStates }
   let passCount = 0
   let reviewResult: ReviewResult | null = null
   let responseText = ''
