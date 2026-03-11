@@ -1,0 +1,1182 @@
+%!Adobe-FontList 1.22
+%Locale:0x409
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ACMESecretAgentBB-Italic
+FamilyName:ACME Secret Agent BB
+StyleName:Italic
+FullName:ACME Secret Agent BB Italic
+MenuName:ACME Secret Agent BB
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\ACMESecretAgentBB_Ital.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:56096
+FileModTime:1642392286
+WeightClass:400
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,ACME Secret Agent BB Italic
+NameArray:0,Win,1,ACME Secret Agent BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ACMESecretAgentBB
+FamilyName:ACME Secret Agent BB
+StyleName:Regular
+FullName:ACME Secret Agent BB
+MenuName:ACME Secret Agent BB
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\ACMESecretAgentBB_Reg.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:55584
+FileModTime:1642392288
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,ACME Secret Agent BB
+NameArray:0,Win,1,ACME Secret Agent BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:AnimeAce3BB-Bold
+FamilyName:Anime Ace 3 BB
+StyleName:Bold
+FullName:Anime Ace 3 BB Bold
+MenuName:Anime Ace 3 BB
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\AnimeAce3BB_Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:23988
+FileModTime:1642392358
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Anime Ace 3 BB Bold
+NameArray:0,Win,1,Anime Ace 3 BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:AnimeAce3BB-BoldItalic
+FamilyName:Anime Ace 3 BB
+StyleName:Bold Italic
+FullName:Anime Ace 3 BB Bold Italic
+MenuName:Anime Ace 3 BB
+StyleBits:3
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\AnimeAce3BB_BoldItalic.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:24416
+FileModTime:1642392366
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Anime Ace 3 BB Bold Italic
+NameArray:0,Win,1,Anime Ace 3 BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:AnimeAce3BB-Regular
+FamilyName:Anime Ace 3 BB
+StyleName:Regular
+FullName:Anime Ace 3 BB Regular
+MenuName:Anime Ace 3 BB
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\AnimeAce3BB_Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:22444
+FileModTime:1642392372
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Anime Ace 3 BB Regular
+NameArray:0,Win,1,Anime Ace 3 BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Assistant-ExtraBold
+FamilyName:Assistant ExtraBold
+StyleName:Regular
+FullName:Assistant-ExtraBold
+MenuName:Assistant ExtraBold
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\Assistant-ExtraBold.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:64048
+FileModTime:1552519226
+WeightClass:800
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Assistant ExtraBold
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Assistant-ExtraLight
+FamilyName:Assistant ExtraLight
+StyleName:Regular
+FullName:Assistant-ExtraLight
+MenuName:Assistant ExtraLight
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\Assistant-ExtraLight.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:60212
+FileModTime:1552519226
+WeightClass:275
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Assistant ExtraLight
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Bauhaus93
+FamilyName:Bauhaus 93
+StyleName:Regular
+FullName:Bauhaus 93
+MenuName:Bauhaus 93
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\BAUHS93.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:47644
+FileModTime:1634200964
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Bauhaus 93
+NameArray:0,Win,1,Bauhaus 93
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:BernardMT-Condensed
+FamilyName:Bernard MT Condensed
+StyleName:Regular
+FullName:Bernard MT Condensed
+MenuName:Bernard MT Condensed
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\BERNHC.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:70656
+FileModTime:1634200964
+WeightClass:400
+WidthClass:3
+AngleClass:0
+NameArray:0,Mac,4,Bernard MT Condensed
+NameArray:0,Win,1,Bernard MT Condensed
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:BerlinSansFBDemi-Bold
+FamilyName:Berlin Sans FB Demi
+StyleName:Bold
+FullName:Berlin Sans FB Demi Bold
+MenuName:Berlin Sans FB Demi
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\BRLNSDB.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:96852
+FileModTime:1634200964
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Berlin Sans FB Demi Bold
+NameArray:0,Win,1,Berlin Sans FB Demi
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:BadaBoomBB
+FamilyName:BadaBoom BB
+StyleName:Regular
+FullName:BadaBoom BB
+MenuName:BadaBoom BB
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\BadaboomBB_Reg.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:24644
+FileModTime:1642371582
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,BadaBoom BB
+NameArray:0,Win,1,BadaBoom BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:BlowholeBB-Italic
+FamilyName:Blowhole BB
+StyleName:Italic
+FullName:Blowhole BB Italic
+MenuName:Blowhole BB
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\BlowholeBB_ital.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:29292
+FileModTime:1642374986
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Blowhole BB Italic
+NameArray:0,Win,1,Blowhole BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:CooperBlack
+FamilyName:Cooper Black
+StyleName:Regular
+FullName:Cooper Black
+MenuName:Cooper Black
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\COOPBL.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:80388
+FileModTime:1634200964
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Cooper Black
+NameArray:0,Win,1,Cooper Black
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:CopperplateGothic-Bold
+FamilyName:Copperplate Gothic Bold
+StyleName:Regular
+FullName:Copperplate Gothic Bold
+MenuName:Copperplate Gothic Bold
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\COPRGTB.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:61552
+FileModTime:1634200964
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Copperplate Gothic Bold
+NameArray:0,Win,1,Copperplate Gothic Bold
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:CreativeBlockBB-Bold
+FamilyName:CreativeBlock BB
+StyleName:Bold
+FullName:CreativeBlock BB Bold
+MenuName:CreativeBlock BB
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\CREABBB.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:22956
+FileModTime:1642375438
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,CreativeBlock BB Bold
+NameArray:0,Win,1,CreativeBlock BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:CrimeFighterBBBold
+FamilyName:CrimeFighter BB
+StyleName:Bold
+FullName:CrimeFighter BB Bold
+MenuName:CrimeFighter BB
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\CRIMFBB.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:30484
+FileModTime:1642392202
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,CrimeFighter BB Bold
+NameArray:0,Win,1,CrimeFighter BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:CrimeFighterBB
+FamilyName:CrimeFighter BB
+StyleName:Regular
+FullName:CrimeFighter BB
+MenuName:CrimeFighter BB
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\CRIMFBRG.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:29368
+FileModTime:1642392210
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,CrimeFighter BB
+NameArray:0,Win,1,CrimeFighter BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:CrashLandingBB-Italic
+FamilyName:CrashLanding BB
+StyleName:Italic
+FullName:CrashLanding BB Italic
+MenuName:CrashLanding BB
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\CrashLandingBB_ital.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:19548
+FileModTime:1642374644
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,CrashLanding BB Italic
+NameArray:0,Win,1,CrashLanding BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:DINNextLTPro-Black
+FamilyName:DIN Next LT Pro
+StyleName:Black
+FullName:DIN Next LT Pro Black
+MenuName:DIN Next LT Pro Black
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\DINNextLTPro-Black.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:73812
+FileModTime:1235427614
+WeightClass:900
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,DIN Next LT Pro Black
+NameArray:0,Win,1,DIN Next LT Pro Black
+NameArray:0,Win,16,DIN Next LT Pro
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:DINNextLTPro-Bold
+FamilyName:DIN Next LT Pro
+StyleName:Bold
+FullName:DIN Next LT Pro Bold
+MenuName:DIN Next LT Pro
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\DINNextLTPro-Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:77708
+FileModTime:1235427600
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,DIN Next LT Pro Bold
+NameArray:0,Win,1,DIN Next LT Pro
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:DINNextLTPro-LightItalic
+FamilyName:DIN Next LT Pro
+StyleName:Light Italic
+FullName:DIN Next LT Pro Light Italic
+MenuName:DIN Next LT Pro Light
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\DINNextLTPro-LightItalic.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:76256
+FileModTime:1235427584
+WeightClass:300
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,DIN Next LT Pro Light Italic
+NameArray:0,Win,1,DIN Next LT Pro Light
+NameArray:0,Win,16,DIN Next LT Pro
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:EFTTexty
+FamilyName:EFT_Texty
+StyleName:Regular
+FullName:EFT_Texty
+MenuName:EFT_Texty
+StyleBits:0
+FamilyNameNative:EFT_Texty
+StyleNameNative:Regular
+FullNameNative:EFT_Texty Regular
+WritingScript:Hebrew
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\EFT_TEXTY OTP.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:186724
+FileModTime:1584475346
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,18,EFT_Texty
+NameArray:0,Mac,4,EFT_Texty
+NameArray:0,Win,1,EFT_Texty
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:FredokaOne-Regular
+FamilyName:Fredoka One
+StyleName:Regular
+FullName:Fredoka One
+MenuName:Fredoka One
+StyleBits:0
+FamilyNameNative:Fredoka One
+StyleNameNative:Regular
+FullNameNative:Fredoka One Regular
+WritingScript:Hebrew
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\FredokaOne-Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:42992
+FileModTime:1579051066
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Fredoka One
+NameArray:0,Win,1,Fredoka One
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:GillSansMT-BoldItalic
+FamilyName:Gill Sans MT
+StyleName:Bold Italic
+FullName:Gill Sans MT Bold Italic
+MenuName:Gill Sans MT
+StyleBits:3
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\GILBI___.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:71496
+FileModTime:1634200964
+WeightClass:700
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,Gill Sans MT Bold Italic
+NameArray:0,Win,1,Gill Sans MT
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:GillSansMT-Bold
+FamilyName:Gill Sans MT
+StyleName:Bold
+FullName:Gill Sans MT Bold
+MenuName:Gill Sans MT
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\GILB____.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:68304
+FileModTime:1634200964
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Gill Sans MT Bold
+NameArray:0,Win,1,Gill Sans MT
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:GillSansMT-Italic
+FamilyName:Gill Sans MT
+StyleName:Italic
+FullName:Gill Sans MT Italic
+MenuName:Gill Sans MT
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\GILI____.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:69436
+FileModTime:1613928904
+WeightClass:400
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,Gill Sans MT Italic
+NameArray:0,Win,1,Gill Sans MT
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:GillSansMT
+FamilyName:Gill Sans MT
+StyleName:Regular
+FullName:Gill Sans MT
+MenuName:Gill Sans MT
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\GIL_____.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:67416
+FileModTime:1634200964
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Gill Sans MT
+NameArray:0,Win,1,Gill Sans MT
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:HighTowerText-Italic
+FamilyName:High Tower Text
+StyleName:Italic
+FullName:High Tower Text Italic
+MenuName:High Tower Text
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\HTOWERTI.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:74712
+FileModTime:1634200964
+WeightClass:400
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,High Tower Text Italic
+NameArray:0,Win,1,High Tower Text
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:KGSecondChancesSketch
+FamilyName:KG Second Chances Sketch
+StyleName:Regular
+FullName:KG Second Chances Sketch
+MenuName:KG Second Chances Sketch
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\KGSecondChancesSketch.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:526012
+FileModTime:1568072792
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,18,KG Second Chances Sketch
+NameArray:0,Mac,4,KG Second Chances Sketch
+NameArray:0,Win,1,KG Second Chances Sketch
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:LucidaBright
+FamilyName:Lucida Bright
+StyleName:Regular
+FullName:Lucida Bright
+MenuName:Lucida Bright
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\LBRITE.TTF
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:70748
+FileModTime:1634200964
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Lucida Bright
+NameArray:0,Win,1,Lucida Bright
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:MechEffectsOneBB-Italic
+FamilyName:MechEffects One BB
+StyleName:Italic
+FullName:MechEffects One BB Italic
+MenuName:MechEffects One BB
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\MechEffectsOneBB_ital.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:15896
+FileModTime:1470670588
+WeightClass:400
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,MechEffects One BB Italic
+NameArray:0,Win,1,MechEffects One BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:MechEffectsOneLCBB
+FamilyName:MechEffects One LC BB
+StyleName:Regular
+FullName:MechEffects One LC BB
+MenuName:MechEffects One LC BB
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\MechEffectsOneLCBB_reg.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:15424
+FileModTime:1470670620
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,MechEffects One LC BB
+NameArray:0,Win,1,MechEffects One LC BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:MinionPro-Regular
+FamilyName:Minion Pro
+StyleName:Regular
+FullName:Minion Pro
+MenuName:Minion Pro
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\MinionPro-Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:218640
+FileModTime:1642114120
+WeightClass:400
+WidthClass:5
+AngleClass:0
+DesignSize:110
+NameArray:0,Mac,4,Minion Pro
+NameArray:0,Win,1,Minion Pro
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:PalookaBB
+FamilyName:Palooka BB
+StyleName:Regular
+FullName:Palooka BB
+MenuName:Palooka BB
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\PalookaBB.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:23700
+FileModTime:1642372368
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Palooka BB
+NameArray:0,Win,1,Palooka BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:PalookaBB-Italic
+FamilyName:Palooka BB
+StyleName:Italic
+FullName:Palooka BB Italic
+MenuName:Palooka BB
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\PalookaBB_ital.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:23760
+FileModTime:1642372370
+WeightClass:400
+WidthClass:5
+AngleClass:1
+NameArray:0,Mac,4,Palooka BB Italic
+NameArray:0,Win,1,Palooka BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:RawBonesBB-Regular
+FamilyName:Raw Bones BB
+StyleName:Regular
+FullName:Raw Bones BB Regular
+MenuName:Raw Bones BB
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\RawBonesBB-Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:59356
+FileModTime:1642374390
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Raw Bones BB Regular
+NameArray:0,Win,1,Raw Bones BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:RipsnortBB-Italic
+FamilyName:Ripsnort BB
+StyleName:Italic
+FullName:Ripsnort BB Italic
+MenuName:Ripsnort BB
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\RipsnortBB-Italic.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:44948
+FileModTime:1642372532
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Ripsnort BB Italic
+NameArray:0,Win,1,Ripsnort BB
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Rubik-Bold
+FamilyName:Rubik
+StyleName:Bold
+FullName:Rubik Bold
+MenuName:Rubik
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\Rubik-Bold.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:136068
+FileModTime:1568407598
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Rubik
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:SecularOne-Regular
+FamilyName:Secular One
+StyleName:Regular
+FullName:SecularOne-Regular
+MenuName:Secular One
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\SecularOne-Regular.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:56640
+FileModTime:1459458000
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Win,1,Secular One
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:SimpleCLM-Medium
+FamilyName:Simple CLM
+StyleName:Medium
+FullName:Simple CLM Medium
+MenuName:Simple CLM
+StyleBits:0
+FamilyNameNative:Simple CLM
+StyleNameNative:Medium
+FullNameNative:Simple CLM Medium
+WritingScript:Hebrew
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\SimpleCLM-Medium.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:30040
+FileModTime:1537994616
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Simple CLM Medium
+NameArray:0,Win,1,Simple CLM
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:Yiddishkeit2.0AAA-Black
+FamilyName:Yiddishkeit 2.0 AAA
+StyleName:Black
+FullName:Yiddishkeit 2.0 AAA Black
+MenuName:Yiddishkeit 2.0 AAA Black
+StyleBits:0
+FamilyNameNative:Yiddishkeit 2.0 AAA
+StyleNameNative:Black
+FullNameNative:Yiddishkeit 2.0 AAA Black
+WritingScript:Hebrew
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\Yiddishkeit 2.0 AAA Black.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:39820
+FileModTime:1579051066
+WeightClass:900
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Yiddishkeit 2.0 AAA Black
+NameArray:0,Win,1,Yiddishkeit 2.0 AAA Black
+NameArray:0,Win,16,Yiddishkeit 2.0 AAA
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:Yiddishkeit2.0AAA-Bold
+FamilyName:Yiddishkeit 2.0 AAA
+StyleName:Bold
+FullName:Yiddishkeit 2.0 AAA Bold
+MenuName:Yiddishkeit 2.0 AAA
+StyleBits:2
+FamilyNameNative:Yiddishkeit 2.0 AAA
+StyleNameNative:Bold
+FullNameNative:Yiddishkeit 2.0 AAA Bold
+WritingScript:Hebrew
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\Yiddishkeit 2.0 AAA Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:38660
+FileModTime:1579051066
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Yiddishkeit 2.0 AAA Bold
+NameArray:0,Win,1,Yiddishkeit 2.0 AAA
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:Yiddishkeit2.0AAA-Regular
+FamilyName:Yiddishkeit 2.0 AAA
+StyleName:Regular
+FullName:Yiddishkeit 2.0 AAA Regular
+MenuName:Yiddishkeit 2.0 AAA
+StyleBits:0
+FamilyNameNative:Yiddishkeit 2.0 AAA
+StyleNameNative:Regular
+FullNameNative:Yiddishkeit 2.0 AAA Regular
+WritingScript:Hebrew
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\Yiddishkeit 2.0 AAA Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:39188
+FileModTime:1579051066
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Yiddishkeit 2.0 AAA Regular
+NameArray:0,Win,1,Yiddishkeit 2.0 AAA
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Arial-Black
+FamilyName:Arial
+StyleName:Black
+FullName:Arial Black
+MenuName:Arial Black
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\ariblk.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:167592
+FileModTime:1575713308
+WeightClass:900
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Arial Black
+NameArray:0,Win,1,Arial Black
+NameArray:0,Win,16,Arial
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:BlamBlamHeavyBB
+FamilyName:BlamBlam Heavy BB 
+StyleName:Regular
+FullName:BlamBlam Heavy BB 
+MenuName:BlamBlam Heavy BB 
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\blamblambb_hvy.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:12388
+FileModTime:1642375356
+WeightClass:400
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,BlamBlam Heavy BB 
+NameArray:0,Win,1,BlamBlam Heavy BB 
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:DashNess
+FamilyName:DashNess
+StyleName:Medium
+FullName:DashNess
+MenuName:DashNess
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\dashness.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:14528
+FileModTime:1642365496
+WeightClass:500
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,DashNess
+NameArray:0,Win,1,DashNess
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:SegoePrint-Bold
+FamilyName:Segoe Print
+StyleName:Bold
+FullName:Segoe Print Bold
+MenuName:Segoe Print
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\segoeprb.ttf
+DataFormat:sfntData
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:167800
+FileModTime:1575713318
+WeightClass:700
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Segoe Print Bold
+NameArray:0,Win,1,Segoe Print
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ShesekFM-Dashed
+FamilyName:Shesek FM
+StyleName:Dashed
+FullName:Shesek FM Dashed
+MenuName:Shesek FM Dashed
+StyleBits:0
+FamilyNameNative:Shesek FM
+StyleNameNative:Dashed
+FullNameNative:Shesek FM Dashed
+WritingScript:Hebrew
+OutlineFileName:G:\My Drive\Adobe Creative Cloud\Board Books\20220323HaggadahCC1A\20220301Haggadah7d Folder\Document fonts\shesek-dashed-fm.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+hasSVG:no
+VariableFontType:NonVariableFont
+FileLength:39912
+FileModTime:1573571636
+WeightClass:500
+WidthClass:5
+AngleClass:0
+NameArray:0,Mac,4,Shesek FM Dashed
+NameArray:0,Win,1,Shesek FM Dashed
+NameArray:0,Win,16,Shesek FM
+%EndFont
+
