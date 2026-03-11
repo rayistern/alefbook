@@ -203,7 +203,7 @@ async function reviewRender(params: {
           type: 'text' as const,
           text: `Review pass ${params.passNumber}. The design instruction was: "${params.instructions}". Check the following rendered page(s):`,
         },
-        ...Object.entries(params.renders).map(([_pageNum, buffer]) => ({
+        ...Object.values(params.renders).map((buffer) => ({
           type: 'image_url' as const,
           image_url: {
             url: `data:image/png;base64,${buffer.toString('base64')}`,
