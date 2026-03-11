@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth, clerkClient } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/storage/supabase'
 import { NextRequest } from 'next/server'
 
@@ -12,6 +12,27 @@ async function getUserId(clerkId: string): Promise<string | null> {
   return data?.id ?? null
 }
 
+async function getOrCreateUserId(clerkId: string): Promise<string | null> {
+  const existing = await getUserId(clerkId)
+  if (existing) return existing
+
+  // User authenticated via Clerk but not yet in DB (webhook race condition).
+  // Auto-provision the record.
+  const client = await clerkClient()
+  const clerkUser = await client.users.getUser(clerkId)
+  const email = clerkUser.emailAddresses?.[0]?.emailAddress
+  if (!email) return null
+
+  const supabase = createClient()
+  const { data } = await supabase
+    .from('users')
+    .upsert({ clerk_id: clerkId, email }, { onConflict: 'clerk_id' })
+    .select('id')
+    .single()
+
+  return data?.id ?? null
+}
+
 // GET /api/project — list user's projects
 // GET /api/project?id=xxx — get single project
 export async function GET(req: NextRequest) {
@@ -19,7 +40,7 @@ export async function GET(req: NextRequest) {
   if (!clerkId) return new Response('Unauthorized', { status: 401 })
 
   const supabase = createClient()
-  const dbUserId = await getUserId(clerkId)
+  const dbUserId = await getOrCreateUserId(clerkId)
   if (!dbUserId) return Response.json({ projects: [] })
 
   const projectId = req.nextUrl.searchParams.get('id')
@@ -57,8 +78,8 @@ export async function POST(req: Request) {
   if (!clerkId) return new Response('Unauthorized', { status: 401 })
 
   const supabase = createClient()
-  const dbUserId = await getUserId(clerkId)
-  if (!dbUserId) return new Response('User not found', { status: 404 })
+  const dbUserId = await getOrCreateUserId(clerkId)
+  if (!dbUserId) return Response.json({ error: 'User not found' }, { status: 404 })
 
   const body = await req.json()
   const name = body.name || 'My Haggadah'
@@ -90,8 +111,8 @@ export async function PATCH(req: Request) {
   if (!clerkId) return new Response('Unauthorized', { status: 401 })
 
   const supabase = createClient()
-  const dbUserId = await getUserId(clerkId)
-  if (!dbUserId) return new Response('User not found', { status: 404 })
+  const dbUserId = await getOrCreateUserId(clerkId)
+  if (!dbUserId) return Response.json({ error: 'User not found' }, { status: 404 })
 
   const body = await req.json()
   const { id, ...updates } = body
@@ -129,11 +150,11 @@ export async function DELETE(req: NextRequest) {
   if (!clerkId) return new Response('Unauthorized', { status: 401 })
 
   const supabase = createClient()
-  const dbUserId = await getUserId(clerkId)
-  if (!dbUserId) return new Response('User not found', { status: 404 })
+  const dbUserId = await getOrCreateUserId(clerkId)
+  if (!dbUserId) return Response.json({ error: 'User not found' }, { status: 404 })
 
   const projectId = req.nextUrl.searchParams.get('id')
-  if (!projectId) return new Response('Missing project id', { status: 400 })
+  if (!projectId) return Response.json({ error: 'Missing project id' }, { status: 400 })
 
   // Verify ownership
   const { data: existing } = await supabase

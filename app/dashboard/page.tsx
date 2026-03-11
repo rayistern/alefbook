@@ -27,6 +27,7 @@ export default function DashboardPage() {
   async function fetchProjects() {
     try {
       const res = await fetch('/api/project')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       setProjects(data.projects ?? [])
     } catch (error) {
@@ -43,6 +44,10 @@ export default function DashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'My Haggadah' }),
       })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }))
+        throw new Error(err.error || 'Failed to create project')
+      }
       const project = await res.json()
       router.push(`/designer/${project.id}`)
     } catch (error) {
