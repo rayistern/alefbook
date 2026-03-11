@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils'
 
 interface PageThumbnailProps {
+  projectId: string
   pageNumber: number
   label: string
   thumbnailUrl: string | null
@@ -12,6 +13,7 @@ interface PageThumbnailProps {
 }
 
 export function PageThumbnail({
+  projectId,
   pageNumber,
   label,
   thumbnailUrl,
@@ -38,9 +40,18 @@ export function PageThumbnail({
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-            {pageNumber}
-          </div>
+          <iframe
+            src={`/api/page-html?projectId=${projectId}&page=${pageNumber}`}
+            title={`Page ${pageNumber}`}
+            className="h-[540px] w-[540px] origin-top-left border-0"
+            style={{
+              transform: 'scale(0.111)',
+              pointerEvents: 'none',
+            }}
+            sandbox="allow-same-origin"
+            loading="lazy"
+            tabIndex={-1}
+          />
         )}
         {isEdited && (
           <div className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-green-500" />

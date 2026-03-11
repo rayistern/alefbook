@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, FileDown } from 'lucide-react'
 
 interface PageViewerProps {
+  projectId: string
   currentPage: number
   totalPages: number
   renderUrl: string | null
@@ -14,6 +15,7 @@ interface PageViewerProps {
 }
 
 export function PageViewer({
+  projectId,
   currentPage,
   totalPages,
   renderUrl,
@@ -22,6 +24,8 @@ export function PageViewer({
   onPageChange,
   onPreviewPdf,
 }: PageViewerProps) {
+  const iframeSrc = `/api/page-html?projectId=${projectId}&page=${currentPage}`
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
       <div className="relative">
@@ -54,8 +58,23 @@ export function PageViewer({
               )}
             </>
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-              Loading page...
+            <iframe
+              key={`page-${currentPage}`}
+              src={iframeSrc}
+              title={`Page ${currentPage}`}
+              className={`h-full w-full border-0 transition-opacity duration-300 ${
+                isWorking ? 'opacity-50' : 'opacity-100'
+              }`}
+              sandbox="allow-same-origin"
+              style={{ pointerEvents: 'none' }}
+            />
+          )}
+          {isWorking && !renderUrl && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="rounded-lg bg-black/60 px-4 py-2 text-sm text-white">
+                Designing...
+                {passInfo && ` (pass ${passInfo.current}/${passInfo.total})`}
+              </div>
             </div>
           )}
         </div>

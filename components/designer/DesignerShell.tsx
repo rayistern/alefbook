@@ -286,6 +286,7 @@ export function DesignerShell({
           passInfo={passInfo}
         />
         <PageViewer
+          projectId={projectId}
           currentPage={currentPage}
           totalPages={totalPages}
           renderUrl={renderUrls[currentPage] ?? null}
@@ -295,6 +296,7 @@ export function DesignerShell({
           onPreviewPdf={handlePreviewPdf}
         />
         <Sidebar
+          projectId={projectId}
           uploads={uploads}
           pages={pages}
           currentPage={currentPage}
