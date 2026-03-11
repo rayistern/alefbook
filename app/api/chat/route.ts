@@ -97,18 +97,23 @@ export async function POST(req: Request) {
     const renderUrls: Record<number, string> = {}
     for (const [pageNumStr, buffer] of Object.entries(result.renders)) {
       const pageNum = Number(pageNumStr)
-      const path = `projects/${projectId}/renders/page-${pageNum}.png`
+      const storagePath = `projects/${projectId}/renders/page-${pageNum}.png`
 
-      await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('renders')
-        .upload(path, buffer, {
+        .upload(storagePath, buffer, {
           contentType: 'image/png',
           upsert: true,
         })
 
+      if (uploadError) {
+        console.error(`Storage upload failed for page ${pageNum}:`, uploadError.message)
+        continue
+      }
+
       const { data: urlData } = supabase.storage
         .from('renders')
-        .getPublicUrl(path)
+        .getPublicUrl(storagePath)
 
       renderUrls[pageNum] = urlData.publicUrl
     }

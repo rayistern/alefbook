@@ -24,7 +24,7 @@ export interface TemplateMeta {
   pages: PageMeta[]
 }
 
-const PAGES_DIR = path.join(process.cwd(), 'templates/pages')
+const PAGES_DIR = path.join(process.cwd(), 'templates/haggadah/pages')
 const STUBS_DIR = path.join(process.cwd(), 'templates/stubs')
 const METADATA_DIR = path.join(process.cwd(), 'templates/metadata')
 

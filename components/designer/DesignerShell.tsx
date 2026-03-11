@@ -87,10 +87,13 @@ export function DesignerShell({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ projectId, pageNumbers: [pageNum] }),
       })
-      if (res.ok) {
-        const data = await res.json()
-        setRenderUrls(prev => ({ ...prev, ...data.renderUrls }))
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }))
+        console.error(`Render failed for page ${pageNum}:`, err.error)
+        return
       }
+      const data = await res.json()
+      setRenderUrls(prev => ({ ...prev, ...data.renderUrls }))
     } catch (error) {
       console.error('Failed to render page:', error)
     }

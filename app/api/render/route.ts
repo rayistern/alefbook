@@ -39,52 +39,61 @@ export async function POST(req: Request) {
   const renderUrls: Record<number, string> = {}
 
   for (const pageNum of pageNumbers) {
-    const html = loadPageHTML(pageNum, projectPageStates[String(pageNum)])
-    const htmlHash = createHash('md5').update(html).digest('hex')
+    try {
+      const html = loadPageHTML(pageNum, projectPageStates[String(pageNum)])
+      const htmlHash = createHash('md5').update(html).digest('hex')
 
-    // Check render cache
-    const { data: cached } = await supabase
-      .from('renders')
-      .select('image_path')
-      .eq('project_id', projectId)
-      .eq('html_hash', htmlHash)
-      .single()
+      // Check render cache
+      const { data: cached } = await supabase
+        .from('renders')
+        .select('image_path')
+        .eq('project_id', projectId)
+        .eq('html_hash', htmlHash)
+        .single()
 
-    if (cached) {
+      if (cached) {
+        const { data: urlData } = supabase.storage
+          .from('renders')
+          .getPublicUrl(cached.image_path)
+        renderUrls[pageNum] = urlData.publicUrl
+        continue
+      }
+
+      // Render the page
+      const imageBuffer = await renderPageToImage(html)
+      const imagePath = `projects/${projectId}/renders/page-${pageNum}.png`
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('renders')
+        .upload(imagePath, imageBuffer, {
+          contentType: 'image/png',
+          upsert: true,
+        })
+
+      if (uploadError) {
+        console.error(`Storage upload failed for page ${pageNum}:`, uploadError.message)
+        continue
+      }
+
+      // Cache the render
+      await supabase.from('renders').upsert(
+        {
+          project_id: projectId,
+          page_number: pageNum,
+          html_hash: htmlHash,
+          image_path: imagePath,
+        },
+        { onConflict: 'project_id,html_hash' }
+      )
+
       const { data: urlData } = supabase.storage
         .from('renders')
-        .getPublicUrl(cached.image_path)
+        .getPublicUrl(imagePath)
       renderUrls[pageNum] = urlData.publicUrl
-      continue
+    } catch (err) {
+      console.error(`Failed to render page ${pageNum}:`, err)
     }
-
-    // Render the page
-    const imageBuffer = await renderPageToImage(html)
-    const imagePath = `projects/${projectId}/renders/page-${pageNum}.png`
-
-    // Upload to storage
-    await supabase.storage
-      .from('renders')
-      .upload(imagePath, imageBuffer, {
-        contentType: 'image/png',
-        upsert: true,
-      })
-
-    // Cache the render
-    await supabase.from('renders').upsert(
-      {
-        project_id: projectId,
-        page_number: pageNum,
-        html_hash: htmlHash,
-        image_path: imagePath,
-      },
-      { onConflict: 'project_id,html_hash' }
-    )
-
-    const { data: urlData } = supabase.storage
-      .from('renders')
-      .getPublicUrl(imagePath)
-    renderUrls[pageNum] = urlData.publicUrl
   }
 
   return Response.json({ renderUrls })
