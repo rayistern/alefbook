@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Haggadah - AlefBook Template</title>
+  <style>
+    /* ================================================================
+       AlefBook Haggadah HTML Template
+       Converted from InDesign IDML: 20220301Haggadah10A.idml
+       Page size: 5.625 x 5.625 in (405 x 405 pt) - square board book
+       Binding: Right-to-Left (Hebrew)
+       Bleed: 13.5pt (0.1875in) all sides
+       Margins: 9pt all sides
+       ================================================================ */
+
+    /* ── Web Fonts ──
+       InDesign fonts -> Web equivalents:
+       EFT_Texty (Hebrew body) -> Frank Ruhl Libre
+       Gill Sans MT (English body) -> Gill Sans, Lato
+       Fredoka One (section headers) -> Fredoka One
+       Assistant (instructions) -> Assistant
+       Secular One (branding) -> Secular One
+    */
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;700;800&family=Frank+Ruhl+Libre:wght@400;500;700&family=Fredoka+One&family=Secular+One&family=Lato:wght@400;700&display=swap');
+
+    :root {
+      --page-width: 405pt;
+      --page-height: 405pt;
+      --bleed: 13.5pt;
+      --margin: 9pt;
+
+      /* Named colors from InDesign swatches (CMYK -> RGB) */
+      --color-main-hebrew: #095354;
+      --color-cover-text: #4b0007;
+      --color-pantone-red: #f9194f;
+      --color-pantone-blue: #008eff;
+      --color-letre: #0019e5;
+      --color-letre2: #0d32d1;
+      --color-rouge: #bc0000;
+      --color-navy: #0054aa;
+      --color-cream: #fff0ec;
+      --color-rich-black: #0d1010;
+
+      /* Page backgrounds (from background images) */
+      --bg-tan: #e8d5b7;
+      --bg-green: #c8dcc0;
+      --bg-orange: #f5d5b0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Frank Ruhl Libre', 'David Libre', serif;
+      font-size: 11pt;
+      line-height: 1.35;
+      color: #000;
+      background: #e0e0e0;
+      direction: rtl;
+    }
+
+    /* ── Book Container ── */
+    .book {
+      max-width: 1000px;
+      margin: 20px auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    /* ── Individual Page ── */
+    .page {
+      width: var(--page-width);
+      min-height: var(--page-height);
+      padding: var(--margin);
+      background: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+      page-break-after: always;
+      border-radius: 2px;
+    }
+
+    .page-content {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Text Blocks ── */
+    .text-block {
+      margin-bottom: 6pt;
+      position: relative;
+    }
+
+    .text-block.hebrew-text {
+      direction: rtl;
+      text-align: right;
+    }
+
+    .text-block.english-text {
+      direction: ltr;
+      text-align: left;
+    }
+
+    .text-block.instruction {
+      font-family: 'Assistant', sans-serif;
+      font-weight: 200;
+      font-size: 7pt;
+      color: var(--color-rich-black);
+      opacity: 0.85;
+      margin: 3pt 0;
+    }
+
+    .text-block.personalize-block {
+      border: 2px dashed var(--color-pantone-red);
+      padding: 8pt;
+      border-radius: 4pt;
+      background: rgba(255,255,200,0.25);
+    }
+
+    .text-block.personalize-block::before {
+      content: "\270F Customizable";
+      position: absolute;
+      top: -11pt;
+      right: 4pt;
+      font-size: 7pt;
+      color: var(--color-pantone-red);
+      font-family: 'Assistant', sans-serif;
+      direction: ltr;
+    }
+
+    .text-block.continuation-marker {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      font-size: 9pt;
+      padding: 40pt 0;
+    }
+
+    /* ── Typography ── */
+    p { margin-bottom: 3pt; }
+    p[dir="rtl"] { text-align: right; direction: rtl; }
+    p[dir="ltr"] { text-align: left; direction: ltr; }
+    .text-center { text-align: center !important; }
+    .text-left { text-align: left !important; }
+    .text-right { text-align: right !important; }
+
+    /* Font classes (mapping InDesign fonts to web fonts) */
+    .font-hebrew-body { font-family: 'Frank Ruhl Libre', serif; }
+    .font-english-body { font-family: 'Lato', 'Gill Sans', sans-serif; }
+    .font-display { font-family: 'Fredoka One', cursive; }
+    .font-assistant { font-family: 'Assistant', sans-serif; }
+    .font-secular { font-family: 'Secular One', sans-serif; }
+    .font-yiddishkeit { font-family: 'Frank Ruhl Libre', serif; font-weight: 700; }
+    .font-comic { font-family: 'Fredoka One', 'Comic Sans MS', cursive; }
+
+    .bold { font-weight: 700; }
+    .italic { font-style: italic; }
+
+    /* ── Paragraph Styles (from InDesign) ── */
+
+    /* Seder step labels (Fredoka One 48pt, deep purple-blue) */
+    .seder-step-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 48pt;
+      line-height: 1.0;
+      color: var(--color-letre2);
+      margin: 4pt 0;
+    }
+
+    /* Section headers (Fredoka One 16pt) */
+    .section-header {
+      font-family: 'Fredoka One', cursive;
+      font-size: 16pt;
+      color: var(--color-cover-text);
+      margin: 4pt 0;
+    }
+
+    /* "Words (Hebrew)" style - large Hebrew vocabulary */
+    .words-hebrew {
+      font-family: 'Assistant', sans-serif;
+      font-weight: 300;
+      font-size: 48pt;
+      color: var(--color-pantone-red);
+      line-height: 1.15;
+    }
+
+    /* Cover text (white bold) */
+    .cover-text {
+      font-family: 'Fredoka One', cursive;
+      font-size: 48pt;
+      line-height: 0.83;
+      color: white;
+      direction: ltr;
+      text-align: left;
+    }
+
+    /* Blessing background */
+    .blessing-bg {
+      background-color: var(--color-cream);
+      padding: 4pt 6pt;
+      border-radius: 2pt;
+      margin: 3pt 0;
+    }
+
+    /* ── Images ── */
+    .page-image {
+      margin: 4pt 0;
+      text-align: center;
+    }
+
+    .page-image img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .page-image.seder-item img { max-height: 100pt; object-fit: contain; }
+    .page-image.plague-illustration img { max-height: 70pt; object-fit: contain; }
+    .page-image.logo img { max-height: 40pt; object-fit: contain; }
+    .page-image.photo-frame { border: 2pt solid var(--color-pantone-blue); padding: 2pt; }
+    .page-image.decorative { opacity: 0.8; }
+
+    /* ── Spread View ── */
+    .spread {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .spread .page { margin: 0; }
+
+    /* ── Print ── */
+    @media print {
+      body { background: none; }
+      .book { gap: 0; }
+      .page { box-shadow: none; margin: 0; }
+      .text-block.personalize-block { border: none; }
+      .text-block.personalize-block::before { display: none; }
+      .continuation-marker { display: none; }
+    }
+
+    /* ── Responsive ── */
+    @media screen and (max-width: 600px) {
+      .page {
+        width: 100%;
+        min-height: auto;
+        aspect-ratio: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="book" id="haggadah-book"
+     data-total-pages="40"
+     data-page-width-pt="405"
+     data-page-height-pt="405"
+     data-binding="rtl"
+     data-bleed-pt="13.5">
+
+    <div class="page page-cover" id="page-1" data-page="1" style="background-color: #e8d5b7;">
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u332d">
+        <p class="text-center" dir="ltr"><span class="font-yiddishkeit" style="font-size: 50.0pt; color: #095354" lang="he">הגדה של פסח</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3344">
+        <p class="text-center" dir="ltr"><span class="font-display" style="font-size: 28.0pt; color: #095354">My Passover Haggadah</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u33a1">
+        <p class="text-center" dir="ltr"><span class="bold" style="font-size: 18.824888464262454pt; color: #00ffff">P</span><span style="font-size: 15.40218147076019pt">e</span><span class="bold" style="font-size: 16.54308380192761pt; color: #3ff200">r</span><span style="font-size: 18.824888464262454pt; color: #0054aa">s</span><span style="font-size: 13.120376808425348pt; color: #f8333a">o</span><span style="font-size: 18.25443729867874pt; color: #ead602">n</span><span style="font-size: 17.11353496751132pt; color: #3ff200">a</span><span style="font-size: 18.824888464262454pt; color: #61f95e">l</span><span class="font-assistant" style="font-size: 16.54308380192761pt; color: #bc0000">i</span><span class="bold" style="font-size: 17.683986133095036pt; color: #ffffff">z</span><span class="italic" style="font-size: 23.958948954515847pt; color: #f9194f">e</span> <span class="bold" style="font-size: 18.824888464262454pt; color: #001fb4">M</span><span class="bold" style="font-size: 18.824888464262454pt; color: #3ff200">e</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u33b8">
+        <p class="text-center" dir="ltr"><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff">PICTURES </span><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff" lang="he">·</span><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff"> COLORS </span><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff" lang="he">·</span><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff"> STYLE</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u33cf">
+        <p class="text-center" dir="ltr"><span style="font-size: 8.36pt; color: #ffffff">Design your own Jewish books </span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u33e6">
+        <p class="text-center" dir="rtl"><span style="font-size: 15.2pt; color: #bc0000">www.alefbook.org</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3404">
+        <p class="text-left" dir="ltr"><span style="font-size: 33.0pt; color: #ffe800">S</span><span style="font-size: 35.0pt; color: #ffe800">a</span><span style="font-size: 37.0pt; color: #ffe800">m</span><span style="font-size: 38.0pt; color: #ffe800">p</span><span style="font-size: 41.0pt; color: #ffe800">l</span><span style="font-size: 42.0pt; color: #ffe800">e!</span><span style="font-size: 44.0pt; color: #ffe800" lang="he">!</span><span style="font-size: 47.0pt; color: #ffe800" lang="he">!</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u341b">
+        <p class="text-center" dir="ltr"><span class="italic" style="font-size: 19.0pt; color: #ffffff">Order your copies today!</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3432">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #ffffff">mailed </span><span class="font-comic bold" style="color: #ffffff">DIRECT</span> <span class="font-comic bold italic" style="color: #ffffff">FOR PESACH...</span></p>
+      </div>
+      <div class="text-block english-text personalize-block" data-story-id="u337f" data-editable="true">
+        <p class="text-center" dir="ltr"><span class="font-secular" style="font-size: 6.08pt; color: #0019e5">Personalized books and Judaica for every child.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-secular" style="font-size: 6.84pt; color: #0019e5">© 2022 Alef Book. All rights reserved. English translation from Rabbi A. Green, London 1897, modified and updated. </span></p>
+      </div>
+      <div class="page-image logo" data-image="LOGO11B-2X1.psd"><img src="images/LOGO11B-2X1.psd" alt="LOGO11B-2X1" /></div>
+      <div class="page-image seder-item" data-image="Asset 5matzawhole.png"><img src="images/Asset 5matzawhole.png" alt="matzawhole" /></div>
+      <div class="page-image seder-item" data-image="Asset 4cup.png"><img src="images/Asset 4cup.png" alt="cup" /></div>
+      <div class="page-image" data-image="AdobeStock_108838120.jpeg"><img src="images/AdobeStock_108838120.jpeg" alt="AdobeStock_108838120" /></div>
+      </div>
+    </div>
+    <div class="page page-intro" id="page-II" data-page="II" style="background-color: #c8dcc0;">
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u2ff">
+        <p class="text-center" dir="ltr"><span class="font-yiddishkeit bold" style="font-size: 20.0pt; color: #095354" lang="he">ב&#x27;&#x27;ה</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u316">
+        <p class="words-hebrew text-center" dir="ltr"><span style="font-size: 28.0pt; color: #008eff" lang="he">לַה</span><span style="font-size: 28.0pt; color: #008eff" lang="he">׳</span><span style="font-size: 28.0pt; color: #008eff" lang="he"> הָאָרֶץ וּמְלוֹאָהּ</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u32f">
+        <p class="words-hebrew text-center" dir="rtl"><span style="font-size: 21.0pt" lang="he">סֵפֶר זֶה שַׁיָּךְ ל-</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u346">
+        <p class="words-hebrew text-center" dir="rtl"><span style="font-size: 21.0pt">This book belongs to</span><span style="font-size: 21.0pt" lang="he">:</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-seder-order" id="page-III" data-page="III" style="background-color: #c8dcc0;">
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u2c8">
+        <p class="text-center" dir="ltr"><span class="font-yiddishkeit bold" style="font-size: 50.0pt; color: #095354" lang="he">סִימַן סֵדֶר שֶׁל פֶּסַח</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2df">
+        <p class="text-center" dir="ltr"><span class="font-display" style="font-size: 24.0pt; color: #095354">The Order of the Pesach Seder</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u181">
+        <p class="seder-step-label text-center" dir="ltr"><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ק</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַדֵּשׁ. וּרְח</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַץ. כַּרְפַּס. י</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ח</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ץ. מַגִּיד. רָחְצָה.	 מ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">וֹ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">צִיא מַ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">צָּה. מָר</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">וֹ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ר.	 כּ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">וֹ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">רֵךְ. 	שֻׁלְחָן ע</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">וֹ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">רֵךְ. צָפוּן.	 ב</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ֵ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ּר</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ךְ.	 ה</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ַ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">לּ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ֵ</span><span class="font-display" style="font-size: 48.0pt; color: #0d32d1" lang="he">ל נִרְצָה.</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u19a">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Kadesh</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1b1">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Urchatz</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1c8">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Karpas</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1df">
+        <p class="cover-text" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Yachatz</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1f6">
+        <p class="cover-text" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Magid</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u20e">
+        <p class="cover-text" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Rochtza</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u225">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Motzi Matzah</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u23c">
+        <p class="cover-text" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Maror</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u253">
+        <p class="cover-text" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Korech</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u26b">
+        <p class="cover-text" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Shulchan Orech</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u282">
+        <p class="cover-text" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Tzafun</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u299">
+        <p class="cover-text" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Beirach</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2b0">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Hallel Nirtzah</span></p>
+      </div>
+      <div class="page-image seder-item" data-image="Asset 16plate.png"><img src="images/Asset 16plate.png" alt="plate" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-4" data-page="4" style="background-color: #f5d5b0;">
+      <!-- Section: Kadesh / Urchatz -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="ue07">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">ק</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">ַ</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">ַדֵּשׁ</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ue20">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">1</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="ud98">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">When the holiday comes out on Shabbat, we start here. Otherwise, begin below this shaded box.</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="ue7d">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">On Shabbat add the words in parentheses</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ud81">
+        <p class="text-center" dir="ltr"><span class="font-hebrew-body bold" lang="he">יוֹם</span> <span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">הַשִּׁשִּׁי. וַיְכֻלּוּ הַשָּׁמַיִם וְהָאָרֶץ וְכׇל צְבָאָם. וַיְכַל אֱלֹהִים בַּיּוֹם הַשְּׁבִיעִי מְלַאכְתּוֹ אֲשֶׁר עָשָׂה וַיִּשְׁבֹּת בַּיּוֹם הַשְּׁבִיעִי מִכׇּל מְלַאכְתּוֹ אֲשֶׁר עָשָׂה. וַיְבָרֶךְ אֱלֹהִים אֶת יוֹם הַשְּׁבִיעִי וַיְקַדֵּשׁ אֹתוֹ כִּי בוֹ שָׁבַת מִכׇּל מְלַאכְתּוֹ אֲשֶׁר בָּרָא אֱלֹהִים לַעֲשׂוֹת:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="uec2">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 8.0pt">The sixth day. Thus the heavens and the earth were finished, and all the hosts of them. And on the seventh day G-d had ended His work which He had made; and He rested on the seventh day from all His work which He had made. And G-d blessed the seventh day and sanctified it; because in it He had rested from all His work which G-d created and made.</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ueab">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 7.0pt">Your attention please:</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ud53">
+        <p class="text-center" dir="ltr"><span class="font-hebrew-body" style="font-size: 9.0pt" lang="he">סַבְרִי מָרָנָן</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ud3b">
+        <p dir="ltr"><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָפֶן.</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ue94">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 8.0pt">Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ud24">
+        <p class="text-center" dir="ltr"><span class="font-hebrew-body bold" style="font-size: 13.0pt" lang="he">בָּרוּךְ</span> <span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר בָּחַר בָּנוּ מִכָּל עָם וְרוֹמְמָנוּ מִכָּל לָשׁוֹן וְקִדְּשָׁנוּ בְּמִצְוֹתָיו. וַתִּתֶּן לָנוּ יְיָ אֱלֹהֵינוּ בְּאַהֲבָה </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">(שַׁבָּתוֹת לִמְנוּחָה וּ)</span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">מוֹעֲדִים לְשִׂמְחָה. חַגִּים וּזְמַנִּים לְשָׂשׂוֹן אֶת יוֹם </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">(הַשַּׁבָּת הַזֶה וְאֶת יוֹם)</span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he"> חַג הַמַּצּוֹת הַזֶּה. וְאֶת יוֹם טוֹב מִקְרָא קֹדֶשׁ הַזֶּה זְמַן חֵרוּתֵנוּ</span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he"> (בְּאַהֲבָה)</span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he"> מִקְרָא קֹדֶשׁ זֵכֶר לִיצִיאַת מִצְרָיִם. כִּי בָנוּ בָחַרְתָּ וְאוֹתָנוּ קִדַּשְׁתָּ מִכָּל הָעַמִּים. </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">(וְשַׁבָּת וּ) </span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">מוֹעֲדֵי קָדְשֶךָ </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">(בְּאַהֲבָה וּבְרָצוֹן)</span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he"> בְּשִׂמְחָה וּבְשָׂשׂוֹן הִנְחַלְתָּנוּ: בָּרוּךְ אַתָּה יְיָ מְקַדֵּשׁ </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">(הַשַּׁבָּת וְ)</span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">יִשְׂרָאֵל וְהַזְּמַנִּים:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ue66">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 9.0pt">Blessed are You, Lord our G-d, King of the Universe, who has chosen us from all peoples, exalted us above all tongues, and sanctified us with your commandments. You have, in love, ordained for us, Lord our G-d (Shabbat for rest), days of joy and festive times of gladness, and this day of (rest and of) this Holiday the festival of Matzah, a holy convocation, a memorial (in your love) of the Exodus from Egypt. You have chosen us and sanctified us above all peoples, and You have given us an inheritance of (loving favor,) joy and gladness, days of (Shabbat and) festivals.</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="ud05">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">On Saturday night add this piece</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ucee">
+        <p class="text-center" dir="ltr"><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-hebrew-body bold" style="font-size: 11.0pt" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַמַּבְדִּיל בֵּין קֹדֶשׁ לְחֹל, בֵּין אוֹר לְחשֶׁךְ, בֵּין יִשְׂרָאֵל לָעַמִּים, בֵּין יוֹם הַשְּׁבִיעִי לְשֵׁשֶׁת יְמֵי הַמַּעֲשֶׂה. בֵּין קְדֻשַּׁת שַׁבָּת לִקְדֻשַּׁת יוֹם טוֹב הִבְדַּלְתָּ, וְאֶת יוֹם הַשְּׁבִיעִי מִשֵּׁשֶׁת יְמֵי הַמַּעֲשֶׂה קִדַּשְׁתָּ. הִבְדַּלְתָּ וְקִדַּשְׁתָּ אֶת עַמְּךָ יִשְׂרָאֵל בִּקְדֻשָּׁתֶךָ. בָּרוּךְ אַתָּה יְיָ הַמַּבְדִיל </span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">בֵּין קֹדֶשׁ לְקֹדֶשׁ.</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ue4e">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 9.0pt">Blessed are You, Lord our G-d, King of the Universe, Creator of fire. Blessed are You, Lord our G-d, King of the Universe, who has made a distinction between sacred and profane, between light and darkness, between Israel and other peoples, between the seventh day and the six days of work. You have made a distinction between the holiness of the Shabbat and the holiness of a Festival, sanctifying the seventh day above all others. It is with Your holiness that You have distinguished and sanctified Your people Israel. Blessed are You, Lord, who has made a distinction in the degrees of holiness.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ucd5">
+        <p dir="ltr"><span class="font-hebrew-body bold" style="font-size: 11.0pt" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">אַתָּה</span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he"> יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם שֶׁהֶחֱיָנוּ וְקִיְּמָנוּ וְהִגִּיעָנוּ ל</span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">ִ</span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">זְּמַן הַזֶה.</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ue37">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 9.0pt">Blessed are You, Lord our G-d, King of the Universe, who has preserved us in life, sustained us, and enabled us to reach this time.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u3c4f">
+        <p class="text-center" dir="ltr"><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">אַתְקִינוּ סְעוּדָתָא דְמַלְכָּא עִלָּאָה דָּא הִיא סְעוּדְתָא דְקוּדְשָׁא בְּרִיךְ הוּא וּשְׁכִינְתֵּהּ</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="uf9a">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">וּ</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">רְחַַץ</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="uf83">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">2</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ufc9">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Urchatz</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ufb2">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We </span><span class="font-comic bold" style="color: #2a1f12">wash</span><span class="font-comic bold italic" style="color: #2a1f12"> our hands, without saying a blessing</span></p>
+      </div>
+      <div class="page-image seder-item" data-image="Asset 4cup.png"><img src="images/Asset 4cup.png" alt="cup" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-5" data-page="5" style="background-color: #f5d5b0;">
+      <!-- Section: Karpas / Yachatz -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="ub96">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">כַּרְפַּס</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ub68">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">3</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ubad">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Karpas</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ub7f">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We eat just a little bit of the </span><span class="font-comic bold" style="color: #2a1f12">Karpas</span><span class="font-comic bold italic" style="color: #2a1f12">, dipped in </span><span class="font-comic bold" style="color: #2a1f12">salt water. </span><span class="font-comic bold italic" style="color: #2a1f12">Recite the </span><span class="font-comic bold" style="color: #2a1f12">blessing</span><span class="font-comic bold italic" style="color: #2a1f12"> (also having in mind that this is the blessing for when we eat the maror too):</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="ufe2">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הָאֲדָמָה:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="uff9">
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">Blessed are You, Lord our G-d, King of the Universe, </span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5">Creator of the fruit of the earth.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="uc5a">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">יַחַץ</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="uc8a">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">4</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="uc71">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Yachatz</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="uca1">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We </span><span class="font-comic bold" style="color: #2a1f12">break</span><span class="font-comic bold italic" style="color: #2a1f12"> the middle matzah, and we put away the bigger piece for the </span><span class="font-comic bold" style="color: #2a1f12">Afikoman</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="ucb8">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">First we make </span><span class="font-comic bold" style="color: #2a1f12">kiddush</span><span class="font-comic bold italic" style="color: #2a1f12"> and drink the first cup,</span></p>
+        <p class="text-center" dir="rtl"><span class="font-comic bold" style="color: #2a1f12">leaning</span><span class="font-comic bold italic" style="color: #2a1f12"> to the left</span></p>
+      </div>
+      <div class="page-image seder-item" data-image="Asset 7parsley.png"><img src="images/Asset 7parsley.png" alt="parsley" /></div>
+      <div class="page-image seder-item" data-image="Asset 6matzabroken.png"><img src="images/Asset 6matzabroken.png" alt="matzabroken" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-6" data-page="6" style="background-color: #e8d5b7;">
+      <!-- Section: Maggid -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u11a3">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">מַגִּיד</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u118c">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Maggid</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u10c6">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">5</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u11ba">
+        <p class="text-left" dir="rtl"><span class="font-comic bold italic">We fill the second cup Uncover the Matzah, as we begin telling the story of our exodus...</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u10ac">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">הֵא </span><span class="font-hebrew-body" lang="he">לַחְמָא עַנְיָא דִּי אֲכָלוּ אַבְהָתָנָא בְּאַרְעָא דְמִצְרָיִם כֹּל דִּכְפִין יֵיתֵי וְיֵיכוֹל. כֹּל דִּצְרִיךְ יֵיתֵי וְיִפְסָח. הַשַּׁתָּא הָכָא. לְשָׁנָה הַבָּאָה בְּאַרְעָא דְיִשְׂרָאֵל. הַשַּׁתָּא עַבְדִּין לְשָׁנָה הַבָּאָה בְּנֵי חוֹרִין:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u11d2">
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">This</span><span class="font-english-body" style="font-size: 10.0pt"> is the bread of affliction which our fathers did eat in the land of Egypt. Let all who are hungry come in and eat; let all who need come in and celebrate Passover. This year we celebrate it here, may we celebrate it next year in the land of Israel. This year we are in exile, next year may we be free.</span></p>
+      </div>
+      <div class="page-image seder-item" data-image="Asset 5matzawhole.png"><img src="images/Asset 5matzawhole.png" alt="matzawhole" /></div>
+      <div class="page-image seder-item" data-image="Asset 10leftmatza.png"><img src="images/Asset 10leftmatza.png" alt="leftmatza" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-7" data-page="7" style="background-color: #e8d5b7;">
+      <!-- Section: Ma Nishtana -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u1202">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="font-size: 20.0pt; color: #ffffff">The </span><span class="font-comic bold italic" style="font-size: 22.0pt; color: #ffffff">children</span><span class="font-comic bold italic" style="font-size: 20.0pt; color: #ffffff"> now </span><span class="font-comic bold italic" style="font-size: 22.0pt; color: #ffffff">ask</span><span class="font-comic bold italic" style="font-size: 20.0pt; color: #ffffff"> the </span><span class="font-comic bold italic" style="font-size: 23.0pt; color: #ffffff">four questions...</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u1219">
+        <p dir="rtl"><span class="font-hebrew-body bold" style="color: #095354" lang="he">מַה </span><span class="font-hebrew-body" style="color: #095354" lang="he">נִּשְׁתַּנָּה הַלַּיְלָה הַזֶּה מִכָּל הַלֵּילוֹת.</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1230">
+        <p class="text-center" dir="ltr"><span class="font-comic bold" style="font-size: 11.0pt">Ma nishtana</span><span class="font-comic bold" style="font-size: 11.0pt"> halayla hazeh mikol haleilot?</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u11eb">
+        <p class="text-center" dir="ltr"><span class="italic" style="font-size: 24.0pt; color: #0019e5">why is this night different from all other nights?</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u1247">
+        <p class="text-center" dir="ltr"><span style="font-size: 40.0pt; color: #000000" lang="he">?</span><span style="font-size: 49.0pt; color: #000000" lang="he">?</span><span style="font-size: 40.0pt; color: #000000" lang="he">?</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u12e6">
+        <p dir="rtl"><span class="font-hebrew-body bold" style="color: #095354" lang="he">שֶׁבְּכָל </span><span class="font-hebrew-body" style="color: #095354" lang="he">הַלֵּילוֹת אָנוּ אוֹכְלִין חָמֵץ אוֹ מַצָּה הַלַּיְלָה הַזֶּה כֻּלּוֹ מַצָּה:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u12fe">
+        <p class="text-left" dir="ltr"><span class="font-comic bold" style="font-size: 9.0pt">Shebechol haleilot</span><span class="font-comic bold" style="font-size: 9.0pt"> anu ochlin chameitz oh matzah, Halylah hazeh kulo Matzah</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u12cf">
+        <p class="text-center" dir="ltr"><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5">	On all other nights we eat either leavened or unleavened bread - Matzah, but on this night exclusively </span><span class="font-comic" style="font-size: 10.0pt; color: #0019e5">Matzah</span><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5" lang="he">. </span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u12b8">
+        <p class="text-center" dir="ltr"><span style="font-size: 40.0pt; color: #000000" lang="he">1</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u128a">
+        <p dir="rtl"><span class="font-hebrew-body bold" style="color: #095354" lang="he">שֶׁבְּכָל </span><span class="font-hebrew-body" style="color: #095354" lang="he">הַלֵּילוֹת אֵין אָנוּ מַטְבִּילִין אֲפִילוּ פַּעַם אֶחָת. הַלַּיְלָה הַזֶּה שְׁתֵּי פְעָמִים: </span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u12a1">
+        <p class="text-left" dir="ltr"><span class="font-comic bold" style="font-size: 9.0pt">Shebechol haleilot</span><span class="font-comic bold" style="font-size: 9.0pt"> ain anu matbilin afilu paam echat Halaylah hazeh shtei peamim</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1273">
+        <p class="text-center" dir="ltr"><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5">On all other nights we do not </span><span class="font-comic" style="font-size: 10.0pt; color: #0019e5">dip </span><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5">even once, but on this night we do so </span><span class="font-comic" style="font-size: 10.0pt; color: #0019e5">twice</span><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5" lang="he">. </span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u1315">
+        <p class="text-center" dir="ltr"><span style="font-size: 40.0pt; color: #000000" lang="he">2</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u1345">
+        <p dir="rtl"><span class="font-hebrew-body bold" style="color: #095354" lang="he">שֶׁבְּכָל </span><span class="font-hebrew-body" style="color: #095354" lang="he">הַלֵּילוֹת אָנוּ אוֹכְלִין שְׁאָר יְרָקוֹת הַלַּיְלָה הַזֶּה מָרוֹר:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u135c">
+        <p class="text-left" dir="ltr"><span class="font-comic bold" style="font-size: 9.0pt">Shebechol haleilot</span><span class="font-comic bold" style="font-size: 9.0pt"> anu ochlin she-ar yerakot, Halaylah hazeh Maror</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u132e">
+        <p dir="ltr"><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5">On all other nights we eat all kinds of vegetables, but on this night, </span><span class="font-comic" style="font-size: 10.0pt; color: #0019e5">bitter herbs</span><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5" lang="he">. </span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u1374">
+        <p class="text-center" dir="ltr"><span style="font-size: 40.0pt; color: #000000" lang="he">3</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u13a3">
+        <p dir="rtl"><span class="font-hebrew-body bold" style="color: #095354" lang="he">שֶׁבְּכָל </span><span class="font-hebrew-body" style="color: #095354" lang="he">הַלֵּילוֹת אָנוּ אוֹכְלִין בֵּין יוֹשְׁבִין וּבֵין מְסֻבִּין הַלַּיְלָה הַזֶּה כֻּלָּנוּ מְסֻבִּין:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u13ba">
+        <p class="text-left" dir="ltr"><span class="font-comic bold" style="font-size: 9.0pt">Shebechol haleilot</span><span class="font-comic bold" style="font-size: 9.0pt"> anu ochlin bein yoshvin uvein mesubin, Halaylah hazeh kulanu mesubin</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u138b">
+        <p class="text-center" dir="ltr"><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5">			On all other nights we eat either sitting or reclining, but on this night </span><span class="font-comic" style="font-size: 10.0pt; color: #0019e5">we all lean</span><span class="font-comic italic" style="font-size: 10.0pt; color: #0019e5" lang="he">. </span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u13d1">
+        <p class="text-center" dir="ltr"><span style="font-size: 40.0pt; color: #000000" lang="he">4</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-8" data-page="8" style="background-color: #c8dcc0;">
+      <!-- Section: Four Children -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u15ae">
+        <p class="text-left" dir="ltr"><span class="font-comic bold" style="font-size: 9.0pt">Four times</span><span class="font-comic bold" style="font-size: 9.0pt"> does the Torah refer to the enquiring child</span><span class="font-comic bold" style="font-size: 9.0pt" lang="he">...</span><span class="font-comic bold" style="font-size: 9.0pt">  This indicates that the Torah thought of four kinds of enquiring children - the </span><span class="font-comic bold" style="font-size: 9.0pt">wise</span><span class="font-comic bold" style="font-size: 9.0pt"> child, the </span><span class="font-comic bold" style="font-size: 9.0pt">wicked</span><span class="font-comic bold" style="font-size: 9.0pt"> child, the </span><span class="font-comic bold" style="font-size: 9.0pt">simple</span><span class="font-comic bold" style="font-size: 9.0pt"> child, and the one that is </span><span class="font-comic bold" style="font-size: 9.0pt">unable</span><span class="font-comic bold" style="font-size: 9.0pt"> to enquire by himself</span><span class="font-comic bold" style="font-size: 9.0pt" lang="he">...</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u14c8">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">חָכָם </span><span class="font-hebrew-body" lang="he">מַה הוּא אוֹמֵר מָה הָעֵדֹת וְהַחֻקִּים וְהַמִּשְׁפָּטִים אֲשֶׁר צִוָּה יְיָ אֱלֹהֵינוּ אֶתְכֶם וְאַף אַתָּה אֱמוֹר לוֹ כְּהִלְכוֹת הַפֶּסַח אֵין מַפְטִירִין אַחַר הַפֶּסַח אֲפִיקוֹמָן:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1524">
+        <p class="text-left" dir="ltr"><span class="font-comic bold" style="font-size: 10.0pt">Which is the wise child&#x27;s question? &quot;What are the &#x27;testimonies and the statutes and the judgments&#x27; which the Lord our G-d has commanded you?&quot; you shall answer him by telling him of the laws of Passover, down to the law that no &#x27;afikoman&#x27; may follow the Paschal lamb.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u14df">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">רָשָׁע </span><span class="font-hebrew-body" lang="he">מַה הוּא אוֹמֵר מָה הָעֲבוֹדָה הַזֹּאת לָכֶם. לָכֶם וְלֹא לוֹ. וּלְפִי שֶׁהוֹצִיא אֶת עַצְמוֹ מִן הַכְּלָל כָּפַר בְּעִקָּר. וְאַף אַתָּה הַקְהֵה אֶת שִׁנָּיו וֶאֱמֹר לוֹ בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם. לִי וְלֹא לוֹ אִלּוּ הָיָה שָׁם לֹא הָיָה נִגְאָל:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1552">
+        <p class="text-left" dir="ltr"><span class="font-comic bold" style="font-size: 10.0pt">Which is the wicked child&#x27;s question? &quot;What do you mean by this service?&quot; he attributes the service to </span><span class="font-comic bold italic" style="font-size: 10.0pt">You</span><span class="font-comic bold" style="font-size: 10.0pt">, deliberatey excluding himself, rejecting the primary principles of Judaism. Therefore you must retort upon him quoting, &quot;This is done because of that which the Lord did for me when I came out of Egypt.&quot; For me, and not for him; if he had been there he would not have been redeemed.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u14f6">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">תָּם </span><span class="font-hebrew-body" lang="he">מַה הוּא אוֹמֵר, מַה זֹּאת. וְאָמַרְתָּ אֵלָיו בְּחֹזֶק יָד הוֹצִיאָנוּ יְיָ מִמִּצְרַיִם מִבֵּית עֲבָדִים:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u153b">
+        <p class="text-center" dir="ltr"><span class="font-comic bold" style="font-size: 10.0pt">Which is the simple child&#x27;s question? &quot;What is this?&quot; you shall answer him by saying: &quot;with a strong hand the Lord brought us out from Egypt, from       the house of bondage.&quot;</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u150d">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">וְשֶׁאֵינוֹ </span><span class="font-hebrew-body" lang="he">יוֹדֵעַ לִשְׁאוֹל אַתְּ פְּתַח לוֹ שֶׁנֶּאֱמַר וְהִגַּדְתָּ לְבִנְךָ בַּיּוֹם הַהוּא לֵאמֹר בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1569">
+        <p class="text-left" dir="ltr"><span class="font-comic bold" style="font-size: 10.0pt">If the child cannot engage with a question, you shall open the subject to him, as it is said, &quot;And you shall show your child on that day, saying, This is done because of that which the Lord did for me when I came out of Egypt.&quot; </span></p>
+      </div>
+      <div class="page-image decorative" data-image="Artwork 30.png"><img src="images/Artwork 30.png" alt="Artwork 30" /></div>
+      <div class="page-image decorative" data-image="Artwork 32.png"><img src="images/Artwork 32.png" alt="Artwork 32" /></div>
+      <div class="page-image decorative" data-image="Artwork 28.png"><img src="images/Artwork 28.png" alt="Artwork 28" /></div>
+      <div class="page-image decorative" data-image="Artwork 29.png"><img src="images/Artwork 29.png" alt="Artwork 29" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-9" data-page="9" style="background-color: #c8dcc0;">
+      <!-- Section: Avadim Hayinu -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u15c5">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">עֲבָדִים </span><span class="font-hebrew-body" lang="he">הָיִינוּ לְפַרְעֹה בְּמִצְרָיִם וַיּוֹצִיאֵנוּ יְיָ אֱלֹהֵינוּ מִשָּׁם בְּיָד חֲזָקָה וּבִזְרֹעַ נְטוּיָה. וְאִלּוּ לֹא הוֹצִיא הַקָּדוֹשׁ בָּרוּךְ הוּא אֶת אֲבוֹתֵינוּ מִמִּצְרַיִם הֲרֵי אָנוּ וּבָנֵינוּ וּבְנֵי בָנֵינוּ מְשֻׁעְבָּדִים הָיִינוּ לְפַרְעֹה בְּמִצְרָיִם. וַאֲפִילוּ כֻּלָּנוּ חֲכָמִים כֻּלָּנוּ נְבוֹנִים כֻּלָּנוּ יוֹדְעִים אֶת הַתּוֹרָה מִצְוָה עָלֵינוּ לְסַפֵּר בִּיצִיאַת מִצְרָיִם. וְכָל הַמַּרְבֶּה לְסַפֵּר בִּיצִיאַת מִצְרַיִם הֲרֵי זֶה מְשֻׁבָּח: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">מַעֲשֶׂה </span><span class="font-hebrew-body" lang="he">בְּרַבִּי אֱלִיעֶזֶר וְרַבִּי יְהוֹשֻׁעַ וְרַבִּי אֶלְעָזָר בֶּן עֲזַרְיָה וְרַבִּי עֲקִיבָא וְרַבִּי טַרְפוֹן שֶׁהָיוּ מְסֻבִּים בִּבְנֵי בְרַק. וְהָיוּ מְסַפְּרִים בִּיצִיאַת מִצְרַיִם כָּל אוֹתוֹ הַלַּיְלָה עַד שֶׁבָּאוּ תַלְמִידֵיהֶם וְאָמְרוּ לָהֶם רַבּוֹתֵינוּ הִגִּיעַ זְמַן קְרִיאַת שְׁמַע שֶׁל שַׁחֲרִית: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">אָמַר </span><span class="font-hebrew-body" lang="he">רַבִּי אֶלְעָזָר בֶּן עֲזַרְיָה הֲרֵי אֲנִי כְּבֶן שִׁבְעִים שָׁנָה וְלֹא זָכִיתִי שֶׁתֵּאָמַר יְצִיאַת מִצְרַיִם בַּלֵּילוֹת עַד שֶׁדְּרָשָׁהּ בֶּן זוֹמָא. שֶׁנֶּאֱמַר לְמַעַן תִּזְכֹּר אֶת יוֹם צֵאתְךָ מֵאֶרֶץ מִצְרַיִם כֹּל יְמֵי חַיֶּיךָ. יְמֵי חַיֶּיךָ הַיָּמִים. כֹּל יְמֵי חַיֶּיךָ לְהָבִיא הַלֵּילוֹת. וַחֲכָמִים אוֹמְרִים יְמֵי חַיֶּיךָ הָעוֹלָם הַזֶּה. כֹּל יְמֵי חַיֶּיךָ לְהָבִיא לִימוֹת הַמָּשִׁיחַ: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ</span> <span class="font-hebrew-body" lang="he">הַמָּקוֹם. בָּרוּךְ הוּא. בָּרוּךְ שֶׁנָּתַן תּוֹרָה לְעַמּוֹ יִשְׂרָאֵל. בָּרוּךְ הוּא. כְּנֶגֶד אַרְבָּעָה בָנִים דִּבְּרָה תוֹרָה. אֶחָד חָכָם. וְאֶחָד רָשָׁע. וְאֶחָד תָּם. וְאֶחָד שֶׁאֵינוֹ יוֹדֵעַ לִשְׁאוֹל:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u15dc">
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">We were slaves</span><span class="font-english-body" style="font-size: 10.0pt"> to Pharaoh in Egypt, and the </span><span class="font-english-body" style="font-size: 10.0pt">Lord our G-d brought us out from there with a strong hand and outstretched arm. If the most holy, blessed be He, had not brought out our fathers from Egypt, then we, our children, and our children&#x27;s children would all be slaves to Pharaoh in Egypt. Now, even would all of us be wise, all of us of great understanding, all of us elders, all of us familiar with the Scripture, it would still be our duty to tell the story of the Exodus from Egypt, and the more we find to say of the Exodus from Egypt, the better.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">It happened</span><span class="font-english-body" style="font-size: 10.0pt"> with Rabbi Eliezer, Rabbi Joshua, </span><span class="font-english-body" style="font-size: 10.0pt"> Rabbi Elazar ben Azariah, Rabbi Akivah, and Rabbi Tarfon: they were once dining in Bnei Brak, and were speaking about the Exodus from Egypt all that night until their disciples came and said to them, &quot;Our teachers, the time has come to recite the morning Shema!&quot;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Rabbi</span> <span class="font-english-body bold" style="font-size: 10.0pt">Elazar ben Azariah </span><span class="font-english-body" style="font-size: 10.0pt">said, &quot;I am like a </span><span class="font-english-body" style="font-size: 10.0pt">man of seventy, and I did not appreciate why the story of the exodus from Egypt should be told at night until Ben Zoma explained it thus: &quot;The Torah says, &#x27;That you may remember the day when you came out of the land of Egypt all the days of your life.&#x27; Had it said &#x27;The days of your life,&#x27; it would have referred only to the daytime. But as it says, &#x27;</span><span class="font-english-body italic" style="font-size: 10.0pt">All</span><span class="font-english-body" style="font-size: 10.0pt"> the days of your life,&#x27; it intends to include the nights. The Sages, however, say, had it said only &#x27;the days of your life,&#x27; it would have referred only to this world, but as it says, &#x27;</span><span class="font-english-body italic" style="font-size: 10.0pt">All</span><span class="font-english-body" style="font-size: 10.0pt"> the days of your life,&#x27; it means to include also the days of Moshiach.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Blessed </span><span class="font-english-body" style="font-size: 10.0pt">is the Omnipotent! Blessed be He! </span><span class="font-english-body" style="font-size: 10.0pt">Blessed is He who gave the Torah to His people Israel! Blessed be He! </span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-10" data-page="10" style="background-color: #f5d5b0;">
+      <!-- Section: Maggid (continued) -->
+      <!-- Hebrew Maggid text continues through page 17 -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u16bc">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">יָכוֹל </span><span class="font-hebrew-body" lang="he">מֵרֹאשׁ חֹדֶשׁ תַּלְמוּד לוֹמַר בַּיּוֹם הַהוּא אִי בַּיּוֹם הַהוּא יָכוֹל מִבְּעוֹד יוֹם תַּלְמוּד לוֹמַר בַּעֲבוּר זֶה. בַּעֲבוּר זֶה לֹא אָמַרְתִּי אֶלָּא בְּשָׁעָה שֶׁיֵּשׁ מַצָּה וּמָרוֹר מֻנָּחִים לְפָנֶיךָ: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">מִתְּחִלָה </span><span class="font-hebrew-body" lang="he">עוֹבְדֵי עֲבוֹדָה זָרָה הָיוּ אֲבוֹתֵינוּ וְעַכְשָׁו קֵרְבָנוּ הַמָּקוֹם לַעֲבֹדָתוֹ. שֶׁנֶּאֱמַר וַיֹּאמֶר יְהוֹשֻׁעַ אֶל כָּל הָעָם כֹּה אָמַר יְיָ אֱלֹהֵי יִשְׂרָאֵל בְּעֵבֶר הַנָּהָר יָשְׁבוּ אֲבוֹתֵיכֶם מֵעוֹלָם תֶּרַח אֲבִי אַבְרָהָם וַאֲבִי נָחוֹר וַיַּעַבְדוּ אֱלֹהִים אֲחֵרִים: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וָאֶקַּח </span><span class="font-hebrew-body" lang="he">אֶת אֲבִיכֶם אֶת אַבְרָהָם מֵעֵבֶר הַנָּהָר וָאוֹלֵךְ אוֹתוֹ בְּכָל אֶרֶץ כְּנָעַן וָאַרְבֶּה אֶת זַרְעוֹ וָאֶתֶּן לוֹ אֶת יִצְחָק: וָאֶתֵּן לְיִצְחָק אֶת יַעֲקֹב וְאֶת עֵשָׂו וָאֶתֵּן לְעֵשָׂו אֶת הַר שֵׂעִיר לָרֶשֶׁת אוֹתוֹ וְיַעֲקֹב וּבָנָיו יָרְדוּ מִצְרָיִם: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">שׁוֹמֵר הַבְטָחָתוֹ לְיִשְׂרָאֵל. בָּרוּךְ הוּא, שֶׁהַקָּדוֹשׁ בָּרוּךְ הוּא חִשֵּׁב אֶת הַקֵּץ לַעֲשׂוֹת כְּמָה שֶׁאָמַר לְאַבְרָהָם אָבִינוּ בִּבְרִית בֵּין הַבְּתָרִים. שֶׁנֶּאֱמַר וַיֹּאמֶר לְאַבְרָם יָדֹעַ תֵּדַע כִּי גֵר יִהְיֶה זַרְעֲךָ בְּאֶרֶץ לֹא לָהֶם וַעֲבָדוּם וְעִנּוּ אֹתָם אַרְבַּע מֵאוֹת שָׁנָה: וְגַם אֶת הַגּוֹי אֲשֶׁר יַעֲבֹדוּ דָּן אָנֹכִי וְאַחֲרֵי כֵן יֵצְאוּ בִּרְכוּשׁ גָּדוֹל:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וְהִיא </span><span class="font-hebrew-body" lang="he">שֶׁעָמְדָה לַאֲבוֹתֵינוּ וְלָנוּ שֶׁלֹא אֶחָד </span><span class="font-hebrew-body" lang="he">בִּלְבַד עָמַד עָלֵינוּ לְכַלּוֹתֵנוּ אֶלָּא שֶׁבְּכָל דּוֹר וָדוֹר עוֹמְדִים עָלֵינוּ לְכַלּוֹתֵנוּ. וְהַקָּדוֹשׁ בָּרוּךְ הוּא מַצִּילֵנוּ מִיָּדָם: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">צֵא </span><span class="font-hebrew-body" lang="he">וּלְמַד מַה בִּקֵּשׁ לָבָן הָאֲרַמִּי לַעֲשׂוֹת </span><span class="font-hebrew-body" lang="he">לְיַעֲקֹב אָבִינוּ. שֶׁפַּרְעֹה לֹא גָזַר אֶלָּא עַל הַזְּכָרִים וְלָבָן בִּקֵּשׁ לַעֲקוֹר אֶת הַכֹּל. שֶׁנֶּאֱמַר אֲרַמִּי אֹבֵד אָבִי וַיֵּרֶד מִצְרַיְמָה וַיָּגָר שָׁם בִּמְתֵי מְעָט וַיְהִי שָׁם לְגוֹי גָּדוֹל עָצוּם וָרָב: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וַיֵרֵֶד </span><span class="font-hebrew-body" lang="he">מִצְרַיְמָה אָנוּס עַל פִּי הַדִּבּוּר. וַיָּגָר שָׁם מְלַמֵּד שֶׁלֹּא יָרַד יַעֲקֹב אָבִינוּ לְהִשְׁתַּקֵּעַ בְּמִצְרַיִם אֶלָּא לָגוּר שָׁם. שֶׁנֶּאֱמַר וַיֹּאמְרוּ אֶל פַּרְעֹה לָגוּר בָּאָרֶץ בָּאנוּ כִּי אֵין מִרְעֶה לַצֹּאן אֲשֶׁר לַעֲבָדֶיךָ כִּי כָבֵד הָרָעָב בְּאֶרֶץ כְּנָעַן וְעַתָּה יֵשְׁבוּ נָא עֲבָדֶיךָ בְּאֶרֶץ גּשֶֹׁן:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בִּמְתֵי </span><span class="font-hebrew-body" lang="he">מְעָט כְּמָה שֶׁנֶּאֱמַר בְּשִׁבְעִים נֶפֶשׁ יָרְדוּ אֲבֹתֶיךָ מִצְרָיְמָה וְעַתָּה שָׂמְךָ אֲדנָֹי אֱלֹהֶיךָ כְּכוֹכְבֵי הַשָּׁמַיִם לָרֹב: וַיְהִי שָׁם לְגוֹי מְלַמֵּד שֶׁהָיוּ יִשְׂרָאֵל מְצֻיָּנִים שָׁם: גָּדוֹל עָצוּם כְּמָה שֶׁנֶּאֱמַר וּבְנֵי יִשְׂרָאֵל פָּרוּ וַיִּשְׁרְצוּ וַיִּרְבּוּ וַיַּעַצְמוּ בִּמְאֹד מְאֹד וַתִּמָּלֵא הָאָרֶץ אֹתָם: וָרָָב כְּמָה שֶׁנֶּאֱמַר וָאֶעֱבֹר עָלַיִךְ וָאֶרְאֵךְ מִתְבּוֹסֶסֶת בְּדָמָיִךְ וָאֹמַר לָךְ בְּדָמַיִךְ חֲיִי וָאֹמַר לָךְ בְּדָמַיִךְ חֲיִי: רְבָבָה כְּצֶמַח הַשָּׂדֶה נְתַתִּיךְ וַתִּרְבִּי וַתִּגְדְּלִי וַתָּבוֹאִי בַּעֲדִי עֲדָיִים שָׁדַיִם נָכֹנוּ וּשְׂעָרֵךְ צִמֵּחַ וְאַתְּ עֵרֹם וְעֶרְיָה: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וַיָּרֵעוּ </span><span class="font-hebrew-body" lang="he">אֹתָנוּ הַמִּצְרִים וַיְעַנּוּנוּ וַיִּתְּנוּ עָלֵינוּ עֲבֹדָה קָשָׁה: וַיָּרֵעוּ אֹתָנוּ הַמִּצְרִים כְּמָה שֶׁנֶּאֱמַר הָבָה נִתְחַכְּמָה לוֹ פֶּן יִרְבֶּה וְהָיָה כִּי תִקְרֶאנָה מִלְחָמָה וְנוֹסַף גַּם הוּא עַל שֹׂנְאֵינוּ וְנִלְחַם בָּנוּ וְעָלָה מִן הָאָרֶץ: וַיְעַנּוּנוּ כְּמָה שֶׁנֶּאֱמַר וַיָּשִׂימוּ עָלָיו שָׂרֵי מִסִּים לְמַעַן עַנֹּתוֹ בְּסִבְלֹתָם וַיִּבֶן עָרֵי מִסְכְּנוֹת לְפַרְעֹה אֶת פִּיתֹם וְאֶת רַעַמְסֵס: וַיִּתְּנוּ עָלֵינוּ עֲבֹדָה קָשָׁה כְּמָה שֶׁנֶּאֱמַר וַיַּעֲבִדוּ מִצְרַיִם אֶת בְּנֵי יִשְׂרָאֵל בְּפָרֶךְ: וַיְמָרֲרוּ אֶת חַיֵּיהֶם בַּעֲבֹדָה קָשָׁה בְּחֹמֶר וּבִלְבֵנִים וּבְכָל עֲבֹדָה בַּשָּׂדֶה אֵת כָּל עֲבֹדָתָם אֲשֶׁר עָבְדוּ בָהֶם בְּפָרֶךְ: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וַנִּצְעַק </span><span class="font-hebrew-body" lang="he">אֶל יְיָ אֱלֹהֵי אֲבֹתֵינוּ וַיִּשְׁמַע יְיָ אֶת קֹלֵנוּ וַיַּרְא אֶת עָנְיֵנוּ וְאֶת עֲמָלֵנוּ וְאֶת לַחֲצֵנוּ: וַנִּצְעַק אֶל יְיָ אֱלֹהֵי אֲבֹתֵינוּ כְּמָה שֶׁנֶּאֱמַר וַיְהִי בַיָּמִים הָרַבִּים הָהֵם וַיָּמָת מֶלֶךְ מִצְרַיִם וַיֵּאָנְחוּ בְנֵי יִשְׂרָאֵל מִן הָעֲבֹדָה וַיִּזְעָקוּ וַתַּעַל שַׁוְעָתָם אֶל הָאֱלֹהִים מִן הָעֲבֹדָה:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וַיִּשְׁמַע </span><span class="font-hebrew-body" lang="he">יְיָ אֶת קוֹלֵנוּ כְּמָה שֶׁנֶּאֱמַר וַיִּשְׁמַע אֱלֹהִים אֶת נַאֲקָתָם וַיִּזְכֹּר אֱלֹהִים אֶת בְּרִיתוֹ אֶת אַבְרָהָם אֶת יִצְחָק וְאֶת יַעֲקֹב:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וַיַּרְא </span><span class="font-hebrew-body" lang="he">אֶת עָנְיֵנוּ זוֹ פְּרִישׁוּת דֶּרֶךְ אֶרֶץ כְּמָה שֶׁנֶּאֱמַר וַיַּרְא אֱלֹהִים אֶת בְּנֵי יִשְׂרָאֵל וַיֵּדַע אֱלֹהִים:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וְאֶת </span><span class="font-hebrew-body" lang="he">עַמָלֵנוּ אֵלּוּ הַבָּנִים כְּמָה שֶׁנֶּאֱמַר כָּל הַבֵּן הַיִּלּוֹד הַיְאֹרָה תַּשְׁלִיכוּהוּ וְכָל הַבַּת תְּחַיּוּן: וְאֶת לַחֲצֵנוּ זֶה הַדְּחַק כְּמָה שֶׁנֶּאֱמַר וְגַם רָאִיתִי אֶת הַלַּחַץ אֲשֶׁר מִצְרַיִם לוֹחֲצִים אֹתָם:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וַיּוֹצִיאֵנוּ </span><span class="font-hebrew-body" lang="he">יְיָ מִמִּצְרַיִם בְּיָד חֲזָקָה וּבִזְרוֹעַ נְטוּיָה וּבְמֹרָא גָּדוֹל וּבְאֹתֹת וּבְמֹפְתִים: וַיּוֹצִיאֵנוּ יְיָ מִמִּצְרַיִם לֹא עַל יְדֵי מַלְאָךְ וְלֹא עַל יְדֵי שָׂרָף וְלֹא עַל יְדֵי שָׁלִיחַ אֶלָּא הַקָּדוֹשׁ בָּרוּךְ הוּא בִּכְבוֹדוֹ וּבְעַצְמוֹ. שֶׁנֶּאֱמַר וְעָבַרְתִּי בְאֶרֶץ מִצְרַיִם בַּלַּיְלָה הַזֶּה וְהִכֵּיתִי כָל בְּכוֹר בְּאֶרֶץ מִצְרַיִם מֵאָדָם וְעַד בְּהֵמָה וּבְכָל אֱלֹהֵי מִצְרַיִם אֶעֱשֶׂה שְׁפָטִים אֲנִי יְיָ: ועָבַרְתִּי בְאֶרֶֶץ מִצְרַיִם אֲנִי וְלֹא מַלְאָךְ. וְהִכֵּיתִי כָל בְּכוֹר בְּאֶרֶץ מִצְרַיִם אֲנִי וְלֹא שָׂרָף. וּבְכָל אֱלֹהֵי מִצְרַיִם אֶעֱשֶׂה שְׁפָטִים אֲנִי וְלֹא הַשָּׁלִיחַ. אֲנִי יְיָ. אֲנִי הוּא וְלֹא אַחֵר:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בְּיָד </span><span class="font-hebrew-body" lang="he">חֲזָקָה זֶה הַדֶּבֶר כְּמָה שֶׁנֶּאֱמַר הִנֵּה יַד יְיָ הוֹיָה בְּמִקְנְךָ אֲשֶׁר בַּשָּׂדֶה בַּסּוּסִים בַּחֲמֹרִים בַּגְּמַלִּים בַּבָּקָר וּבַצֹּאן דֶּבֶר כָּבֵד מְאֹד: וּבִזְרֹעַ נְטוּיָה זוֹ הַחֶרֶב כְּמָה שֶׁנֶּאֱמַר וְחַרְבּוֹ שְׁלוּפָה בְּיָדוֹ נְטוּיָה עַל יְרוּשָׁלָיִם. וּבְמֹרָא גָּדֹל זֶה גִּלּוּי שְׁכִינָה כְּמָה שֶׁנֶּאֱמַר אוֹ הֲנִסָּה אֱלֹהִים לָבֹא לָקַחַת לוֹ גוֹי מִקֶּרֶב גּוֹי בְּמַסֹּת בְּאֹתֹת וּבְמוֹפְתִים וּבְמִלְחָמָה וּבְיָד חֲזָקָה וּבִזְרֹעַ נְטוּיָה וּבְמוֹרָאִים גְּדוֹלִים כְּכֹל אֲשֶׁר עָשָׂה לָכֶם יְיָ אֱלֹהֵיכֶם בְּמִצְרַיִם לְעֵינֶיךָ: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וּבְאֹתוֹת </span><span class="font-hebrew-body" lang="he">זֶה הַמַַטֶּה כְּמָה שֶׁנֶּאֱמַר וְאֶת הַמַּטֶּה הַזֶּה תִּקַּח בְּיָדֶךָ אֲשֶׁר תַּעֲשֶׂה בּוֹ אֶת הָאֹתֹת: וּבְמוֹפְתִים זֶה הַדָּם כְּמָה שֶׁנֶּאֱמַר וְנָתַתִּי מֹפְתִים בַּשָּׁמַיִם וּבָאָרֶץ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">דָּם וָאֵשׁ וְתִמְרוֹת עָשָׁן:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">דָּבָר </span><span class="font-hebrew-body" lang="he">אַחֵר בְּיָד חַזָקָָה שְׁתַּיִם. וּבִזְרוֹעַ נְטוּיָה שְׁתַּיִם. וּבְמוֹרָא גָּדוֹל שְׁתַּיִם. וּבְאֹתוֹת שְׁתַּיִם. וּבְמֹפְתִים שְׁתַּיִם:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">אֵלּוּ </span><span class="font-hebrew-body" lang="he">עֶשֶׂר מַכּוֹת שֶׁהֵבִיא הַקָּדוֹשׁ בָּרוּךְ הוּא עַל הַמִּצְרִים בְּמִצְרַיִם. וְאֵלּוּ הֵן:</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">דָּם</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">צְפַרְדֵּעַ</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">כִּנִּים</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">עָרוֹב</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">דֶּבֶר</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">שְׁחִין</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">בָּרָד</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">אַרְבֶּה</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">חֹשֶׁךְ</span><span class="font-hebrew-body" lang="he">.</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 14.0pt" lang="he">מַכַּת בְּכוֹרוֹת:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body" lang="he">רַבִּי יְהוּדָה הָיָה נוֹתֵן בָּהֶם סִמָּנִים:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" style="font-size: 14.0pt" lang="he">דְּצַ”ךְ. עֲדַ&quot;שׁ. בְּאַחַ”ב:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">רַבִּי </span><span class="font-hebrew-body" lang="he">יוֹסֵי הַגְּלִילִי אוֹמֵר מִנַּיִן אַתָּה אוֹמֵר שֶׁלָּקוּ הַמִּצְרִים בְּמִצְרַיִם עֶשֶׂר מַכּוֹת וְעַל הַיָּם לָקוּ חֲמִשִּׁים מַכּוֹת. בְּמִצְרַיִם מַה הוּא אוֹמֵר וַיֹּאמְרוּ הַחַרְטֻמִּים אֶל פַּרְעֹה אֶצְבַּע אֱלֹהִים הִיא. וְעַל הַיָּם מַה הוּא אוֹמֵר וַיַּרְא יִשְׂרָאֵל אֶת הַיָּד הַגְּדוֹלָה אֲשֶׁר עָשָׂה יְיָ בְּמִצְרַיִם וַיִּירְאוּ הָעָם אֶת יְיָ וַיַּאֲמִינוּ בַּייָ וּבְמֹשֶׁה עַבְדּוֹ: כַּמָּה לָקוּ בְאֶצְבַּע עֶשֶׂר מַכּוֹת. אֱמוֹר מֵעַתָּה בְּמִצְרַיִם לָקוּ עֶשֶׂר מַכּוֹת. וְעַל הַיָּם לָקוּ חֲמִשִּׁים מַכּוֹת:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">רַבִּי </span><span class="font-hebrew-body" lang="he">אֱלִיעֶזֶר אוֹמֵר מִנַּיִן שֶׁכָּל מַכָּה וּמַכָּה שֶׁהֵבִיא הַקָּדוֹשׁ בָּרוּךְ הוּא עַל הַמִּצְרִים בְּמִצְרַיִם הָיְתָה שֶׁל אַרְבַּע מַכּוֹת שֶׁנֶּאֱמַר יְשַׁלַּח בָּם חֲרוֹן אַפּוֹ עֶבְרָה וָזַעַם וְצָרָה מִשְׁלַחַת מַלְאֲכֵי רָעִים: עֶבְרָה אַחַת. וָזַעַַם שְׁתַּיִם. וְצָרָָה שָׁלֹשׁ. מִשְׁלַחַת מַלְאֲכֵי רָעִים אַרְבַּע. אֱמוֹר מֵעַתָּה בְּמִצְרַיִם לָקוּ אַרְבָּעִים מַכּוֹת. וְעַל הַיָּם לָקוּ מָאתַיִם מַכּוֹת:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">רַבִּי </span><span class="font-hebrew-body" lang="he">עֲקִיבָא אוֹמֵר מִנַּיִן שֶׁכָּל מַכָּה וּמַכָּה שֶׁהֵבִיא הַקָּדוֹשׁ בָּרוּךְ הוּא עַל הַמִּצְרִים בְּמִצְרַיִם הָיְתָה שֶׁל חָמֵשׁ מַכּוֹת. שֶׁנֶּאֱמַר יְשַׁלַּח בָּם חֲרוֹן אַפּוֹ עֶבְרָה וָזַעַם וְצָרָה מִשְׁלַחַת מַלְאֲכֵי רָעִים. חֲרוֹן אַפּוֹ אַחַת. עֶבְרָה שְׁתַּיִם. וָזַעַַם שָׁלֹשׁ. וְצָרָָה אַרְבַּע. מִשְׁלַחַת מַלְאֲכֵי רָעִים חָמֵשׁ. אֱמוֹר מֵעַתָּה בְּמִצְרַיִם לָקוּ חֲמִשִּׁים מַכּוֹת. וְעַל הַיָּם לָקוּ חֲמִשִּׁים וּמָאתַיִם מַכּוֹת:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">כַּמָּה מַעֲלוֹת טוֹבוֹת לַמָּקוֹם עָלֵינוּ:</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">אִלּוּ הוֹצִיאָנוּ מִמִּצְרַיִם וְלֹא עָשָׂה בָהֶם שְׁפָטִים דַּיֵּנוּ: אִלּוּ עָשָׂה בָהֶם שְׁפָטִים וְלֹא עָשָׂה בֵאלֹהֵיהֶם דַּיֵּנוּ: אִלּוּ עָשָׂה בֵאלֹהֵיהֶם וְלֹא הָרַג אֶת בְּכוֹרֵיהֶם דַּיֵּנוּ: אִלּוּ הָרַג אֶת בְּכוֹרֵיהֶם וְלֹא נָתַן לָנוּ אֶת מָמוֹנָם דַּיֵּנוּ: אִלּוּ נָתַן לָנו</span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">ּ אֶת מָמוֹנָם וְלֹא קָרַע לָנוּ אֶת הַיָּם דַּיֵּנוּ: אִלּוּ קָרַע לָנוּ אֶת הַיָּם וְלֹא הֶעֱבִירָנוּ בְתוֹכוֹ בֶּחָרָבָה דַּיֵּנוּ: אִלּוּ הֶעֱבִירָנוּ בְתוֹכוֹ בֶּחָרָבָה וְלֹא שִׁקַּע צָרֵינוּ בְּתוֹכוֹ דַּיֵּנוּ: אִלּוּ שִׁקַּע צָרֵינוּ בְּתוֹכוֹ וְלֹא סִפֵּק צָרְכֵּנוּ בַּמִּדְבָּר אַרְבָּעִים שָׁנָה			 דַּיֵּנוּ: אִלּוּ סִפֵּק צָרְכֵּנוּ בַּמִּדְבָּר אַרְבָּעִים שָׁנָה וְלֹא הֶאֱכִילָנוּ אֶת הַמָּן			 דַּיֵּנוּ: אִלּוּ הֶאֱכִילָנוּ אֶת הַמָּן וְלֹא נָתַן לָנוּ אֶת הַשַּׁבָּת דַּיֵּנוּ: אִלּוּ נָתַן לָנוּ אֶת הַשַּׁבָּת וְלֹא קֵרְבָנוּ לִפְנֵי הַר סִינַי דַּיֵּנוּ: אִלּוּ קֵרְבָנוּ לִפְנֵי הַר סִינַי וְלֹא נָתַן לָנוּ אֶת הַתּוֹרָה דַּיֵּנוּ: אִלּוּ נָתַן לָנוּ אֶת הַתּוֹרָה וְלֹא הִכְנִיסָנוּ לְאֶרֶץ יִשְׂרָאֵל דַּיֵּנוּ: אִלּוּ הִכְנִיסָנוּ לְאֶרֶץ יִשְׂרָאֵל וְלֹא בָנָה לָנוּ אֶת בֵּית הַבְּחִירָה			 דַּיֵּנוּ:</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-11" data-page="11" style="background-color: #f5d5b0;">
+      <!-- English Maggid text continues through page 19 -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u16d5">
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Should</span><span class="font-english-body" style="font-size: 10.0pt"> it be from the first of the month [of </span><span class="font-english-body" style="font-size: 10.0pt">Nisan]? No: for the Torah says, &#x27;On that day.&#x27; Does &#x27;That day&#x27; mean the daytime? No: for the Torah continues &#x27;This is done,&#x27; It would not have said, &#x27;This is done,&#x27; except to refer to the time when the Matzah and bitter herbs are there before you.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">In remotest days</span><span class="font-english-body" style="font-size: 10.0pt"> our ancestors were </span><span class="font-english-body" style="font-size: 10.0pt">idolaters, but now G-d has brought us to worship Him, as it is said, &#x27;And Joshua said unto all the people: Thus says the Lord, G-d of Israel, Your fathers dwelt on the other side of the river in old time, including Terach, the father of Abraham, and the father of Nachor: and they served other gods.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">And I took</span><span class="font-english-body" style="font-size: 10.0pt"> your father Abraham from the </span><span class="font-english-body" style="font-size: 10.0pt">other side of the river, and led him throughout all the land of Canaan, and multiplied his seed and gave him Isaac, And I gave unto Isaac, Jacob and Esau: and I gave unto Esau mount Seir, to possess it; but Jacob and his children went down into Egypt.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">And it is this</span><span class="font-english-body" style="font-size: 10.0pt"> [same promise] that has been </span><span class="font-english-body" style="font-size: 10.0pt">maintained to our forefathers and to us, for there has not been only one to rise up against us to destroy us, but in every generation there arises against us those who would destroy us, and the Holy One (blessed be He) delivers us from their hands.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Inquire</span><span class="font-english-body" style="font-size: 10.0pt"> and learn what Laban, the Syrian, </span><span class="font-english-body" style="font-size: 10.0pt">sought to do to Jacob our father. For while Pharaoh decreed a sentence against the male children, Laban sought to destroy the whole [of the family of Jacob], as it is said, &#x27;A Syrian [Laban] would have caused my father to perish, and he went down to Egypt, and sojourned there with but a few, and became there a great nation, mighty and populous.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;And he went down</span><span class="font-english-body" style="font-size: 10.0pt"> into Egypt,&#x27; inspired </span><span class="font-english-body" style="font-size: 10.0pt">thereto by the word of G-d. &#x27;And he sojourned there.&#x27; This teaches that our ancestor Jacob did not go down to Egypt to remain there, but only to sojourn; as it is further said, &#x27;They said moreover unto Pharaoh, Only to sojourn in the land have we come, for your servants have no pasture for their flocks; for the famine is sore in the land of Canaan; now therefore, we ask you, let your servants dwell in the land of Goshen.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;With but a few,&#x27;</span><span class="font-english-body" style="font-size: 10.0pt"> as it is said, &#x27;Your fathers </span><span class="font-english-body" style="font-size: 10.0pt">went down into Egypt with seventy persons; and now the Lord your G-d has made you as the stars of heaven for multitude.&#x27; &#x27;...and became there a nation.&#x27; This teaches that Israel became distinguished. &#x27;...great and mighty,&#x27; as it is said, &#x27;And the children of Israel were fruitful, and increased abundantly, and multiplied, and waxed exceeding mighty, and the land was filled with them.&#x27; &#x27;...and populous,&#x27; as it is said, &#x27;I have caused you to multiply as the bud of the field, and you have increased and waxen great, and you have come to excellent ornaments; your shape is perfected, and your hair is grown, whereas you are naked and bare.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;And </span><span class="font-english-body" style="font-size: 10.0pt">the Egyptians treated us evilly,</span> <span class="font-english-body" style="font-size: 10.0pt">and  </span><span class="font-english-body" style="font-size: 10.0pt">afflicted us and laid upon us hard bondage:&#x27; &#x27;And the Egyptians treated us evilly,&#x27; as it is said &#x27;Come now, let us handle them [the Jews] wisely; lest they multiply, and it will come to pass that when there falls out any war, they will join also with our enemies and fight against us, and so leave out of our land.&#x27; &#x27;...and afflicted us,&#x27; as it is said, &#x27;Therefore they set taskmasters in charge of them to afflict them with their burdens,  and they built for Pharaoh warehouse cities (Pithom and Rameses).&#x27; &#x27;...and laid upon us hard bondage,&#x27; as it is said, &#x27;And the Egyptians made the children of Israel to serve with rigor [...] and they embittered their lives with hard bondage, with bricks and mortar, and with all sorts of work in the field, all their work which they served with rigor.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;And when we cried</span><span class="font-english-body" style="font-size: 10.0pt"> unto the Lord, G-d </span><span class="font-english-body" style="font-size: 10.0pt">of our fathers, the Lord heard our voice and looked on our affliction and our labor and our oppression.&#x27; &#x27;And when we cried unto the Lord, G-d of our fathers,&#x27; as it is said, &#x27;And it came to pass in course of time that the king of Egypt died; and the children of Israel sighed from their bondage, and they cried, and their cry came up to G-d from their bondage.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;The Lord heard</span><span class="font-english-body" style="font-size: 10.0pt"> our voice,&#x27; as it is said, </span><span class="font-english-body" style="font-size: 10.0pt">&#x27;And G-d heard their groaning, and G-d remembered His covenant with Abraham, with Isaac, and with Jacob.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;And He saw</span><span class="font-english-body" style="font-size: 10.0pt"> our affliction.&#x27; This refers to </span><span class="font-english-body" style="font-size: 10.0pt">Egyptian tyranny over Jewish family life; as it is said, &#x27;And G-d looked upon the children of Israel, and G-d understood.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;And our labor.&#x27;</span><span class="font-english-body" style="font-size: 10.0pt"> This refers to the condemned male children, as it is said, &#x27;Every son that is born you shall cast into the river, and every daughter you shall save alive.&#x27; &#x27;...and our oppression.&#x27; This refers to its severity, as it is said, &#x27;And I have also seen the oppression with which the Egyptians oppressed them.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;And the Lord brought us forth</span><span class="font-english-body" style="font-size: 10.0pt"> out </span><span class="font-english-body" style="font-size: 10.0pt">of Egypt with a mighty hand, and with an outstretched arm, and with great terribleness, and with signs and wonders.&#x27; &#x27;And the Lord brought us forth out of Egypt.&#x27; Not by the hands of an angel, nor by the hands of a seraph, nor by the hands of a messenger; but it was the Holy One, blessed be He, He Himself, as it is said, &#x27;For I will pass through the land of Egypt this night, and will smite all the first-born in the land of Egypt, both man and beast; and against all the gods of Egypt I will execute judgment; I am the Lord.&#x27; &#x27;For I will pass through the land of Egypt,&#x27; i.e., I, myself, and not an angel; &#x27;...and I will smite all the first-born,&#x27; I, myself, and not a seraph; &#x27;...and against all the gods of Egypt I will execute judgment,&#x27; I, Myself, and not a messenger.&#x27; I am the Lord; it is I and no other.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;With a mighty hand.&#x27;</span><span class="font-english-body" style="font-size: 10.0pt"> This refers to the </span><span class="font-english-body" style="font-size: 10.0pt">pestilence, as it is said, &#x27;Behold the hand of the Lord is upon your cattle which is in the field, upon the horses, upon the donkeys, upon the camels, upon the oxen, and upon the sheep. There shall be a very grievous pestilence.&#x27; &#x27;...and with an outstretched arm.&#x27; This refers to the sword, of which it is said, &#x27;Having a drawn sword in His hand stretched out over Jerusalem.&#x27; &#x27;...and with great terribleness.&#x27; This refers to the revelation by G-d of His divine presence, as it is said, &#x27;Or has G-d assayed to go and take Him a nation from the midst of another nation, by temptations, by signs, and by wonders, and by war, and by a mighty hand and by a stretched out arm, and by great terrors, according to all that the Lord your G-d did for you in Egypt before your eyes.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">&#x27;And with signs.&#x27; </span><span class="font-english-body" style="font-size: 10.0pt">This refers to the rod (of </span><span class="font-english-body" style="font-size: 10.0pt">Moses), as it is said, &#x27;And you shall take this rod in your hand wherewith you shall do signs.&#x27; &#x27;...and with wonders.&#x27; This refers to the blood, as it is said, &#x27;And I will show wonders in the heavens and in the earth,</span></p>
+        <p class="text-center" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Blood, and fire, and pillars of smoke.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Another explanation</span><span class="font-english-body" style="font-size: 10.0pt"> is, that these  </span><span class="font-english-body" style="font-size: 10.0pt">expressions: &#x27;A mighty hand,&#x27; indicates two plagues, &#x27;An outstretched arm,&#x27; another two plagues, &#x27;Great terribleness,&#x27; another two plagues, &#x27;Signs’ another two plagues, and &#x27;Wonders&#x27; another two.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">These</span><span class="font-english-body" style="font-size: 10.0pt"> are the ten plagues which the Holy </span><span class="font-english-body" style="font-size: 10.0pt">One, blessed be He, did bring upon the Egyptians in Egypt, namely:</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">Blood, frogs, lice, wild animals, pestilence, boils, hail, locusts, darkness, the slaying of the first-born</span></p>
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">Rabbi Judah made acronyms for them:</span></p>
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">&#x27;Datzach, Adash, Be&#x27;achav.&#x27;</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Rabbi Jose of the Galilee</span><span class="font-english-body" style="font-size: 10.0pt"> said: From where </span><span class="font-english-body" style="font-size: 10.0pt"> do we know that while the Egyptians suffered ten plagues in Egypt, they were at the Red Sea smitten with fifty plagues? Regarding Egypt it is said, &#x27;Then the magicians said unto Pharaoh, This is the </span><span class="font-english-body italic" style="font-size: 10.0pt">finger</span><span class="font-english-body" style="font-size: 10.0pt"> of G-d.&#x27; While regarding the Red Sea it is said, &#x27;And Israel saw that great </span><span class="font-english-body italic" style="font-size: 10.0pt">hand</span><span class="font-english-body" style="font-size: 10.0pt"> with which the Lord wrought against Egypt, and the people feared the Lord, and believed in the Lord and in His servant Moses.&#x27; Now, if with the finger of G-d they were smitten with ten plagues, then we may say that in Egypt they were smitten with ten plagues and at the Red Sea they were smitten with fifty plagues.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Rabbi</span> <span class="font-english-body bold" style="font-size: 10.0pt">Eliezer </span><span class="font-english-body" style="font-size: 10.0pt">said, From where can we tell </span><span class="font-english-body" style="font-size: 10.0pt"> that each plague that the Holy One, blessed be He, brought upon the Egyptians in Egypt was the equivalent of four plagues? For it is said, ‘He cast upon them the fierceness of Hi</span><span class="font-english-body" style="font-size: 10.0pt">s anger, wrath, and indignation, and trouble, sending evil angels among them.’ Now ‘wrath’ indicates one plague, ‘indignation’ a second, ‘trouble’ a third, and ‘sending evil angels’ a fourth; hence we may say that in Egypt they were smitten with plagues equal to forty, while at the Red Sea they were smitten with plagues equal to two hundred.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Rabbi Akiva </span><span class="font-english-body" style="font-size: 10.0pt">said, From where may we say </span><span class="font-english-body" style="font-size: 10.0pt"> that each plague that the Holy One, blessed be He, brought upon the Egyptians in Egypt was equal to five plagues? For it is said, ‘He cast upon them the fierceness of His anger, wrath, and indignation, and trouble, sending evil angels.’ The ‘fierceness of His anger’ is one, ‘wrath’ is a second, ‘indignation’ is a third, ‘trouble’ is a fourth, and ‘sending evil angels’ is a fifth. Hence we may say, that in Egypt they were smitten with plagues equal to fifty, while at the Red Sea they were smitten with plagues equal to two hundred and fifty.</span><span class="font-english-body bold" style="font-size: 10.0pt">How many are </span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">t</span><span class="font-english-body bold" style="font-size: 10.0pt">he benefits which G-d has conferred upon us</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 8.6pt">Had He brought us from Egypt, and had not executed judgments upon the Egyptians: It would have sufficed for our gratitude.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 8.6pt">Had He executed judgments upon the Egyptians, and had not then executed judgments upon their gods: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He executed judgments upon their gods, and had not slain their first-born: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He slain their first-born, and had not then given us their wealth: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He given us their wealth, and had not then split the Sea: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He split the Sea for us, and had not then made us to pass through its midst on dry land: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He made us to pass through its midst on dry land, and had not sunk our adversaries in the midst thereof: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He sunk our adversaries in the midst thereof, and had not provided for our needs in the desert for forty years: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He provided for our needs in the desert for forty years, and had not fed us with the manna: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He fed us with the manna, and had not given us the Shabbat: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He given us the Shabbat, and had not brought us to Mount Sinai: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He brought us to Mount Sinai, and had not given us the Torah: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He given us the Torah, and had not brought us to the Land of Israel: It would have sufficed for our gratitude.</span><span class="font-english-body" style="font-size: 8.6pt">Had He brought us to the Land of Israel, and had not built for us the Holy Temple: It would have sufficed for our gratitude.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">How much, therefore</span><span class="font-english-body" style="font-size: 10.0pt">, has the goodness </span><span class="font-english-body" style="font-size: 10.0pt">of the Almighty been doubled and redoubled towards us! For He brought us from Egypt; He executed judgments upon the Egyptians; He executed judgments upon their gods; He slew their first-born; He gave us their wealth; He split for us the Sea; He made us to pass through its midst on dry land; He sunk our adversaries in the midst thereof; He provided for our needs in the desert for forty years; He fed us with the manna; He gave us the Shabbat; He brought us to Mount Sinai; He gave us the Torah; He brought us to the Land of Israel; He built for us the Temple in which we atoned for our iniquities.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Rabban Gamaliel</span><span class="font-english-body" style="font-size: 10.0pt"> said, Whoever does not </span><span class="font-english-body" style="font-size: 10.0pt">discuss these three items on the Passover has not fulfilled his duty, and these are they: </span><span class="font-english-body" style="font-size: 10.0pt">The Passover offering; the Matzah (unleavened bread); the Maror (bitter herbs).</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">What is the reason</span><span class="font-english-body" style="font-size: 10.0pt"> for the sacrifice of the </span><span class="font-english-body" style="font-size: 10.0pt">Passover offering which our fathers ate in the time of the Temple? For the Holy One, blessed be He, passed over the houses of our ancestors in Egypt, as it is said, ‘You shall say it is the sacrifice of the Lord’s Passover, who passed over the houses of the children of Israel in Egypt when He smote the Egyptians, and delivered our houses. And the people bowed the head and worshiped.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">This Matzah (unleavened bread)</span><span class="font-english-body" style="font-size: 10.0pt"> Which  </span><span class="font-english-body" style="font-size: 10.0pt">we now eat: Why is this eaten? Since the dough of our ancestors had not time to rise before the Supreme King of kings, the Holy One, blessed be He, appeared to them and redeemed them, as it is said, ‘And they baked unleavened cakes of the dough which they brought forth from Egypt, for it did not rise, because they were thrust out of Egypt and could not wait, nor had they prepared for themselves any provisions.’</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">This Maror (bitter herbs) </span><span class="font-english-body" style="font-size: 10.0pt">which we now  </span><span class="font-english-body" style="font-size: 10.0pt">eat: What does it mean? It is eaten because the Egyptians embittered the lives of our forefathers in Egypt, as it is said, ‘And they made their lives bitter with hard bondage, with mortar and with bricks, and with all types of work in the field; all their work wherein they made them serve was with rigor.’</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">In every generation</span><span class="font-english-body" style="font-size: 10.0pt"> each one of us should </span><span class="font-english-body" style="font-size: 10.0pt">regard himself as though he himself has gone out from Egypt, as it is said, ‘And you shall show your child on that day, saying, “This is done because of that which the Lord did for me when I came out of Egypt.” Not our ancestors alone did G-d redeem then, but He redeemed us with them, as it is said, ‘And He brought us out from there, that He might bring us in to give us the land which He swore unto our fathers.’</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Therefore </span><span class="font-english-body" style="font-size: 10.0pt">we are obliged to thank, to </span><span class="font-english-body" style="font-size: 10.0pt">praise, to glorify, to exalt, to honor, to bless, to extol, and to give reverence to Him who performed for us, as well as for our forefathers, all these wonders. He has brought us forth from bondage to freedom, from sorrow to joy, from mourning to festival, from darkness to great light, and from slavery to redemption. Now, therefore, let us sing before Him a new song, Praise G-d!</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Praise the lord.</span><span class="font-english-body" style="font-size: 10.0pt"> Praise, O servants of </span><span class="font-english-body" style="font-size: 10.0pt">the Lord, praise the Name of the Lord. Blessed be the Name of the Lord from this time forth and forever more. From the rising of the sun until the sunset, the Lord’s Name is to be praised. The Lord is high above all nations, and His glory above the heavens. Who is like unto the Lord our G-d, that has His seat on high, that humbles himself to behold the things that are in heaven and in the earth? He raises up the poor out of the dust and lifts up the needy from the dunghill; that He may set them with princes, with the princes of His people. He makes the barren woman to keep house, and to be a joyful mother of children. Praise the Lord.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">When Israel went out </span><span class="font-english-body" style="font-size: 10.0pt">of Egypt, the </span><span class="font-english-body" style="font-size: 10.0pt">house of Jacob from a people of a strange language; Judah became His sanctuary, Israel His dominion. The sea saw it and fled; Jordan was driven back. The mountains skipped like rams, the little hills like young sheep. What ails you, O sea, that you flee? Jordan, that you turn back? Mountains, that you skip like rams; you little hills like young sheep? Tremble, you earth, at the presence of the Lord, at the presence of the G-d of Jacob; which turned the rock into a pool of water, the flint into a fountain of water.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Blessed are You</span><span class="font-english-body" style="font-size: 10.0pt">, Lord our G-d, King of </span><span class="font-english-body" style="font-size: 10.0pt">the Universe, who redeemed us and our ancestors from Egypt, and has brought us to this night to eat thereon Matzah and Maror. So, Lord our G-d, the G-d of our fathers, may You enable us to reach other festivals and holidays in future, with gladness at the rebuilding of Your city and with joy in Your service, there (in Jerusalem rebuilt) may we partake of the sacrifices and of the Passover offerings (of the Passover offerings and the sacrifices) offered upon your altar, in your favor, when we will offer to you a new song for our redemption and our salvation. Blessed are You, Lord, redeemer of Israel.</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3cd6">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Cover the Matzah and raise your cup of wine</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3cef">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Put down the cup of wine, and uncover the Matzah</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3fd8">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Cover the Matzah and raise your cup of wine</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3ff2">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Put down the cup of wine, and uncover the Matzah</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-12" data-page="12" style="background-color: #e8d5b7;">
+      <!-- Hebrew text continued from page 10 -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-13" data-page="13" style="background-color: #e8d5b7;">
+      <!-- English text continued from page 11 -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-14" data-page="14" style="background-color: #f5d5b0;">
+      <!-- Section: Ten Plagues -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u1ab6">
+        <p class="text-left" dir="ltr"><span style="font-size: 28.0pt; color: #f9194f">Blood!!</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1acd">
+        <p class="text-left" dir="ltr"><span style="font-size: 24.755945155160525pt; color: #23998e">Frogs</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1a91">
+        <p class="text-left" dir="ltr"><span style="font-size: 44.661036054474636pt; color: #f9ff4f">L</span><span style="font-size: 53.0pt; color: #f9ff4f">i</span><span style="font-size: 62.0pt; color: #f9ff4f">c</span><span style="font-size: 73.0pt; color: #f9ff4f">e</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1ae4">
+        <p class="text-left" dir="ltr"><span class="italic" style="font-size: 20.73417148940087pt; color: #ff3f05">w</span><span class="italic" style="font-size: 25.12629353407504pt; color: #ff3f05">i</span><span class="italic" style="font-size: 20.73417148940087pt; color: #ff3f05">L</span><span class="italic" style="font-size: 25.12629353407504pt; color: #ff3f05">d</span><span class="italic" style="font-size: 20.73417148940087pt; color: #ff3f05"> A</span><span class="italic" style="font-size: 16.750862356050025pt; color: #ff3f05">n</span><span class="italic" style="font-size: 20.73417148940087pt; color: #ff3f05">i</span><span class="italic" style="font-size: 25.12629353407504pt; color: #ff3f05">ma</span><span class="italic" style="font-size: 20.73417148940087pt; color: #ff3f05">l</span><span class="italic" style="font-size: 16.750862356050025pt; color: #ff3f05">s</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1afb">
+        <p class="text-left" dir="ltr"><span style="font-size: 23.0pt; color: #ddb5a4">Pestilence</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1b12">
+        <p class="text-left" dir="ltr"><span class="italic" style="font-size: 73.0pt; color: #f9194f">B</span><span class="italic" style="font-size: 62.0pt; color: #f9194f">o</span><span class="italic" style="font-size: 53.0pt; color: #f9194f">i</span><span class="italic" style="font-size: 44.661036054474636pt; color: #f9194f">Ls</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1a24">
+        <p class="text-left" dir="ltr"><span class="font-comic italic" style="font-size: 34.905882668776336pt; color: #ffffff">H</span><span class="font-comic italic" style="font-size: 38.07pt; color: #ffffff">a</span><span class="font-comic italic" style="font-size: 34.905882668776336pt; color: #ffffff">i</span><span class="font-comic italic" style="font-size: 42.3pt; color: #ffffff">l</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1b29">
+        <p class="text-left" dir="ltr"><span style="font-size: 26.0pt; color: #fff400">Locusts</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1b40">
+        <p class="text-left" dir="ltr"><span class="bold" style="font-size: 20.73417148940087pt">Darkness</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1b58">
+        <p class="text-left" dir="ltr"><span class="italic" style="font-size: 20.73417148940087pt; color: #ffffff">slaying of the first-born.</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3d21">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">For each plague, pour from your cup into a broken dish:</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3d3a">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Pour three times from your cup of wine into a broken dish, as we say:</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u4009">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Pour three times from your cup of wine into a broken dish, as we say:</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u4021">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Pour three times from your cup of wine into a broken dish, as we say:</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u403a">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">For each plague, pour from your cup into a broken dish:</span></p>
+      </div>
+      <div class="page-image plague-illustration" data-image="Makot-21.png"><img src="images/Makot-21.png" alt="Makot-21" /></div>
+      <div class="page-image plague-illustration" data-image="Makot-12.png"><img src="images/Makot-12.png" alt="Makot-12" /></div>
+      <div class="page-image plague-illustration" data-image="Makot-19.png"><img src="images/Makot-19.png" alt="Makot-19" /></div>
+      <div class="page-image plague-illustration" data-image="Makot-11.png"><img src="images/Makot-11.png" alt="Makot-11" /></div>
+      <div class="page-image plague-illustration" data-image="Makot-20.png"><img src="images/Makot-20.png" alt="Makot-20" /></div>
+      <div class="page-image plague-illustration" data-image="Makot-15.png"><img src="images/Makot-15.png" alt="Makot-15" /></div>
+      <div class="page-image plague-illustration" data-image="Makot-16.png"><img src="images/Makot-16.png" alt="Makot-16" /></div>
+      <div class="page-image plague-illustration" data-image="Makot-17.png"><img src="images/Makot-17.png" alt="Makot-17" /></div>
+      <div class="page-image plague-illustration" data-image="Makot-18.png"><img src="images/Makot-18.png" alt="Makot-18" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-15" data-page="15" style="background-color: #f5d5b0;">
+      <!-- Hebrew/English text continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-16" data-page="16" style="background-color: #c8dcc0;">
+      <!-- Hebrew text continued -->
+      <div class="page-content">
+      <div class="text-block english-text instruction" data-story-id="u3d51">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Pour three times from your cup of wine into a broken dish, as we say:</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-17" data-page="17" style="background-color: #c8dcc0;">
+      <!-- English text continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-18" data-page="18" style="background-color: #e8d5b7;">
+      <!-- Section: Dayenu / Rabban Gamliel -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u1cf8">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">עַל </span><span class="font-hebrew-body" lang="he">אַחַת כַּמָּה וְכַמָּה טוֹבָה כְפוּלָה וּמְכֻפֶּלֶת לַמָּקוֹם עָלֵינוּ. שֶׁהוֹצִיאָנוּ מִמִּצְרָיִם. וְעָשָׂה בָהֶם שְׁפָטִים. וְעָשָׂה בֵאלֹהֵיהֶם. וְהָרַג אֶת בְּכוֹרֵיהֶם. וְנָתַן לָנוּ אֶת מָמוֹנָם. וְקָרַע לָנוּ אֶת הַיָּם. וְהֶעֱבִירָנוּ בְתוֹכוֹ בֶּחָרָבָה. וְשִׁקַּע צָרֵינוּ בְּתוֹכוֹ. וְסִפֵּק צָרְכֵּנוּ בַּמִּדְבָּר אַרְבָּעִים שָׁנָה. וְהֶאֱכִילָנוּ אֶת הַמָּן. וְנָתַן לָנוּ אֶת הַשַּׁבָּת. וְקֵרְבָנוּ לִפְנֵי הַר סִינַי. וְנָתַן לָנוּ אֶת הַתּוֹרָה. וְהִכְנִיסָנוּ לְאֶרֶץ יִשְׂרָאֵל. וּבָנָה לָנוּ אֶת בֵּית הַבְּחִירָה לְכַפֵּר עַל כָּל עֲוֹנוֹתֵינוּ: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">רַבָּן </span><span class="font-hebrew-body" lang="he">גַּמְלִיאֵל הָיָה אוֹמֵר כָּל שֶׁלֹּא אָמַר שְׁלֹשָׁה דְבָרִים אֵלּוּ בַּפֶּסַח לֹא יָצָא יְדֵי חוֹבָתוֹ. וְאֵלּוּ הֵן: פֶּסַח. מַצָּה. וּמָרוֹר:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">פֶּסַח </span><span class="font-hebrew-body" lang="he">שֶׁהָיוּ אֲבוֹתֵינוּ אוֹכְלִים בִּזְמַן שֶׁבֵּית הַמִּקְדָּשׁ קַיָּם עַל שׁוּם מָה. עַל שׁוּם שֶׁפָּסַח הַמָּקוֹם עַל בָּתֵּי אֲבוֹתֵינוּ בְּמִצְרָיִם. שֶׁנֶּאֱמַר וַאֲמַרְתֶּם זֶבַח פֶּסַח הוּא לַייָ אֲשֶׁר פָּסַח עַל בָּתֵּי בְנֵי יִשְׂרָאֵל בְּמִצְרַיִם בְּנָגְפּוֹ אֶת מִצְרַיִם וְאֶת בָּתֵּינוּ הִצִּיל וַיִּקֹּד הָעָם וַיִּשְׁתַּחֲווּ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">מַצָּה </span><span class="font-hebrew-body" lang="he">זוֹ שֶׁאָנוּ אוֹכְלִים עַל שׁוּם מָה. עַל שׁוּם שֶׁלֹּא הִסְפִּיק בְּצֶקֶת שֶׁל אֲבוֹתֵינוּ לְהַחֲמִיץ עַד שֶׁנִּגְלָה עֲלֵיהֶם מֶלֶךְ מַלְכֵי הַמְּלָכִים הַקָּדוֹשׁ בָּרוּךְ הוּא וּגְאָלָם. שֶׁנֶּאֱמַר וַיֹּאפוּ אֶת הַבָּצֵק אֲשֶׁר הוֹצִיאוּ מִמִּצְרַיִם עֻגוֹת מַצּוֹת כִּי לֹא חָמֵץ כִּי גֹרְשׁוּ מִמִּצְרַיִם וְלֹא יָכְלוּ לְהִתְמַהְמֵהַּ וְגַם צֵדָה לֹא עָשׂוּ לָהֶם:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">מָרוֹר </span><span class="font-hebrew-body" lang="he">זֶה שֶׁאָנוּ אוֹכְלִים עַל שׁוּם מָה. עַל שׁוּם שֶׁמֵּרְרוּ הַמִּצְרִים אֶת חַיֵּי אֲבוֹתֵינוּ בְּמִצְרָיִם. שֶׁנֶּאֱמַר וַיְמָרְרוּ אֶת חַיֵּיהֶם בַּעֲבֹדָה קָשָׁה בְּחֹמֶר וּבִלְבֵנִים וּבְכָל עֲבוֹדָה בַּשָּׂדֶה אֵת כָּל עֲבֹדָתָם אֲשֶׁר עָבְדוּ בָהֶם בְּפָרֶךְ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בְּכָל </span><span class="font-hebrew-body" lang="he">דּוֹר וָדוֹר חַיָּב אָדָם לִרְאוֹת אֶת עַצְמוֹ כְּאִלּוּ הוּא יָצָא מִמִּצְרָיִם. שֶׁנֶּאֱמַר וְהִגַּדְתָּ לְבִנְךָ בַּיּוֹם הַהוּא לֵאמֹר בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם: לֹא אֶת אֲבוֹתֵינוּ בִּלְבָד גָּאַל הַקָּדוֹשׁ בָּרוּךְ הוּא מִמִּצְרַיִם אֶלָּא אַף אוֹתָנוּ גָּאַל עִמָּהֶם. שֶׁנֶּאֱמַר וְאוֹתָנוּ הוֹצִיא מִשָּׁם לְמַעַן הָבִיא אוֹתָנוּ לָתֶת לָנוּ אֶת הָאָרֶץ אֲשֶׁר נִשְׁבַּע לַאֲבוֹתֵינוּ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">לְפִיכָךְ </span><span class="font-hebrew-body" lang="he">אֲנַחְנוּ חַיָּבִים לְהוֹדוֹת לְהַלֵּל לְשַׁבֵּחַ לְפָאֵר לְרוֹמֵם לְהַדֵּר לְבָרֵךְ לְעַלֵּה וּלְקַלֵּס. לְמִי שֶׁעָשָׂה לַאֲבוֹתֵינוּ וְלָנוּ אֶת כָּל הַנִּסִּים הָאֵלּוּ. הוֹצִיאָנוּ מֵעַבְדוּת לְחֵרוּת. מִיָּגוֹן לְשִׂמְחָה. </span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3d9a">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Hold the Matzah</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u4053">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Hold the Matzah</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3d6b">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Hold the Maror</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u406a">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Hold the Maror</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3db2">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Cover the Matzah and raise your cup</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-19" data-page="19" style="background-color: #e8d5b7;">
+      <!-- English text continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-20" data-page="20" style="background-color: #c8dcc0;">
+      <!-- Section: Halleluyah / Second Cup -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u1d84">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body" lang="he">וּמֵאֵבֶל לְיוֹם טוֹב. וּמֵאֲפֵלָה לְאוֹר גָּדוֹל. וּמִשִּׁעְבּוּד לִגְאֻלָּה. וְנאֹמַר לְפָנָיו הַלְלוּיָהּ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">הַלְלוּיָהּ </span><span class="font-hebrew-body" lang="he">הַלְלוּ עַבְדֵי יְיָ הַלְלוּ אֶת שֵׁם יְיָ: יְהִי שֵׁם יְיָ מְבֹרָךְ מֵעַתָּה וְעַד עוֹלָם: מִמִּזְרַח שֶׁמֶשׁ עַד מְבוֹאוֹ מְהֻלָּל שֵׁם יְיָ: רָם עַל כָּל גּוֹיִם יְיָ עַל הַשָּׁמַיִם כְּבוֹדוֹ: מִי כַּייָ אֱלֹהֵינוּ הַמַּגְבִּיהִי לָשָׁבֶת: הַמַּשְׁפִּילִי לִרְאוֹת בַּשָּׁמַיִם וּבָאָרֶץ: מְקִימִי מֵעָפָר דָּל מֵאַשְׁפֹּת יָרִים אֶבְיוֹן: לְהוֹשִׁיבִי עִם נְדִיבִים עִם נְדִיבֵי עַמּוֹ: מוֹשִׁיבִי עֲקֶרֶת הַבַּיִת אֵם הַבָּנִים שְׂמֵחָה הַלְלוּיָהּ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בְּצֵאת </span><span class="font-hebrew-body" lang="he">יִשְׂרָאֵל מִמִּצְרָיִִם בֵּית יַעֲקֹב מֵעַם לֹעֵז: הָיְתָה יְהוּדָה לְקָדְשׁוֹ יִשְׂרָאֵל מַמְשְׁלוֹתָיו: הַיָּם רָאָה וַיָּנֹס הַיַּרְדֵּן יִסֹּב לְאָחוֹר: הֶהָרִים רָקְדוּ כְאֵילִים גְּבָעוֹת כִּבְנֵי צֹאן: מַה לְּךָ הַיָּם כִּי תָנוּס הַיַּרְדֵּן תִּסֹּב לְאָחוֹר: הֶהָרִים תִּרְקְדוּ כְאֵילִים גְּבָעוֹת כִּבְנֵי צֹאן: מִִלִּפְנֵי אָדוֹן חוּלִי אָרֶץ מִלִּפְנֵי אֱלוֹהַּ יַעֲקֹב: הַהֹפְכִי הַצּוּר אֲגַם מָיִם חַלָּמִישׁ לְמַעְיְנוֹ מָיִם:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר גְּאָלָנוּ וְגָאַל אֶת אֲבוֹתֵינוּ מִמִּצְרַיִם וְהִגִּיעָנוּ הַלַּיְלָה הַזֶּה לֶאֱכָל בּוֹ מַצָּה וּמָרוֹר. כֵּן יְיָ אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ יַגִּיעֵנוּ לְמוֹעֲדִים וְלִרְגָלִים אֲחֵרִים הַבָּאִים לִקְרָאתֵנוּ לְשָׁלוֹם, שְׂמֵחִים בְּבִנְיַן עִירֶךָ וְשָׂשִׂים בַּעֲבוֹדָתֶךָ וְנֹאכַל שָׁם מִן הַזְּבָחִים וּמִן הַפְּסָחִים (</span><span class="font-hebrew-body" style="font-size: 8.0pt" lang="he">במוצאי שבת</span><span class="font-hebrew-body" lang="he"> מִן הַפְּסָחִים וּמִן הַזְבָחִים) אֲשֶׁר יַגִּיעַ דָּמָם עַל קִיר מִזְבַּחֲךָ לְרָצוֹן, וְנוֹדֶה לְּךָ שִׁיר חָדָשׁ עַל גְּאֻלָּתֵנוּ וְעַל פְּדוּת נַפְשֵׁנוּ: בָּרוּךְ אַתָּה יְיָ גָּאַל יִשְׂרָאֵל:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u1db4">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">we drink the second cup, leaning to the left</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u3631">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָּפֶן:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3648">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">Blessed are You, Lord our G-d, King of the Universe, </span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5">Creator of the fruit of the vine.</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u4082">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Cover the Matzah and raise your cup</span></p>
+      </div>
+      <div class="page-image seder-item" data-image="Asset 4cup.png"><img src="images/Asset 4cup.png" alt="cup" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-21" data-page="21" style="background-color: #c8dcc0;">
+      <!-- English text continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-22" data-page="22" style="background-color: #e8d5b7;">
+      <!-- Section: Rachtzah / Motzi Matzah / Maror -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u20df">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">רָחְצָה</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u20f8">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">6</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u20a5">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We </span><span class="font-comic bold" style="color: #2a1f12">wash</span><span class="font-comic bold italic" style="color: #2a1f12"> our hands and make the blessing</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u213f">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל נְטִילַת יָדָיִם:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2156">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">Blessed are You, Lord our G-d, King of the Universe, who has sanctified us with Your commandments, and commanded us </span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5">concerning the washing of the hands.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u2186">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">מ</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">וֹ</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">צִיא </span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">·</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he"> מַַצָּה</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u216f">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">7</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2126">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Motzi </span><span class="font-display" style="font-size: 16.0pt; color: #270500" lang="he">·</span><span class="font-display" style="font-size: 16.0pt; color: #270500"> Matzah</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u210f">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We </span><span class="font-comic bold" style="color: #2a1f12">say</span><span class="font-comic bold italic" style="color: #2a1f12"> the &#x27;hamotzi&#x27; blessing </span><span class="font-comic bold" style="color: #2a1f12">below</span><span class="font-comic bold italic" style="color: #2a1f12"> holding </span><span class="font-comic bold" style="color: #2a1f12">all three</span><span class="font-comic bold italic" style="color: #2a1f12"> matzot.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u3dcd">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַמּוֹצִיא לֶחֶם מִן הָאָרֶץ:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3de4">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">Blessed are You, Lord our G-d, King of the Universe, </span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5">who brings forth bread from the eart</span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5">h.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u3e4b">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל אֲכִילַת מַצָּה:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3e62">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">Blessed are You, Lord our G-d, King of the Universe, who hast sanctified us with Your commandments, and commanded us</span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5"> to eat unleavened bread.</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3e96">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">then, </span><span class="font-comic bold" style="color: #2a1f12">Put down</span><span class="font-comic bold italic" style="color: #2a1f12"> the third matzah for the </span><span class="font-comic bold" style="color: #2a1f12">next</span><span class="font-comic bold italic" style="color: #2a1f12"> blessing. (Have in mind that this blessing covers the afikoman as well)</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3eaf">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We </span><span class="font-comic bold" style="color: #2a1f12">eat</span><span class="font-comic bold italic" style="color: #2a1f12"> a piece (ABOUT </span><span class="bold" style="color: #2a1f12" lang="he">½ </span><span class="font-comic bold italic" style="color: #2a1f12">matzAH) FROM the </span><span class="font-comic bold" style="color: #2a1f12">top two</span><span class="font-comic bold italic" style="color: #2a1f12"> matzos, </span><span class="font-comic bold" style="color: #2a1f12">leaning</span><span class="font-comic bold italic" style="color: #2a1f12"> to the left</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u2251">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">מָר</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">וֹ</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">ר</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u226a">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">8</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u21e4">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We </span><span class="font-comic bold" style="color: #2a1f12">dip</span><span class="font-comic bold italic" style="color: #2a1f12"> the maror into the charoset (and then shake it off so as to not sweeten the taste). We make the blessing, and </span><span class="font-comic bold" style="color: #2a1f12">eat</span><span class="font-comic bold italic" style="color: #2a1f12"> the maror</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u244c">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל אֲכִילַת מָרוֹר:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2463">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">Blessed are You, Lord our G-d, King of the Universe, who has sanctified us with Your commandments, and commanded us </span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5">concerning the eating of the bitter herbs.</span></p>
+      </div>
+      <div class="page-image seder-item" data-image="Asset 13matza3.png"><img src="images/Asset 13matza3.png" alt="matza3" /></div>
+      <div class="page-image seder-item" data-image="Asset 12egg.png"><img src="images/Asset 12egg.png" alt="egg" /></div>
+      <div class="page-image seder-item" data-image="Asset 11marorwhole.png"><img src="images/Asset 11marorwhole.png" alt="marorwhole" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-23" data-page="23" style="background-color: #e8d5b7;">
+      <!-- Section: Korech / Shulchan Orech / Tzafun -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u236f">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">כּ</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">וֹ</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">רֵךְ</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u2358">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">9</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u233f">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Korech</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2328">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We make a </span><span class="font-comic bold" style="color: #2a1f12">sandwich</span><span class="font-comic bold italic" style="color: #2a1f12">: the third matzah, with the chazeret dipped in charoset. we say the following, and eat leaning to the left</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u2388">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">כֵּן </span><span class="font-hebrew-body" lang="he">עָשָׂה הִלֵּל בִּזְמַן שֶׁבֵּית הַמִּקְדָּשׁ הָיָה קַיָּם הָיָה כּוֹרֵךְ פֶּסַח מַצָּה וּמָרוֹר וְאוֹכֵל בְּיַחַד. כְּמוֹ שֶׁנֶּאֱמַר עַל מַצּוֹת וּמְרוֹרִים יֹאכְלֻהוּ:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u239f">
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">So did Hillel do in the time when the Temple stood:</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">He used to take a piece of the Passover lamb, Matzah, and Maror, and eat them together, so as to fulfil literally what is said in the Torah, &quot;With Matzah and Maror shall they eat it&quot;</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u2058">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">שֻׁלְחָן ע</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">וֹ</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">רֵךְ</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u23b8">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">10</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2077">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Shulchan Orech</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u208e">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">we eat the </span><span class="font-comic bold" style="color: #2a1f12">meal</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u242d">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">צָפוּן</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u23e8">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">11</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2415">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Tzafun</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u23cf">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">We finish the meal with the </span><span class="font-comic bold" style="color: #2a1f12">afikoman</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-24" data-page="24" style="background-color: #c8dcc0;">
+      <!-- Section: Beirach -->
+      <!-- Hebrew Grace continues through page 29 -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u2595">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">12</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u257b">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">בֵּרַךְ</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u25ac">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">The grace after meals. we fill the third cup</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u250d">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he"> שִׁיר </span><span class="font-hebrew-body" lang="he">הַמַּעֲלוֹת בְּשׁוּב יְיָ אֶת שִׁיבַת צִיּוֹן הָיִינוּ כְּחֹלְמִים: אָז יִמָּלֵא שְׂחוֹק פִּינוּ וּלְשׁוֹנֵנוּ רִנָּה אָז יֹאמְרוּ בַגּוֹיִם הִגְדִּיל יְיָ לַעֲשׂוֹת עִם אֵלֶּה: הִגְדִּיל יְיָ לַעֲשׂוֹת עִמָּנוּ הָיִינוּ שְׂמֵחִים: שׁוּבָה יְיָ אֶת שְׁבִיתֵנוּ כַּאֲפִיקִים בַּנֶּגֶב: הַזֹּרְעִים בְּדִמְעָה בְּרִנָּה יִקְצֹרוּ: הָלוֹךְ יֵלֵךְ וּבָכֹה נֹשֵׂא מֶשֶׁךְ הַזָּרַע בֹּא יָבוֹא בְרִנָּה נֹשֵׂא אֲלֻמֹּתָיו:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">לִבְנֵי </span><span class="font-hebrew-body" lang="he">קֹרַח מִזְמוֹר שִׁיר יְסוּדָתוֹ בְּהַרְרֵי קֹדֶשׁ: אֹהֵב יְיָ שַׁעֲרֵי צִיּוֹן מִכֹּל מִשְׁכְּנוֹת יַעֲקֹב: נִכְבָּדוֹת מְדֻבָּר בָּךְ עִיר הָאֱלֹהִים סֶלָה: אַזְכִּיר רַהַב וּבָבֶל לְיֹדְעָי: הִנֵּה פְלֶשֶׁת וְצֹר עִם כּוּשׁ זֶה יֻלַּד שָׁם: וּלְצִיּוֹן יֵאָמַר אִישׁ וְאִישׁ יֻלַּד בָּהּ וְהוּא יְכוֹנְנֶהָ עֶלְיוֹן: יְיָ יִסְפֹּר בִּכְתוֹב עַמִּים זֶה יֻלַּד שָׁם סֶלָה: וְשָׁרִים כְּחֹלְלִים כֹּל מַעְיָנַי בָּךְ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">אֲבָרְכָה </span><span class="font-hebrew-body" lang="he">אֶת</span><span lang="he">־</span><span class="font-hebrew-body" lang="he">יְיָ בְּכָל עֵת תָּמִיד תְּהִלָּתוֹ בְּפִי: סוֹף דָּבָר הַכּל נִשְׁמָע אֶת הָאֱלֹהִים יְרָא וְאֶת מִצְוֹתָיו שְׁמוֹר כִּי זֶה כָּל הָאָדָם: תְּהִלַּת </span><span class="font-hebrew-body" lang="he">יְיָ יְדַבֶּר פִּי וִיבָרֵךְ כָּל בָּשָׂר שֵׁם קָדְשׁוֹ לְעוֹלָם וָעֶד: וַאֲנַחְנוּ נְבָרֵךְ יָה מֵעַתָּה וְעַד עוֹלָם הַלְלוּיָהּ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Before rinsing the fingertips say</span> </p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">זֶה חֵלֶק אָדָם רָשָׁע מֵאֱלֹהִים וְנַחֲלַת אִמְרוֹ מֵאֵל:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">Afterward say</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body" style="font-size: 10.0pt; color: #0d1010" lang="he">וַיְדַבֵּר אֵלַי, זֶה הַשֻּׁלְחָן אֲשֶׁר לִפְנֵי יְיָ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">רַבּוֹתַי נְבָרֵךְ: (רבותי מיר וועלין בענטשין)</span></p>
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The others answer, and the leader repeats </span><span class="font-hebrew-body" style="font-size: 10.0pt; color: #0d1010" lang="he">יְהִי שֵׁם יְיָ מְבֹרָךְ מֵעַתָּה וְעַד עוֹלָם: </span><span class="font-hebrew-body" style="font-size: 10.0pt; color: #0d1010" lang="he">בִּרְשׁוּת מָרָנָן וְרַבָּנָן וְרַבּוֹתַי. נְבָרֵךְ (אֱלֹהֵינוּ) שֶׁאָכַלְנוּ </span><span class="font-hebrew-body" style="font-size: 10.0pt; color: #0d1010" lang="he">מִשֶּׁלּוֹ: </span><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The others answer,</span><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010"> and the leader repeats</span> <span class="font-hebrew-body" style="font-size: 10.0pt; color: #0d1010" lang="he">בָּרוּךְ (אֱלֹהֵינוּ) שֶׁאָכַלְנוּ מִשֶּׁלּוֹ וּבְטוּבוֹ חָיִינוּ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ</span> <span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַזָּן אֶת הָעוֹלָם כֻּלּוֹ בְּטוּבוֹ בְּחֵן בְּחֶסֶד וּבְרַחֲמִים הוּא נוֹתֵן לֶחֶם לְכָל בָּשָׂר כִּי לְעוֹלָם חַסְדּוֹ: וּבְטוּבוֹ הַגָּדוֹל עִמָּנוּ תָּמִיד לֹא חָסֵר לָנוּ וְאַל יֶחְסַר לָנוּ מָזוֹן לְעוֹלָם וָעֶד: בַּעֲבוּר שְׁמוֹ הַגָּדוֹל כִּי הוּא אֵל זָן וּמְפַרְנֵס לַכֹּל וּמֵטִיב לַכֹּל וּמֵכִין מָזוֹן לְכָל בְּרִיּוֹתָיו אֲשֶׁר בָּרָא כָּאָמוּר פּוֹתֵחַ אֶת יָדֶךָ וּמַשְׂבִּיעַ לְכָל חַי רָצוֹן: בָּרוּךְ אַתָּה יְיָ הַזָּן אֶת הַכֹּל:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">נוֹדֶה </span><span class="font-hebrew-body" lang="he">לְּךָ יְיָ אֱלֹהֵינוּ עַל שֶׁהִנְחַלְתָּ לַאֲבוֹתֵינוּ אֶרֶץ חֶמְדָּה טוֹבָה וּרְחָבָה וְעַל שֶׁהוֹצֵאתָנוּ יְיָ אֱלֹהֵינוּ מֵאֶרֶץ מִצְרַיִם וּפְדִיתָנוּ מִבֵּית עֲבָדִים וְעַל בְּרִיתְךָ שֶׁחָתַמְתָּ בִּבְשָׂרֵנוּ וְעַל תּוֹרָתְךָ שֶׁלִּמַּדְתָּנוּ וְעַל חֻקֶּיךָ שֶׁהוֹדַעְתָּנוּ וְעַל חַיִּים חֵן וָחֶסֶד שֶׁחוֹנַנְתָּנוּ וְעַל אֲכִילַת מָזוֹן שָׁאַתָּה זָן וּמְפַרְנֵס אוֹתָנוּ תָּמִיד בְּכָל יוֹם וּבְכָל עֵת וּבְכָל שָׁעָה:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וְעַל </span><span class="font-hebrew-body" lang="he">הַכֹּל יְיָ אֱלֹהֵינוּ אֲנַחְנוּ מוֹדִים לָךְ וּמְבָרְכִים אוֹתָךְ יִתְבָּרֵךְ שִׁמְךָ בְּפִי כָּל חַי תָּמִיד לְעוֹלָם וָעֶד: כַּכָּתוּב וְאָכַלְתָּ וְשָׂבָעְתָּ וּבֵרַכְתָּ אֶת יְיָ אֱלֹהֶיךָ עַל הָאָרֶץ הַטֹּבָה אֲשֶׁר נָתַן לָךְ: בָּרוּךְ אַתָּה יְיָ עַל</span><span lang="he">־</span><span class="font-hebrew-body" lang="he">הָאָרֶץ וְעַל הַמָּזוֹן:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">רַחֵם </span><span class="font-hebrew-body" lang="he">יְיָ אֱלֹהֵינוּ עַל יִשְׂרָאֵל עַמֶּךָ וְעַל יְרוּשָׁלַיִם עִירֶךָ וְעַל צִיּוֹן מִשְׁכַּן כְּבוֹדֶךָ וְעַל מַלְכוּת בֵּית דָּוִד מְשִׁיחֶךָ וְעַל</span><span lang="he">–</span><span class="font-hebrew-body" lang="he">הַבַּיִת הַגָּדוֹל וְהַקָּדוֹשׁ שֶׁנִּקְרָא שִׁמְךָ עָלָיו: אֱלֹהֵינוּ אָבִינוּ רְעֵנוּ (</span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">בשבת:</span><span class="font-hebrew-body" lang="he"> רוֹעֵנוּ) זוֹנֵנוּ פַּרְנְסֵנוּ וְכַלְכְּלֵנוּ וְהַרְוִיחֵנוּ וְהַרְוַח לָנוּ יְיָ אֱלֹהֵינוּ מְהֵרָה מִכָּל</span><span lang="he">־</span><span class="font-hebrew-body" lang="he">צָרוֹתֵינוּ: וְנָא אַל</span><span lang="he">־</span><span class="font-hebrew-body" lang="he">תַּצְרִיכֵנוּ יְיָ אֱלֹהֵינוּ לֹא לִידֵי מַתְּנַת בָּשָׂר וָדָם וְלֹא לִידֵי הַלְוָאָתָם כִּי אִם לְיָדְךָ הַמְּלֵאָה הַפְּתוּחָה הַקְּדוֹשָׁה וְהָרְחָבָה שֶׁלֹּא נֵבוֹשׁ וְלֹא נִכָּלֵם לְעוֹלָם וָעֶד:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">On Shabbat add</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" style="font-size: 11.0pt" lang="he">רְצֵה </span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">וְהַחֲלִיצֵנוּ יְיָ אֱלֹהֵינוּ בְּמִצְוֹתֶיךָ וּבְמִצְוַת </span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">יוֹם הַשְּׁבִיעִי הַשַּׁבָּת הַגָּדוֹל וְהַקָּדוֹשׂ הַזֶּה כִּי יוֹם זֶה גָּדוֹל וְקָדוֹשׁ הוּא לְפָנֶיךָ. לִשְׁבָּת בּוֹ וְלָנוּחַ בּוֹ בְּאַהֲבָה כְּמִצְוַת רְצוֹנֶךָ. וּבִרְצוֹנְךָ הָנִיחַ לָנוּ יְיָ אֱלֹהֵינוּ שֶׁלֹּא תְהֵא צָרָה וְיָגוֹן וַאֲנָחָה בְּיוֹם מְנוּחָתֵנוּ. וְהַרְאֵנוּ יְיָ אֱלֹהֵינוּ בְּנֶחָמַת צִיּוֹן עִירֶךָ וּבְבִנְיַן יְרוּשָׁלַיִם עִיר קָדְשֶׁךָ כִּי אַתָּה הוּא בַּעַל הַיְשׁוּעוֹת וּבַעַל הַנֶּחָמוֹת:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">אֱלֹהֵינוּ </span><span class="font-hebrew-body" lang="he">וֵאלֹהֵי אֲבוֹתֵינוּ יַעֲלֶה וְיָבֹא. וְיַגִּיעַַ וְיֵרָאֶה וְיֵרָצֶה. וְיִשָּׁמַע וְיִפָּקֵד וְיִזָּכֵר. זִכְרוֹנֵנוּ וּפִקְּדוֹנֵנוּ. וְזִכְרוֹן אֲבוֹתֵינוּ, וְזִכְרוֹן מָשִׁיחַ בֶּן דָּוִד עַבְדֶּךָ. וְזִכְרוֹן יְרוּשָׁלַיִם עִיר קָדְשֶׁךָ. וְזִכְרוֹן כָּל עַמְּךָ בֵּית יִשְׂרָאֵל לְפָנֶיךָ לִפְלֵיטָה לְטוֹבָה. לְחֵן וּלְחֶסֶד וּלְרַחֲמִים וּלְחַיִּים טוֹבִים וּלְשָׁלוֹם. בְּיוֹם חַג הַמַּצּוֹת הַזֶּה. בְּיוֹם טוֹב מִקְרָא קֹדֶשׁ הַזֶּה. זָכְרֵנוּ יְיָ אֱלֹהֵינוּ בּוֹ לְטוֹבָה. וּפָקְדֵנוּ בוֹ לִבְרָכָה וְהוֹשִׁיעֵנוּ בוֹ לְחַיִּים טוֹבִים: וּבִדְבַר יְשׁוּעָה וְרַחֲמִים חוּס וְחָנֵּנוּ וְרַחֵם עָלֵינוּ וְהוֹשִׁיעֵנוּ כִּי אֵלֶיךָ עֵינֵינוּ כִּי אֵל מֶלֶךְ חַנּוּן וְרַחוּם אָתָּה:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">וּבְנֵה </span><span class="font-hebrew-body" lang="he">יְרוּשָׁלַיִם עִיר הַקֹּדֶשׁ בִּמְהֵרָה בְיָמֵינוּ. בָּרוּךְ אַתָּה יְיָ בּ</span><span class="font-hebrew-body" lang="he">וֹ</span><span class="font-hebrew-body" lang="he">נֵה בְרַחֲמָיו יְרוּשָׁלָיִם. אָמֵן:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶֶךְ הָעוֹלָם הָאֵל. אָבִינוּ מַלְכֵּנוּ. אַדִּירֵנוּ בּוֹרְאֵנוּ גֹּאֲלֵנוּ יוֹצְרֵנוּ. קְדוֹשֵׁנוּ קְדוֹשׁ יַעֲקֹב רוֹעֵנוּ רוֹעֵה יִשְׂרָאֵל הַמֶּלֶךְ הַטּוֹב וְהַמֵּטִיב לַכֹּל בְּכָל יוֹם וָיוֹם. הוּא הֵיטִיב לָנוּ. הוּא מֵטִיב לָנוּ. הוּא יֵיטִיב לָנוּ. הוּא גְמָלָנוּ הוּא גּוֹמְלֵנוּ הוּא יִגְמְלֵנוּ לָעַד. לְחֵן וּלְחֶסֶד וּלְרַחֲמִים. וּלְרֶוַח הַצָּלָה וְהַצְלָחָה. בְּרָכָה וִישׁוּעָה. נֶחָמָה פַּרְנָסָה וְכַלְכָּלָה וְרַחֲמִים וְחַיִּים וְשָׁלוֹם וְכָל טוֹב וּמִכָּל טוּב לְעוֹלָם אַל יְחַסְּרֵנוּ: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">הָרַחֲמָן </span><span class="font-hebrew-body" lang="he">הוּא יִמְלוֹךְ עָלֵינוּ לְעוֹלָם וָעֶד: הָרַחֲמָן הוּא יִתְבָּרֵךְ בַּשָּׁמַיִם וּבָאָרֶץ: הָרַחֲמָן הוּא יִשְׁתַּבַּח לְדוֹר דּוֹרִים וְיִתְפָּאֵר בָּנוּ לָעַד וּלְנֵצַח נְצָחִים וְיִתְהַדַּר בָּנוּ לָעַד וּלְעוֹלְמֵי עוֹלָמִים: הָרַחֲמָן הוּא יְפַרְנְסֵנוּ בְּכָבוֹד: הָרַחֲמָן הוּא יִשְׁבּוֹר עוֹל גָּלוּת מֵעַל צַוָּארֵנוּ וְהוּא יוֹלִיכֵנוּ קוֹמְמִיּוּת לְאַרְצֵנוּ: הָרַחֲמָן הוּא יִשְׁלַח בְּרָכָה מְרֻבָּה בְּבַיִת זֶה וְעַל שֻׁלְחָן זֶה שֶׁאָכַלְנוּ עָלָיו: הָרַחֲמָן הוּא יִשְׁלַח לָנוּ אֶת אֵלִיָּהוּ הַנָּבִיא זָכוּר לַטּוֹב וִיבַשֶּׂר לָנוּ בְּשׂוֹרוֹת טוֹבוֹת יְשׁוּעוֹת וְנֶחָמוֹת: הָרַחֲמָן הוּא יְבָרֵךְ אֵֶת אָבִי מוֹרִי בַּעַל הַבַּיִת הַזֶּה וְאֶת אִמִּי מוֹרָתִי בַּעְלַת הַבַּיִת הַזֶּה אוֹתָם וְאֶת בֵּיתָם וְאֶת זַרְעָם וְאֶת כָּל אֲשֶׁר לָהֶם אוֹתָנוּ וְאֶת כָּל אֲשֶׁר לָנוּ: כְּמוֹ שֶׁבֵּרַךְ אֶת אֲבוֹתֵינוּ אַבְרָהָם יִצְחָק וְיַעֲקֹב בַּכֹּל מִכֹּל כֹּל כֵּן יְבָרֵךְ אוֹתָנוּ (בני ברית) כֻּלָּנוּ יַחַד בִּבְרָכָה שְׁלֵמָה וְנֹאמַר אָמֵן:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">מִמָּרוֹם </span><span class="font-hebrew-body" lang="he">יְלַמְּדוּ עָלָיו וְעָלֵינוּ זְכוּת שֶׁתְּהֵא לְמִשְׁמֶרֶת שָׁלוֹם וְנִשָּׂא בְרָכָה מֵאֵת יְיָ וּצְדָקָה מֵאֱלֹהֵי יִשְׁעֵנוּ וְנִמְצָא חֵן וְשֵׂכֶל טוֹב בְּעֵינֵי אֱלֹהִים וְאָדָם:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010"> On Shabbat add </span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">הָרַחֲמָן הוּא יַנְחִילֵנוּ לְיוֹם שֶׁכֻּלוֹ שַׁבָּת וּמְנוּחָה לְחַיֵּי הָעוֹלָמִים:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body" lang="he">הָרַחֲמָן הוּא יַנְחִילֵנוּ לְיוֹם שֶׁכֻּלּוֹ טוֹב:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">הָרַחֲמָן </span><span class="font-hebrew-body" lang="he">הוּא יְזַכֵּנוּ לִימוֹת הַמָּשִׁיחַ וּלְחַיֵּי הָעוֹלָם הַבָּא. מִגְדֹּל יְשׁוּעוֹת מַלְכּוֹ וְעֹשֶׂה חֶסֶד לִמְשִׁיחוֹ לְדָוִד וּלְזַרְעוֹ עַד עוֹלָם: עֹשֶׂה שָׁלוֹם בִּמְרוֹמָיו הוּא יַעֲשֶׂה שָׁלוֹם עָלֵינוּ וְעַל כָּל יִשְׂרָאֵל וְאִמְרוּ אָמֵן:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">יְראוּ </span><span class="font-hebrew-body" lang="he">אֶת יְיָ קְדֹשָׁיו כִּי אֵין מַחְסוֹר לִירֵאָיו: כְּפִירִים רָשׁוּ וְרָעֵבוּ וְדֹרְשֵׁי יְיָ לֹא יַחְסְרוּ כָל טוֹב: הוֹדוּ לַאדֹנָי כִּי טוֹב כִּי לְעוֹלָם חַסְדּוֹ: פּוֹתֵחַ אֶת יָדֶךָ וּמַשְׂבִּיעַ לְכָל חַי רָצוֹן: בָּרוּךְ הַגֶּבֶר אֲשֶׁר יִבְטַח בַּאדֹנָי וְהָיָה יְיָ מִבְטַחוֹ:</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3ec8">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The leader announces</span></p>
+      </div>
+      <div class="text-block english-text instruction" data-story-id="u3ef8">
+        <p class="text-center" dir="rtl"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The leader continues</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-25" data-page="25" style="background-color: #c8dcc0;">
+      <!-- English Grace continues through page 29 -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u25c3">
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">A Song of Ascents.</span><span class="font-english-body" style="font-size: 10.0pt"> When the Lord returns </span><span class="font-english-body" style="font-size: 10.0pt">Zion from captivity, we will have been as if in a dream. Then our mouth will be filled with laughter, and our tongue with exultation: then they&#x27;ll say among the nations, The Lord has done great things for them. The Lord has done great things for us, we are glad. Bring back our captivity, Lord, as the streams in the south. They who sow in tears shall reap in joy. Though he goes on his way weeping, bearing the store of seed, he shall come back with joy, bearing his sheaves,</span></p>
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">Let us say Grace.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The others answer</span><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010" lang="he">,</span><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010"> and the leader repeats</span><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010" lang="he">:</span></p>
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">Blessed be the Name of the Lord from this time forth and forever.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">With the sanction of those present: We will bless Him of whose bounty we have eaten.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The others answer, </span><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">and the leader repeats</span><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010" lang="he">:</span></p>
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">Blessed be He of whose bounty we have eaten, and through whose goodness we live.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Blessed are You</span><span class="font-english-body" style="font-size: 10.0pt">, Lord our G-d, King of the </span><span class="font-english-body" style="font-size: 10.0pt">universe, who feeds the whole world with your goodness, with grace, with loving-kindness and with tender mercy; He gives food to all flesh, for His loving-kindness endures forever, and through His great goodness toward us, food has never failed us, nor will it fail us forever and ever, for His great Name&#x27;s sake, since He, G-d nourishes and sustains all beings, and does good unto all, and provides food for all His creatures which He has created. Blessed are You, Lord, who gives food unto all.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">We thank You</span><span class="font-english-body" style="font-size: 10.0pt">, Lord our G-d, for You</span><span class="font-english-body" style="font-size: 10.0pt">did give as an inheritance unto our fathers a desirable, good, and ample land, and for You did bring us forth, Lord our G-d, from the land of Egypt, and did deliver us from the house of bondage; as well for Your covenant which You have sealed in our flesh; as well as for Your Torah which You have taught us; Your statutes which You have made known unto us; the life, grace, and loving-kindness which You have bestowed upon us; and for the food wherewith You do constantly feed and sustain us every day, in every time, at every hour.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">For all this</span><span class="font-english-body" style="font-size: 10.0pt">, Lord our G-d, we thank You and  </span><span class="font-english-body" style="font-size: 10.0pt">bless You. Blessed be Your Name by the mouth of all life continually, forever. As it is written, And you shall eat and be satisfied, and you shall bless the Lord your G-d for the good land which He has given you. Blessed are You, Lord, for the land and for the food.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Have mercy</span><span class="font-english-body" style="font-size: 10.0pt">, Lord our G-d, upon Israel Your </span><span class="font-english-body" style="font-size: 10.0pt">people, and upon Jerusalem Your city, upon Zion the abiding place of Your glory, upon the kingdom of the house of David Your anointed, and upon the great and holy house called by Your Name. O our G-d, our Father, tend to us, nourish us, sustain us, support us, relieve us, and speedily, Lord our G-d, grant us relief from all our troubles. We beseech You, Lord our G-d, let us not be in need neither of the gifts from people of flesh and blood, nor of their loans, rather only of Your hand, which is full, open, holy, and ample; that we may not be ashamed nor confounded forever and ever.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">On Shabbat add</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Be pleased</span><span class="font-english-body" style="font-size: 10.0pt">, Lord our G-d, to fortify us by </span><span class="font-english-body" style="font-size: 10.0pt">Your commandments, and by the commandment of the seventh day, this great and holy Shabbat, since this day is great and holy before You, that we may rest and repose then in love, according to the commandment, Your will. With Your favor, Lord our G-d, grant us such repose that there be no trouble, grief, or lamenting on the day of our rest. Let us, Lord our G-d, behold the consolation of Zion Your city, and the rebuilding of Jerusalem Your holy city, for You are the master of salvation and of consolation.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Our G-d,</span><span class="font-english-body" style="font-size: 10.0pt"> G-d of our fathers: May there </span><span class="font-english-body" style="font-size: 10.0pt">rise, and come, and reach, and be seen, and accepted, and heard, and addressed, and remembered, our remembrance and our redemption, with the remembrance of our fathers, of Moshiach the son of David Your servant, of Jerusalem Your holy city, and of all Your people the house of Israel, before You, bringing deliverance and well-being. Bringing grace, loving-kindness, mercy, good life, and peace on this day of the Passover, this holiday. Remember us, Lord our G-d, thereon, for our wellbeing; be mindful of us for blessing; and save us unto good life; by Your promise of salvation and mercy, spare us and be gracious unto us, have mercy upon us, and save us, for our eyes are bent upon You, for You are the gracious and merciful G-d and King. </span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">And rebuild </span><span class="font-english-body" style="font-size: 10.0pt">Jerusalem the holy city speedily </span><span class="font-english-body" style="font-size: 10.0pt">in our days. Blessed are You, Lord, who in His compassion rebuilds Jerusalem. Amen.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Blessed</span><span class="font-english-body" style="font-size: 10.0pt"> are You, Lord our G-d, King of the </span><span class="font-english-body" style="font-size: 10.0pt">universe; O G-d, our Father, our King, our Mighty One, our Creator, our Redeemer, our Maker, our Holy One, the Holy One of Jacob, our Shepherd, the Shepherd of Israel, O King, who is kind and deals kindly with all, day by day He has dealt kindly, does deal kindly, and will deal kindly with us, He has bestowed, He does bestow, He will forever bestow benefits upon us, yielding us grace, loving-kindness, and mercy, and relief, deliverance, and prosperity, blessing and salvation, consolation, sustenance, and support, mercy, life, peace, and all good, of no manner of good will He let us be in want.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">The All-merciful</span><span class="font-english-body" style="font-size: 10.0pt"> shall reign over us forever </span><span class="font-english-body" style="font-size: 10.0pt">and ever. The All-merciful shall be blessed in heaven and on earth. The All-merciful shall be praised throughout all generations, glorified in us forever and for all eternity, and honored in us forever, everlasting. May the All-merciful grant us an honorable livelihood. May the All-merciful break off the yoke of exile from our neck, and lead us upright to our land. May the All-merciful send a plentiful blessing upon this house and upon this table at which we have eaten. May the All-merciful send us Elijah the prophet (let him be remembered for good), who shall give us good tidings, salvation and consolation. May the All-merciful bless my honored father, the master of this house, and my honored mother, the mistress of this house, they, their household, their children, and all that is theirs; us and all that is ours, as our fathers Abraham, Isaac and Jacob were blessed with everything, from everything, comprehensively; so may He bless all of us together (children of the covenant) with a perfect blessing, and let us say, Amen. Both on their and on our behalf may there be such advocacy on high as shall lead to enduring peace; and may we receive a blessing from the Lord, and righteousness from the G-d of our salvation; and may we find grace and good understanding in the sight of G-d and man.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">On Shabbat add</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">May the All-merciful let us inherit the day which shall be wholly a Shabbat and rest in the life everlasting.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">May the All-merciful</span><span class="font-english-body" style="font-size: 10.0pt"> let us inherit the day which is altogether good. May the All-merciful let us merit the days of Moshiach and the life of the world to come. He is a tower of salvation to His king, and shows loving-kindness to His anointed, to David and to his seed, for evermore. He who makes peace in His high places, may He make peace for us and for all Israel, and say, Amen.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Fear the Lord</span><span class="font-english-body" style="font-size: 10.0pt">, His holy ones, for there is no want to them that fear Him. Young lions do lack and suffer hunger, but they that seek the Lord shall not want any good. Give thanks unto the Lord, for He is good, for His loving-kindness endures forever. You open Your hand, and satisfy every living thing with favor. Blessed is the man that trusts in the Lord, and whose trust the Lord is.</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-26" data-page="26" style="background-color: #e8d5b7;">
+      <!-- Hebrew Grace continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-27" data-page="27" style="background-color: #e8d5b7;">
+      <!-- English Grace continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-28" data-page="28" style="background-color: #c8dcc0;">
+      <!-- Section: Third Cup -->
+      <!-- Hebrew/English text continued -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u26c6">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">we drink the third cup, leaning to the left</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u26e5">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָּפֶן:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u26fc">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">Blessed are You, Lord our G-d, King of the Universe, </span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5">Creator of the fruit of the vine.</span></p>
+      </div>
+      <div class="page-image seder-item" data-image="Asset 4cup.png"><img src="images/Asset 4cup.png" alt="cup" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-29" data-page="29" style="background-color: #c8dcc0;">
+      <!-- Text continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-30" data-page="30" style="background-color: #f5d5b0;">
+      <!-- Section: Hallel - Nirtzah -->
+      <!-- Hebrew Hallel continues through page 37 -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u27a3">
+        <p class="seder-step-label text-center" dir="rtl"><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">הַלֵּל </span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he">·</span><span class="font-display" style="font-size: 27.0pt; color: #0d32d1" lang="he"> נִרְצָה</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u27bb">
+        <p class="cover-text text-center" dir="ltr"><span class="font-display" style="font-size: 16.0pt; color: #270500">Hallel </span><span class="font-display" style="font-size: 16.0pt; color: #270500" lang="he">·</span><span class="font-display" style="font-size: 16.0pt; color: #270500"> Nirtzah</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u27d6">
+        <p class="text-center" dir="ltr"><span style="font-size: 30.0pt; color: #095354" lang="he">13</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u27ed">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">we fill the fourth cup &amp; Elija&#x27;s cup,  the door is opened as we say:</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u2732">
+        <p dir="rtl"><span class="font-hebrew-body bold" lang="he">שְׁפוֹךְ </span><span class="font-hebrew-body" lang="he">חֲמָתְךָ אֶל הַגּוֹיִם אֲשֶׁר לֹא יְדָעוּךָ. וְעַל מַמְלָכוֹת אֲשֶׁר בְּשִׁמְךָ לֹא קָרָאוּ: כִּי אָכַל אֶת יַעֲקֹב וְאֶת נָוֵהוּ הֵשַׁמּוּ: שְׁפָךְ עֲלֵיהֶם זַעְמֶךָ וַחֲרוֹן אַפְּךָ יַשִּׂיגֵם: תִּרְדּוֹף בְּאַף וְתַשְׁמִידֵם מִתַּחַת שְׁמֵי יְיָ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">לֹא </span><span class="font-hebrew-body" lang="he">לָנוּ יְיָ לֹא לָנוּ כִּי לְשִׁמְךָ תֵּן כָּבוֹד עַל חַסְדְּךָ עַל אֲמִתֶּךָ: לָמָּה יֹאמְרוּ הַגּוֹיִם אַיֵּה נָא אֱלֹהֵיהֶם: וֵאלֹהֵינוּ בַשָּׁמָיִם כֹּל אֲשֶׁר חָפֵץ עָשָׂה: עֲצַבֵּיהֶם כֶּסֶף וְזָהָב מַעֲשֵׂה יְדֵי אָדָם: פֶּה לָהֶם וְלֹא יְדַבֵּרוּ עֵינַיִם לָהֶם וְלֹא יִרְאוּ: אָזְנַיִם לָהֶם וְלֹא יִשְׁמָעוּ אַף לָהֶם וְלֹא יְרִיחוּן: יְדֵיהֶם וְלֹא יְמִישׁוּן רַגְלֵיהֶם וְלֹא יְהַלֵּכוּ לֹא יֶהְגּוּ בִּגְרוֹנָם: כְּמוֹהֶם יִהְיוּ עֹשֵׂיהֶם כֹּל אֲשֶׁר בֹּטֵחַ בָּהֶם: יִשְׂרָאֵל בְּטַח בַּאדֹנָי עֶזְרָם וּמָגִנָּם הוּא: בֵּית אַהֲרֹן בִּטְחוּ בַאדֹנָי עֶזְרָם וּמָגִנָּם הוּא: יִרְאֵי יְיָ בִּטְחוּ בַאדֹנָי עֶזְרָם וּמָגִנָּם הוּא: </span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">יְיָ </span><span class="font-hebrew-body" lang="he">זְכָרָנוּ יְבָרֵךְ יְבָרֵךְ אֶת בֵּית יִשְׂרָאֵל יְבָרֵךְ אֶת בֵּית אַהֲרֹן: יְבָרֵךְ יִרְאֵי יְיָ הַקְּטַנִּים עִם הַגְּדֹלִים: יֹסֵף יְיָ עֲלֵיכֶם עֲלֵיכֶם וְעַל בְּנֵיכֶם: בְּרוּכִים אַתֶּם לַאדֹנָי עֹשֵׂה שָׁמַיִם וָאָרֶץ: הַשָּׁמַיִם שָׁמַיִם לַאדֹנָי וְהָאָרֶץ נָתַן לִבְנֵי אָדָם: לֹא הַמֵּתִים יְהַלְלוּ יָהּ וְלֹא כָּל יֹרְדֵי דוּמָה: וַאֲנַחְנוּ נְבָרֵךְ יָהּ מֵעַתָּה וְעַד עוֹלָם הַלְלוּיָהּ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">אָהַבְתִּי </span><span class="font-hebrew-body" lang="he">כִּי יִשְׁמַע יְיָ אֶת קוֹלִי תַּחֲנוּנָי: כִּי הִטָּה אָזְנוֹ לִי וּבְיָמַי אֶקְרָא: אֲפָפוּנִי חֶבְלֵי מָוֶת וּמְצָרֵי שְׁאוֹל מְצָאוּנִי צָרָה וְיָגוֹן אֶמְצָא: וּבְשֵׁם יְיָ אֶקְרָא אָנָּה יְיָ מַלְּטָה נַפְשִׁי: חַנּוּן יְיָ וְצַדִּיק וֵאלֹהֵינוּ מְרַחֵם: שֹׁמֵר פְּתָאיִם יְיָ דַּלֹּתִי וְלִי יְהוֹשִׁיעַ: שׁוּבִי נַפְשִׁי לִמְנוּחָיְכִי כִּי יְיָ גָּמַל עָלָיְכִי: כִּי חִלַּצְתָּ נַפְשִׁי מִמָּוֶת אֶת עֵינִי מִן דִּמְעָה אֶת רַגְלִי מִדֶּחִי: אֶתְהַלֵּךְ לִפְנֵי יְיָ בְּאַרְצוֹת הַחַיִּים: הֶאֱמַנְתִּי כִּי אֲדַבֵּר אֲנִי עָנִיתִי מְאֹד: אֲנִי אָמַרְתִּי בְחָפְזִי כָּל הָאָדָם כֹּזֵב:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">מָה </span><span class="font-hebrew-body" lang="he">אָשִׁיב לַאדֹנָי כָּל תַּגְמוּלוֹהִי עָלָי: כּוֹס יְשׁוּעוֹת אֶשָּׂא וּבְשֵׁם יְיָ אֶקְרָא: נְדָרַי לַייָ אֲשַׁלֵּם נֶגְדָּה נָּא לְכָל עַמּוֹ: יָקָר בְּעֵינֵי יְיָ הַמָּוְתָה לַחֲסִידָיו: אָנָּה יְיָ כִּי אֲנִי עַבְדֶּךָ, אֲנִי עַבְדְּךָ בֶּן אֲמָתֶךָ פִּתַּחְתָּ לְמוֹסֵרָי: לְךָ אֶזְבַּח זֶבַח תּוֹדָה וּבְשֵׁם יְיָ אֶקְרָא: נְדָרַי לַייָ אֲשַׁלֵּם נֶגְדָּה נָּא לְכָל עַמּוֹ: בְּחַצְרוֹת בֵּית יְיָ בְּתוֹכֵכִי יְרוּשָׁלָיִם הַלְלוּיָהּ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">הַלְלוּ </span><span class="font-hebrew-body" lang="he">אֶת יְיָ כָּל גּוֹיִם שַׁבְּחוּהוּ כָּל הָאֻמִּים: כִּי גָבַר עָלֵינוּ חַסְדּוֹ וֶאֱמֶת יְיָ לְעוֹלָם הַלְלוּיָהּ:</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-31" data-page="31" style="background-color: #f5d5b0;">
+      <!-- English Hallel continues through page 37 -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u274a">
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Pour out Your wrath</span><span class="font-english-body" style="font-size: 10.0pt"> upon the nations who </span><span class="font-english-body" style="font-size: 10.0pt">know You not, and upon kingdoms which call not upon Your Name. They have consumed Jacob, and they have desolated His dwelling. Pour out upon them Your indignation; let the fierceness of Your anger overtake them. Pursue them in anger, and destroy them from under the heavens of the Lord.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Not unto us</span><span class="font-english-body" style="font-size: 10.0pt">, Lord, not unto us, but unto </span><span class="font-english-body" style="font-size: 10.0pt">Your Name give glory, for Your mercy, and for Your truth&#x27;s sake. Why should the nations say, Where then is their G-d? And our G-d is in the heavens: He does whatsoever He pleases. Their idols are silver and gold, the work of men&#x27;s hands. They have mouths, but they don&#x27;t speak; they have eyes, but they don&#x27;t see; they have ears, but they don&#x27;t hear; they have noses, but they don&#x27;t smell; they have hands, but they don&#x27;t touch; they have feet, but they don&#x27;t walk; they don&#x27;t speak through their throat. They that make them shall be like them, everyone that trusts in them. Israel trusts in the Lord: He is their help and their shield. The house of Aaron trusts in the Lord: He is their help and their shield. Those who fear the Lord, trust in the Lord: He is their help and their shield.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">I love the Lord</span><span class="font-english-body" style="font-size: 10.0pt">, because He has heard my </span><span class="font-english-body" style="font-size: 10.0pt">voice, my supplications. Because He has turned His ear to me, and I will  call upon Him as long as I live. The cords of death compassed me, and the pains of Sheol got hold upon me; I found trouble and sorrow. Then I called upon the Name of the Lord; Lord, I beseech You, deliver my soul. Gracious is the Lord, and righteous; our G-d is merciful. The Lord protects the simple: I was brought low and He saved me. Return unto your rest, my soul, for the Lord has dealt bountifully with you. For You have delivered my soul from death, my eyes from tears, my feet from falling. I will walk before the Lord in the land of the living. I believe, for I will speak: I was greatly afflicted: I said in my haste, All men are a lie.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">What</span><span class="font-english-body bold" style="font-size: 10.0pt"> shall I respond</span><span class="font-english-body" style="font-size: 10.0pt"> to the Lord for all </span><span class="font-english-body" style="font-size: 10.0pt">his benefits toward me? I will take the cup of salvation, and call upon the Name of the Lord. I will pay my vows unto the Lord, in the presence of all His people. Precious in the sight of the Lord is the death of His pious ones. I thank you, Lord, for I am Your servant: I am Your servant the son of Your handmaid; You have loosened my bonds. I will offer to You a sacrifice of thanksgiving, and will call upon the Name of the Lord. I will pay my vows unto the Lord, in the presence of all His people; in the courts of the Lord&#x27;s house, in your midst, O Jerusalem, praise the Lord.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">O praise the Lord</span><span class="font-english-body" style="font-size: 10.0pt">, all nations: laud Him all </span><span class="font-english-body" style="font-size: 10.0pt">peoples. For His mercy is great toward us; and the truth of the Lord is forever. Praise the Lord.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">O give thanks </span><span class="font-english-body" style="font-size: 10.0pt">unto the Lord; for He is good: </span><span class="font-english-body" style="font-size: 10.0pt">for His mercy endures forever. Let Israel say: That His mercy endures forever. Let the house of Aaron say: That His mercy endures forever. Let those who fear the Lord say: That His mercy endures forever.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">In my constraint</span><span class="font-english-body" style="font-size: 10.0pt"> I called upon the Lord: </span><span class="font-english-body" style="font-size: 10.0pt">the Lord answered me in abundance. The Lord is on my side; I will not fear: what can man do to me? The Lord is on my side among them that help me: therefore shall I face my enemies. It is better to trust in the Lord than to put confidence in man. It is better to trust in the Lord than to put confidence in princes. All nations encompassed: in the Name of the Lord I will cut them off. They surrounded me, encompassed me: in the Name of the Lord I will cut them off. They surrounded me like bees; they are quenched as the fire of thorns: in the Name of the Lord I will cut them off. You pushed me that I might fall: but the Lord helped me. The strength and vengeance of our Lord has become my salvation. The voice of rejoicing and salvation is in the tents of the righteous: the right hand of the Lord acts valiantly. The right hand of the Lord is exalted: the right hand of the Lord acts valiantly. I shall not die, rather live, and declare the works of the Lord. The Lord has chastened me sore, but He has not given me over unto death. Open to me the gates of righteousness, I will enter into them, I will give thanks unto the Lord. This is the gate of the Lord, the righteous shall enter into it.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">I will give thanks</span><span class="font-english-body" style="font-size: 10.0pt"> unto You, for You have </span><span class="font-english-body" style="font-size: 10.0pt">answered me, and have become my salvation. (Repeat this verse.) The stone which the builders rejected has become the cornerstone. (Repeat.) This is the Lord’s doing; it is marvelous in our eyes. (Repeat.) This is the day which the Lord has made, we will rejoice and be glad in it. (Repeat.)</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">We beseech You</span><span class="font-english-body" style="font-size: 10.0pt">, Lord: save us, please. </span><span class="font-english-body" style="font-size: 10.0pt">We beseech You, Lord: save us, please. We beseech You, Lord: grant success please. We beseech You, Lord: grant success please.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Blessed</span><span class="font-english-body" style="font-size: 10.0pt"> be he that comes in the Name of </span><span class="font-english-body" style="font-size: 10.0pt">the Lord: we have blessed you out of the house of the Lord. (Repeat.) The Lord is G-d, and He has given us light; bind the sacrifice with cords, even unto the horns of the altar. (Repeat.) You are my G-d, and I will give thanks unto You: You are my G-d, I will exalt You. (Repeat.) Give thanks unto the Lord, for He is good, for His mercy endures forever. (Repeat.)</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">Let all Your works praise You Lord</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">, our </span><span class="font-english-body" style="font-size: 10.0pt">G-d. And let the righteous, who do Your will and all Your people the house of Israel, joyfully praise, bless, laud, glorify, exalt, reverence, declare holy and ascribe royalty to Your Name, our King. For to You it is right to give thanks, and to Your Name it is fitting to sing, for from everlasting unto everlasting You are G-d.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">O give thanks</span><span class="font-english-body" style="font-size: 10.0pt"> unto the Lord; for He is </span><span class="font-english-body" style="font-size: 10.0pt">good: For His mercy endures forever. O give thanks unto the G-d of gods: For His mercy endures forever. O give thanks unto the Lord of lords: For His mercy endures forever. To Him who alone does great wonders: For His mercy endures forever. To Him that through understanding made the heavens: For His mercy endures forever. To Him that spread forth the earth over the waters: For His mercy endures forever. To Him that made great lights: For His mercy endures forever. The sun to rule by day: For His mercy endures forever. The moon and stars to rule by night: For His mercy endures forever. To Him that smote Egypt in their first-born: For His mercy endures forever. And brought out Israel from among them: For His mercy endures forever. With a strong hand and with an outstretched arm: For His mercy endures forever. To him which divided the Red Sea apart: For His mercy endures forever. And made Israel to pass through the midst of it: For His mercy endures forever. And overthrew Pharaoh and his host in the Red Sea: For His mercy endures forever. To Him which led His people through the wilderness: For His mercy endures forever. To Him which smote great kings: For His mercy endures forever. And slew famous kings: For His mercy endures forever. Sihon king of the Amorites: For His mercy endures forever. And Og king of Bashan: For His mercy endures forever. And gave their land for an inheritance: For His mercy endures forever. An inheritance unto Israel His servant: For His mercy endures forever. He gives food to all flesh: For His mercy endures forever. O give thanks to the G-d of heaven: For His mercy endures forever.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">The breath</span><span class="font-english-body" style="font-size: 10.0pt"> of every living being shall bless </span><span class="font-english-body" style="font-size: 10.0pt">Your Name, Lord our G-d, and the spirit of all flesh shall continually glorify and exalt Your memorial, O our King; from everlasting to everlasting You are G-d; and beside You we have no King who redeems and saves, sets free and delivers, and who supports and answers and has mercy in all times of trouble and distress; we have no King but You. He is G-d of the first and of the last, the G-d of all creatures, the Lord of all generations, who is extolled with many praises, and guides His world with loving-kindness and His </span><span class="font-english-body" style="font-size: 10.0pt">creatures with tender mercies. The Lord neither slumbers, nor sleeps; He arouses the sleepers and awakens the slumberers; He makes the dumb to speak, loosens the bound, supports the falling, and raises up the bowed. To You alone we give thanks. Though our mouths were full of song as the sea,</span><span class="font-english-body" style="font-size: 10.0pt"> and our tongues of exultation as the multitude of its waves, and our lips of praise as the expanses of the cosmos; though our eyes shone like the sun and the moon, and our hands were spread forth like the eagles of heaven, and our feet were swift as deer, we should still be unable to thank You, Lord our G-d and G-d of our fathers, and to bless Your Name for one of the thousands of thousands upon thousands, myriad leagues of events, the favors, miracles and wonders which You have done for us and for our fathers before us. You redeemed us from Egypt, Lord our G-d, and released us from the house of bondage; during famine You fed us, and in plenty You sustained us; from the sword You did rescue us, from pestilence You did save us, and from sore and lasting diseases You delivered us. Thus far Your tender mercy has helped us, and Your loving-kindness has not left us: forsake us not, Lord our G-d, forever. Therefore the limbs which You have put within us, and the spirit and soul which You have breathed into our nostrils, and the tongue which You have set in our mouths: they shall thank, bless, praise, glorify, extol, reverence, make holy, and assign kingship to Your Name our King. For every mouth shall give thanks unto You, and every tongue shall swear unto You; every knee shall bow to You, and whatsoever is lofty shall prostrate itself before You; all hearts shall fear You, and all the inward parts shall sing unto Your Name, as it is written, All my bones shall say, Lord, who is like You? You deliver the poor from him that is too strong for him, the poor and the needy from him that robs them. Who can be likened to You, who can be equated to You, who can be compared to You, G-d, the great, mighty, and awful, most high G-d, Possessor of heaven and earth. We will praise, laud, and glorify You, and we will bless Your holy Name, as it is said (A Psalm of David), Bless the Lord, O my soul; and all that is within me, bless His holy Name.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">The G-d </span><span class="font-english-body" style="font-size: 10.0pt">in the incredibleness of Your power, </span><span class="font-english-body" style="font-size: 10.0pt">the great One in the glory of Your Name, the mighty One forever and the Awesome One by Your awesome acts. The King who sits upon a high and lofty throne.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">He who dwells in eternity</span><span class="font-english-body" style="font-size: 10.0pt">, exalted and </span><span class="font-english-body" style="font-size: 10.0pt">holy is His Name; and it is written, Exult in the Lord, O you righteous; praise is seemly for the just. By the mouth of the just You shall be praised, by the words of the righteous You shall be blessed, by the tongues of the devoted ones You shall be extolled, and in the midst of the holy You shall be praised. In the assemblies also of the multitudes of Your people, the house of Israel, Your Name, our King, shall be glorified with joyous cries in every generation; for such is the duty of all creatures in Your presence, Lord our G-d, G-d of our fathers, to thank, praise, laud, glorify, extol, honor, bless, exalt, and adore, beyond all the words of song and praise of David the son of Yishai, Your servant and anointed.</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body bold" style="font-size: 10.0pt">And so</span><span class="font-english-body" style="font-size: 10.0pt"> praised be Your Name forever, </span><span class="font-english-body" style="font-size: 10.0pt">our King, the Almighty, the King,  the Great, the Holy in heaven and on earth; for to You, is becoming, Lord our G-d, G-d of our fathers, song and praise, hymn and psalm, strength and dominion, victory, greatness, and might, renown and glory, holiness and sovereignty, blessings and thanksgivings for Your great and holy Name; forever and ever your are Almighty G-d. Blessed are You, Lord, Almighty G-d, King, great and renowned in praises, G-d of thanksgivings, master of wonders, Creator of all souls orchestrator of all events, who chooses song and hymn: one and only King, the life of all worlds.</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-32" data-page="32" style="background-color: #e8d5b7;">
+      <!-- Hebrew Hallel continued -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u284b">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body" lang="he">הוֹדוּ לַאדֹנָי כִּי טוֹב,	כִּי לְעוֹלָם חַסְדּוֹ: יֹאמַר נָא יִשְׂרָאֵל,		כִּי לְעוֹלָם חַסְדּוֹ:  יֹאמְרוּ נָא בֵית אַהֲרֹן,	כִּי לְעוֹלָם חַסְדּוֹ: יֹאמְרוּ נָא יִרְאֵי יְיָ,	כִּי לְעוֹלָם חַסְדּוֹ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">מִן </span><span class="font-hebrew-body" lang="he">הַמֵּצַר קָרָאתִי יָהּ עָנָנִי בַמֶּרְחַב יָהּ: יְיָ לִי לֹא אִירָא מַה יַּעֲשֶׂה לִי אָדָם: יְיָ לִי בְּעֹזְרָי וַאֲנִי אֶרְאֶה בְשׂנְאָי: טוֹב לַחֲסוֹת בַּאדֹנָי מִבְּטֹחַ בָּאָדָם: טוֹב לַחֲסוֹת בַּאדֹנָי מִבְּטֹחַ בִּנְדִיבִים: כָּל גּוֹיִם סְבָבוּנִי בְּשֵׁם יְיָ כִּי אֲמִילַם: סַבּוּנִי גַם סְבָבוּנִי בְּשֵׁם יְיָ כִּי אֲמִילַם: סַבּוּנִי כִדְבֹרִים דֹּעֲכוּ כְּאֵשׁ קוֹצִים בְּשֵׁם יְיָ כִּי אֲמִילַם: דָּחֹה דְחִיתַנִי לִנְפֹּל וַאדֹנָי עֲזָרָנִי: עָזִּי וְזִמְרָת יָהּ וַיְהִי לִי לִישׁוּעָה: קוֹל רִנָּה וִישׁוּעָה בְּאָהֳלֵי צַדִּיקִים יְמִין יְיָ עֹשָׂה חָיִל: יְמִין יְיָ רוֹמֵמָה יְמִין יְיָ עֹשָׂה חָיִל: לֹא אָמוּת כִּי אֶחְיֶה וַאֲסַפֵּר מַעֲשֵׂי יָהּ: יַסֹּר יִסְּרַנִּי יָהּ וְלַמָּוֶת לֹא נְתָנָנִי: פִּתְחוּ לִי שַׁעֲרֵי צֶדֶק אָבֹא בָם אוֹדֶה יָהּ: זֶה הַשַּׁעַר לַייָ צַדִּיקִים יָבֹאוּ בוֹ: אוֹדְךָ כִּי עֲנִיתָנִי וַתְּהִי לִי לִישׁוּעָה: אוֹדְךָ כִּי עֲנִיתָנִי וַתְּהִי לִי לִישׁוּעָה: אֶבֶן מָאֲסוּ הַבּוֹנִים הָיְתָה לְרֹאשׁ פִּנָּה: אֶבֶן מָאֲסוּ הַבּוֹנִים הָיְתָה לְרֹאשׁ פִּנָּה: מֵאֵת יְיָ הָיְתָה זֹּאת הִיא נִפְלָאת בְּעֵינֵינוּ: מֵאֵת יְיָ הָיְתָה זֹּאת הִיא נִפְלָאת בְּעֵינֵינוּ: זֶה הַיּוֹם עָשָׂה יְיָ נָגִילָה וְנִשְׂמְחָה בוֹ: זֶה הַיּוֹם עָשָׂה יְיָ נָגִילָה וְנִשְׂמְחָה בוֹ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body" lang="he">אָנָּא יְיָ הוֹשִׁיעָה נָּא: אָנָּא יְיָ הוֹשִׁיעָה נָּא: אָנָּא יְיָ הַצְלִיחָה נָּא: אָנָּא יְיָ הַצְלִיחָה נָּא:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">הַבָּא בְּשֵׁם יְיָ בֵּרַכְנוּכֶם מִבֵּית יְיָ: בָּרוּךְ הַבָּא בְּשֵׁם יְיָ בֵּרַכְנוּכֶם מִבֵּית יְיָ: אֵל יְיָ וַיָּאֶר לָנוּ אִסְרוּ חַג בַּעֲבֹתִים עַד קַרְנוֹת הַמִּזְבֵּחַ: אֵל יְיָ וַיָּאֶר לָנוּ אִסְרוּ חַג בַּעֲבֹתִים עַד קַרְנוֹת הַמִּזְבֵּחַ: אֵלִי אַתָּה וְאוֹדֶךָּ אֱלֹהַי אֲרוֹמְמֶךָּ: אֵלִי אַתָּה וְאוֹדֶךָּ אֱלֹהַי אֲרוֹמְמֶךָּ: הוֹדוּ לַייָ כִּי טוֹב כִּי לְעוֹלָם חַסְדּוֹ: הוֹדוּ לַייָ כִּי טוֹב כִּי לְעוֹלָם חַסְדּוֹ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" style="font-size: 11.0pt" lang="he">יְהַלְלוּךָ </span><span class="font-hebrew-body" style="font-size: 11.0pt" lang="he">יְיָ אֱלֹהֵינוּ כָּל מַעֲשֶׂיךָ וַחֲסִידֶיךָ צַדִּיקִים עוֹשֵׂי רְצוֹנֶךָ וְכָל עַמְּךָ בֵּית יִשְׂרָאֵל בְּרִנָּה יוֹדוּ וִיבָרְכוּ וִישַׁבְּחוּ וִיפָאֲרוּ וִירוֹמְמוּ וְיַעֲרִיצוּ וְיַקְדִּישׁוּ וְיַמְלִיכוּ אֶת שִׁמְךָ מַלְכֵּנוּ. כִּי לְךָ טוֹב לְהוֹדוֹת וּלְשִׁמְךָ נָאֶה לְזַמֵּר כִּי מֵעוֹלָם וְעַד עוֹלְָם אַתָּה אֵל:</span></p>
+        <p dir="rtl"><span class="font-hebrew-body" lang="he">הוֹדוּ לַייָ כִּי טוֹב		כִּי לְעוֹלָם חַסְדּוֹ: הוֹדוּ לֵאלֹהֵי הָאֱלֹהִים	כִּי לְעוֹלָם חַסְדּוֹ: הוֹדוּ לַאֲדֹנֵי הָאֲדֹנִים	כִּי לְעוֹלָם חַסְדּוֹ: לְעֹשֵׂה נִפְלָאוֹת גְּדֹלוֹת לְבַדּוֹ כִּי לְעוֹלָם חַסְדּוֹ: לְעֹשֵׂה הַשָּׁמַיִם בִּתְבוּנָה	כִּי לְעוֹלָם חַסְדּוֹ: לְרוֹקַע הָאָרֶץ עַל הַמָּיִם	כִּי לְעוֹלָם חַסְדּוֹ: לְעֹשֵׂה אוֹרִים גְּדֹלִים	כִּי לְעוֹלָם חַסְדּוֹ: אֶת הַשֶּׁמֶשׁ לְמֶמְשֶׁלֶת בַּיּוֹם כִּי לְעוֹלָם חַסְדּוֹ:</span><span class="font-hebrew-body" lang="he">אֶת הַיָּרֵחַ וְכוֹכָבִים לְמֶמְשְׁלוֹת בַּלָּיְלָה			כִּי לְעוֹלָם חַסְדּוֹ: לְמַכֵּה מִצְרַיִם בִּבְכוֹרֵיהֶם כִּי לְעוֹלָם חַסְדּוֹ: וַיּוֹצֵא יִשְׂרָאֵל מִתּוֹכָם	כִּי לְעוֹלָם חַסְדּוֹ: בְּיָד חֲזָקָה וּבִזְרוֹעַ נְטוּיָה	כִּי לְעוֹלָם חַסְדּוֹ: לְגֹזֵר יַם סוּף לִגְזָרִים	כִּי לְעוֹלָם חַסְדּוֹ: וְהֶעֱבִיר יִשְׂרָאֵל בְּתוֹכוֹ	כִּי לְעוֹלָם חַסְדּוֹ: וְנִעֵר פַּרְעֹה וְחֵילוֹ בְיַם סוּף כִּי לְעוֹלָם חַסְדּוֹ: לְמוֹלִיךְ עַמּוֹ בַּמִּדְבָּר	כִּי לְעוֹלָם חַסְדּוֹ: לְמַכֵּה מְלָכִים גְּדֹלִים	כִּי לְעוֹלָם חַסְדּוֹ: וַיַּהֲרֹג מְלָכִים אַדִּירִים	כִּי לְעוֹלָם חַסְדּוֹ: לְסִיחוֹן מֶלֶךְ הָאֱמֹרִי	כִּי לְעוֹלָם חַסְדּוֹ: וּלְעוֹג מֶלֶךְ הַבָּשָׁן	כִּי לְעוֹלָם חַסְדּוֹ: וְנָתַן אַרְצָם לְנַחֲלָה	כִּי לְעוֹלָם חַסְדּוֹ: נַחֲלָה לְיִשְׂרָאֵל עַבְדּוֹ	כִּי לְעוֹלָם חַסְדּוֹ: שֶׁבְּשִׁפְלֵנוּ זָכַר לָנוּ	כִּי לְעוֹלָם חַסְדּוֹ: וַיִּפְרְקֵנוּ מִצָּרֵינוּ		כִּי לְעוֹלָם חַסְדּוֹ: נֹותֵן לֶחֶם לְכָל בָּשָׂר	כִּי לְעוֹלָם חַסְדּוֹ: הוֹדוּ לְאֵל הַשָּׁמָיִם	כִּי לְעוֹלָם חַסְדּוֹ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" style="font-size: 10.0pt" lang="he">נִשְׁמַת </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">כָּל חַי תְּבָרֵךְ אֶת שִׁמְךָ יְיָ אֱלֹהֵינוּ. וְרוּחַ כָּל בָּשָׂר תְּפָאֵר וּתְרוֹמֵם זִכְרְךָ מַלְכֵּנוּ תָּמִיד. מִן הָעוֹלָם וְעַד הָעוֹלָם אַתָּה אֵל. וּמִבַּלְעָדֶיךָ אֵין לָנוּ מֶלֶךְ גּוֹאֵל וּמוֹשִׁיעַ פּוֹדֶה וּמַצִּיל וּמְפַרְנֵס וְעוֹנֶה וּמְרַחֵם בְּכָל עֵת צָרָה וְצוּקָה אֵין לָנוּ מֶלֶךְ אֶלָּא אָתָּה: אֱלֹהֵי הָרִאשׁוֹנִים וְהָאַחֲרוֹנִים אֱלוֹהַּ כָּל בְּרִיּוֹת אֲדוֹן כָּל תּוֹלָדוֹת הַמְהֻלָּל בְּרֹב הַתִּשְׁבָּחוֹת. הַמְנַהֵג עוֹלָמוֹ בְּחֶסֶד וּבְרִיּוֹתָיו בְּרַחֲמִים. וַייָ הִנֵּה לֹא יָנוּם וְלֹא יִישָׁן. הַמְּעוֹרֵר יְשֵׁנִים וְהַמֵּקִיץ נִרְדָּמִים וְהַמֵּשִׂיחַ אִלְּמִים וְהַמַּתִּיר אֲסוּרִים וְהַסּוֹמֵךְ נוֹפְלִים וְהַזּוֹקֵף כְּפוּפִים. לְךָ לְבַדְּךָ אֲנַחְנוּ מוֹדִים. אִלּוּ פִינוּ מָלֵא שִׁירָה כַּיָּם וּלְשׁוֹנֵנוּ רִנָּה כַּהֲמוֹן גַּלָּיו וְשִׂפְתוֹתֵינוּ שֶׁבַח כְּמֶרְחֲבֵי רָקִיעַ וְעֵינֵינוּ מְאִירוֹת כַּשֶּׁמֶשׁ וְכַיָּרֵחַ וְיָדֵינוּ פְרוּשׂוֹת כְּנִשְׁרֵי שָׁמָיִם וְרַגְלֵינוּ קַלּוֹת כָּאַיָּלוֹת: אֵין אָנוּ מַסְפִּיקִים לְהוֹדוֹת לְךָ יְיָ אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ וּלְבָרֵךְ אֶת שְׁמֶךָ עַל אַחַת מֵאֶלֶף אַלְפֵי אֲלָפִים וְרִבֵּי רְבָבוֹת פְּעָמִים הַטּוֹבוֹת נִסִּים וְנִפְלָאוֹת שֶׁעָשִׂיתָ עִמָּנוּ וְעִם אֲבֹתֵינוּ מִלְּפָנִים: מִמִּצְרַיִם גְּאַלְתָּנוּ יְיָ אֱלֹהֵינוּ. מִבֵּית עֲבָדִים פְּדִיתָנוּ. בְּרָעָב זַנְתָּנוּ וּבְשָׂבָע כִּלְכַּלְתָּנוּ מֵחֶרֶב הִצַּלְתָּנוּ וּמִדֶּבֶר מִלַּטְתָּנוּ וּמֵחֳלָיִם רָעִים וְנֶאֱמָנִים דִּלִּיתָנוּ: עַד הֵנָּה עֲזָרוּנוּ רַחֲמֶיךָ וְלֹא עֲזָבוּנוּ חֲסָדֶיךָ. וְאַל תִּטְּשֵׁנוּ יְיָ אֱלֹהֵינוּ לָנֶצַח: עַל כֵּן אֵבָרִים שֶׁפִּלַּגְתָּ בָּנוּ וְרוּחַ וּנְשָׁמָה שֶׁנָּפַחְתָּ בְּאַפֵּנוּ וְלָשׁוֹן אֲשֶׁר שַׂמְתָּ בְּפִינוּ: הֵן הֵם יוֹדוּ וִיבָרְכוּ וִישַׁבְּחוּ וִיפָאֲרוּ וִירוֹמְמוּ וְיַעֲרִיצוּ וְיַקְדִּישׁוּ וְיַמְלִיכוּ אֶת שִׁמְךָ מַלְכֵּנוּ: כִּי כָל פֶּה לְךָ יוֹדֶה וְכָל לָשׁוֹן לְךָ תִשָּׁבַע. וְכָל עַיִן לְךָ תְצַפֶּה וְכָל בֶּרֶךְ לְךָ תִכְרַע וְכָל קוֹמָה לְפָנֶיךָ תִשְׁתַּחֲוֶה. וְכָל הַלְּבָבוֹת יִירָאוּךָ וְכָל קֶרֶב וּכְלָיוֹת יְזַמְּרוּ לִשְׁמֶךָ. כַּדָּבָר שֶׁכָּתוּב כָּל עַצְמוֹתַי תֹּאמַרְנָה יְיָ מִי כָמוֹךָ. מַצִּיל עָנִי מֵחָזָק מִמֶּנוּ וְעָנִי וְאֶבְיוֹן מִגּוֹזְלוֹ: מִי יִדְמֶה לָּךְ וּמִי יִשְׁוֶה לָּךְ וּמִי יַעֲרָךְ לָךְ. הָאֵל הַגָּדוֹל הַגִּבּוֹר וְהַנּוֹרָא אֵל עֶלְיוֹן קֹנֵה שָׁמַיִם וָאָרֶץ: נְהַלֶּלְךָ וּנְשַׁבֵּחֲךָ וּנְפָאֶרְךָ וּנְבָרֵךְ אֶת שֵׁם קָדְשֶׁךָ. כָּאָמוּר לְדָוִד בָּרְכִי נַפְשִׁי אֶת יְיָ וְכָל קְרָבַי אֶת שֵׁם קָדְשׁוֹ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" style="font-size: 10.0pt" lang="he">הָאֵל </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">בְּתַעֲצֻמוֹת עֻזֶּךָ. הַגָּדוֹל בִּכְבוֹד שְׁמֶךָ. הַגִּבּוֹר לָנֶצַח וְהַנּוֹרָא בְּנוֹרְאוֹתֶיךָ. הַמֶּלֶךְ הַיּוֹשֵׁב עַל כִּסֵּא רָם וְנִשָּׂא:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" style="font-size: 10.0pt" lang="he">שׁוֹכֵן </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">עַד מָרוֹם וְקָדוֹשׁ שְׁמוֹ. וְכָתוּב רַנְּנוּ צַדִּיקִים בַּייָ, לַיְשָׁרִים נָאוָה תְהִלָּה: בְּפִי יְשָׁרִים תִּתְרוֹמָם. וּבְשִׂפְתֵי צַדִּיקִים תִּתְבָּרֵךְ. וּבִלְשׁוֹן חֲסִידִים תִּתְקַדָּשׁ. וּבְקֶרֶב קְדוֹשִׁים תִּתְהַלָּל: וּבְמַקְהֵלוֹת רִבְבוֹת עַמְּךָ בֵּית יִשְׂרָאֵל בְּרִנָּה יִתְפָּאֵר שִׁמְךָ מַלְכֵּנוּ בְּכָל דּוֹר וָדוֹר שֶׁכֵּן חוֹבַת כָּל הַיְצוּרִים. לְפָנֶיךָ יְיָ אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ לְהוֹדוֹת לְהַלֵּל לְשַׁבֵּחַ לְפָאֵר לְרוֹמֵם לְהַדֵּר לְבָרֵךְ לְעַלֵּה וּלְקַלֵּס עַל כָּל דִּבְרֵי שִׁירוֹת וְתִשְׁבְּחוֹת דָּוִד בֶּן יִשַׁי עַבְדְּךָ מְשִׁיחֶךָ:</span></p>
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" style="font-size: 10.0pt" lang="he">וּבְכֵן </span><span class="font-hebrew-body" style="font-size: 10.0pt" lang="he">יִשְׁתַּבַּח שִׁמְךָ לָעַד מַלְכֵּנוּ הָאֵל הַמֶּלֶךְ הַגָּדוֹל וְהַקָּדוֹשׁ בַּשָּׁמַיִם וּבָאָרֶץ. כִּי לְךָ נָאֶה יְיָ אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ לְעוֹלָם וָעֶד: שִׁיר וּשְׁבָחָה הַלֵּל וְזִמְרָה עֹז וּמֶמְשָׁלָה נֶצַח גְּדֻלָּה וּגְבוּרָה תְּהִלָּה וְתִפְאֶרֶת קְדֻשָּׁה וּמַלְכוּת. בְּרָכוֹת וְהוֹדָאוֹת לְשִׁמְךָ הַגָּדוֹל וְהַקָּדוֹשׁ וּמֵעוֹלָם עַד עוֹלָם אַתָּה אֵל: בָּרוּךְ אַתָּה יְיָ אֵל מֶלֶךְ גָּדוֹל וּמְהֻלָּל בַּתִּשְׁבָּחוֹת אֵל הַהוֹדָאוֹת אֲדוֹן הַנִּפְלָאוֹת בּוֹרֵא כָּל הַנְּשָׁמוֹת רִבּוֹן כָּל הַמַּעֲשִׂים. הַבּוֹחֵר בְּשִׁירֵי זִמְרָה. מֶלֶךְ יָחִיד חֵי הָעוֹלָמִים:</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-33" data-page="33" style="background-color: #e8d5b7;">
+      <!-- English Hallel continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-34" data-page="34" style="background-color: #c8dcc0;">
+      <!-- Hebrew Hallel continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-35" data-page="35" style="background-color: #c8dcc0;">
+      <!-- English Hallel continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-36" data-page="36" style="background-color: #e8d5b7;">
+      <!-- Section: Fourth Cup -->
+      <!-- Hebrew/English text continued -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u36f0">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #2a1f12">we drink the fourth cup, leaning to the left</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u370e">
+        <p class="text-center" dir="rtl"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָּפֶן:</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u3725">
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt; color: #0019e5">Blessed are You, Lord our G-d, King of the Universe, </span><span class="font-english-body bold" style="font-size: 10.0pt; color: #0019e5">Creator of the fruit of the vine.</span></p>
+      </div>
+      <div class="page-image seder-item" data-image="Asset 4cup.png"><img src="images/Asset 4cup.png" alt="cup" /></div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-37" data-page="37" style="background-color: #e8d5b7;">
+      <!-- Text continued -->
+      <div class="page-content">
+      <div class="text-block continuation-marker">
+        <p class="text-center" dir="ltr"><em>[Text continues from previous page]</em></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-38" data-page="38" style="background-color: #c8dcc0;">
+      <!-- Section: Concluding Blessing -->
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u2a86">
+        <p class="text-center" dir="ltr"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The concluding blessing for wine and grape juice:</span></p>
+        <p class="text-center" dir="ltr"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם עַל הַגֶּפֶן וְעַל פְּרִי הַגֶּפֶן וְעַל תְּנוּבַת הַשָּׂדֶה וְעַל אֶרֶץ חֶמְדָּה טוֹבָה וּרְחָבָה שֶׁרָצִיתָ וְהִנְחַלְתָּ לַאֲבוֹתֵינוּ לֶאֱכֹל מִפִּרְיָהּ וְלִשְׂבּוֹעַ מִטּוּבָהּ רַחֶם נָא יְיָ אֱלֹהֵינוּ עַל יִשְׂרָאֵל עַמֶּךָ וְעַל יְרוּשָׁלַיִם עִירֶךָ וְעַל צִיּוֹן מִשְׁכַּן כְּבוֹדֶךָ וְעַל מִזְבְּחֶךָ וְעַל הֵיכָלֶךָ. וּבְנֵה יְרוּשָׁלַיִם עִיר הַקֹּדֶשׁ בִּמְהֵרָה בְיָמֵינוּ וְהַעֲלֵנוּ לְתוֹכָהּ. וְשַׂמְּחֵנוּ בָהּ וּנְבָרֶכְךָ בִּקְדֻשָּׁה וּבְטָהֳרָה. (</span><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">On Shabbat add</span> <span class="font-hebrew-body" lang="he">וּרְצֵה וְהַחֲלִיצֵנוּ בְּיוֹם הַשַּׁבָּת הַזֶּה) וְזָכְרֵנוּ לְטוֹבָה בְּיוֹם חַג הַמַּצּוֹת הַזֶּה. כִּי אַתָּה יְיָ טוֹב וּמֵטִיב לַכֹּל וְנוֹדֶה לְךָ עַל הָאָרֶץ וְעַל פְּרִי הַגָּפֶן: בָּרוּךְ אַתָּה יְיָ עַל הָאָרֶץ וְעַל פְּרִי הַגָּפֶן:</span></p>
+        <p class="text-center" dir="ltr"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The concluding blessing for other drinks:</span></p>
+        <p class="text-center" dir="ltr"><span class="font-hebrew-body bold" lang="he">בָּרוּךְ </span><span class="font-hebrew-body" lang="he">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא נְפָשׁוֹת רַבּוֹת וְחֶסְרוֹנָן עַל כָּל מַה שֶׁבָּרָאתָ לְהַחֲיוֹת בָּהֶם נֶפֶשׁ כָּל חָי. בָּרוּךְ חֵי הָעוֹלָמִים:</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-content" id="page-39" data-page="39" style="background-color: #c8dcc0;">
+      <!-- Section: Next Year in Jerusalem -->
+      <div class="page-content">
+      <div class="text-block english-text" data-story-id="u2afc">
+        <p class="text-center" dir="ltr"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The concluding blessing for wine and grape juice:</span></p>
+        <p class="text-center" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">Blessed are You, Lord our G-d, King of the Universe, for the vine and for the fruit of the vine, for the produce of the field, and for the pleasant, goodly and great land in which You did delight, and which You did grant as the inheritance of our forefathers, to eat its fruit, and be satiated with its bounties. Be merciful, please, Lord our G-d, to Israel Your people; to Jerusalem, Your city; to Zion, the dwelling place of Your honor; to Your altar and to Your sanctuary. And rebuild Jerusalem, Your holy city, speedily in our days. And bring us there, let us rejoice in it. And may we there be enabled to offer You pure and sanctified blessing (be pleased to grant us strength on this Shabbat day), and remember us for goodness on this holiday of Passover, for You, Lord, are good and benevolent to all. Then shall we render You thanks for the land and for the fruit of the vine. Blessed are You, Lord, for the land and for the fruit of the vine.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-assistant" style="font-size: 5.43pt; color: #0d1010">The concluding blessing for other drinks:</span></p>
+        <p class="text-left" dir="ltr"><span class="font-english-body" style="font-size: 10.0pt">Blessed are You, Lord our G-d, Creator of so many diverse beings, for all You have created, and through which you maintain the soul of all life, Blessed is He, the Life of all worlds.</span></p>
+      </div>
+      <div class="text-block hebrew-text" data-story-id="u2acd">
+        <p class="text-center" dir="ltr"><span class="font-yiddishkeit" style="font-size: 50.0pt; color: #bc0000" lang="he">לשנה הבאה בירושלים!</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2ae4">
+        <p class="text-center" dir="ltr"><span class="font-display" style="font-size: 35.0pt; color: #bc0000">Next Year in Jerusalem!</span></p>
+      </div>
+      </div>
+    </div>
+    <div class="page page-back-cover" id="page-40" data-page="40" style="background-color: #e8d5b7;">
+      <div class="page-content">
+      <div class="text-block hebrew-text" data-story-id="u2cf6">
+        <p class="text-center" dir="ltr"><span class="font-yiddishkeit" style="font-size: 50.0pt; color: #095354" lang="he">הגדה של פסח</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2d0d">
+        <p class="text-center" dir="ltr"><span class="font-display" style="font-size: 28.0pt; color: #095354">My Passover Haggadah</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2d6d">
+        <p class="text-center" dir="ltr"><span class="bold" style="font-size: 18.824888464262454pt; color: #00ffff">P</span><span style="font-size: 15.40218147076019pt">e</span><span class="bold" style="font-size: 16.54308380192761pt; color: #3ff200">r</span><span style="font-size: 18.824888464262454pt; color: #0054aa">s</span><span style="font-size: 13.120376808425348pt; color: #f8333a">o</span><span style="font-size: 18.25443729867874pt; color: #ead602">n</span><span style="font-size: 17.11353496751132pt; color: #3ff200">a</span><span style="font-size: 18.824888464262454pt; color: #61f95e">l</span><span class="font-assistant" style="font-size: 16.54308380192761pt; color: #bc0000">i</span><span class="bold" style="font-size: 17.683986133095036pt; color: #ffffff">z</span><span class="italic" style="font-size: 23.958948954515847pt; color: #f9194f">e</span> <span class="bold" style="font-size: 18.824888464262454pt; color: #001fb4">M</span><span class="bold" style="font-size: 18.824888464262454pt; color: #3ff200">e</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2d84">
+        <p class="text-center" dir="ltr"><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff">PICTURES </span><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff" lang="he">·</span><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff"> COLORS </span><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff" lang="he">·</span><span class="bold" style="font-size: 9.120000000000001pt; color: #ffffff"> STYLE</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2d9b">
+        <p class="text-center" dir="ltr"><span style="font-size: 8.36pt; color: #ffffff">Design your own Jewish books </span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2db3">
+        <p class="text-center" dir="rtl"><span style="font-size: 15.2pt; color: #bc0000">www.alefbook.org</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2dd1">
+        <p class="text-left" dir="ltr"><span style="font-size: 33.0pt; color: #ffe800">S</span><span style="font-size: 35.0pt; color: #ffe800">a</span><span style="font-size: 37.0pt; color: #ffe800">m</span><span style="font-size: 38.0pt; color: #ffe800">p</span><span style="font-size: 41.0pt; color: #ffe800">l</span><span style="font-size: 42.0pt; color: #ffe800">e!</span><span style="font-size: 44.0pt; color: #ffe800" lang="he">!</span><span style="font-size: 47.0pt; color: #ffe800" lang="he">!</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2de8">
+        <p class="text-center" dir="ltr"><span class="italic" style="font-size: 19.0pt; color: #ffffff">Order your copies today!</span></p>
+      </div>
+      <div class="text-block english-text" data-story-id="u2dff">
+        <p class="text-center" dir="rtl"><span class="font-comic bold italic" style="color: #ffffff">mailed </span><span class="font-comic bold" style="color: #ffffff">DIRECT</span> <span class="font-comic bold italic" style="color: #ffffff">FOR PESACH...</span></p>
+      </div>
+      <div class="text-block english-text personalize-block" data-story-id="u2d4b" data-editable="true">
+        <p class="text-center" dir="ltr"><span class="font-secular" style="font-size: 6.08pt; color: #0019e5">Personalized books and Judaica for every child.</span></p>
+        <p class="text-center" dir="ltr"><span class="font-secular" style="font-size: 6.84pt; color: #0019e5">© 2022 Alef Book. All rights reserved. English translation from Rabbi A. Green, London 1897, modified and updated. </span></p>
+      </div>
+      <div class="page-image logo" data-image="LOGO11B-2X1.psd"><img src="images/LOGO11B-2X1.psd" alt="LOGO11B-2X1" /></div>
+      <div class="page-image seder-item" data-image="Asset 5matzawhole.png"><img src="images/Asset 5matzawhole.png" alt="matzawhole" /></div>
+      <div class="page-image seder-item" data-image="Asset 4cup.png"><img src="images/Asset 4cup.png" alt="cup" /></div>
+      <div class="page-image photo-frame" data-image="frame.svg"><img src="images/frame.svg" alt="frame" /></div>
+      </div>
+    </div>
+
+</div>
+
+<script type="application/json" id="book-metadata">
+{
+  "title": "Passover Haggadah",
+  "subtitle": "My Passover Haggadah",
+  "hebrew_title": "הגדה של פסח",
+  "publisher": "Alef Book",
+  "format": "board-book",
+  "page_size": {
+    "width_inches": 5.625,
+    "height_inches": 5.625,
+    "width_pt": 405,
+    "height_pt": 405
+  },
+  "bleed_pt": 13.5,
+  "margin_pt": 9,
+  "binding": "right-to-left",
+  "total_pages": 40,
+  "languages": ["he", "en"],
+  "font_mapping": {
+    "EFT_Texty": "Frank Ruhl Libre",
+    "Gill Sans MT": "Lato",
+    "Fredoka One": "Fredoka One",
+    "Assistant": "Assistant",
+    "Secular One": "Secular One",
+    "FbAvshalom": "Frank Ruhl Libre Bold",
+    "CrimeFighter BB": "Fredoka One"
+  },
+  "customizable_fields": [
+    "child_name",
+    "family_photos",
+    "personal_messages",
+    "dedication"
+  ],
+  "page_backgrounds": {
+    "tan": "#e8d5b7",
+    "green": "#c8dcc0",
+    "orange": "#f5d5b0"
+  },
+  "seder_sections": [
+    {"step": 1, "name": "Kadesh", "hebrew": "קַדֵּשׁ", "pages": [4]},
+    {"step": 2, "name": "Urchatz", "hebrew": "וּרְחַץ", "pages": [4]},
+    {"step": 3, "name": "Karpas", "hebrew": "כַּרְפַּס", "pages": [5]},
+    {"step": 4, "name": "Yachatz", "hebrew": "יַחַץ", "pages": [5]},
+    {"step": 5, "name": "Maggid", "hebrew": "מַגִּיד", "pages": [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]},
+    {"step": 6, "name": "Rachtzah", "hebrew": "רָחְצָה", "pages": [22]},
+    {"step": 7, "name": "Motzi Matzah", "hebrew": "מוֹצִיא מַצָּה", "pages": [22]},
+    {"step": 8, "name": "Maror", "hebrew": "מָרוֹר", "pages": [22]},
+    {"step": 9, "name": "Korech", "hebrew": "כּוֹרֵךְ", "pages": [23]},
+    {"step": 10, "name": "Shulchan Orech", "hebrew": "שֻׁלְחָן עוֹרֵךְ", "pages": [23]},
+    {"step": 11, "name": "Tzafun", "hebrew": "צָפוּן", "pages": [23]},
+    {"step": 12, "name": "Beirach", "hebrew": "בֵּרַךְ", "pages": [24, 25, 26, 27, 28, 29]},
+    {"step": 13, "name": "Hallel Nirtzah", "hebrew": "הַלֵּל נִרְצָה", "pages": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39]}
+  ]
+}
+</script>
+
+</body>
+</html>
