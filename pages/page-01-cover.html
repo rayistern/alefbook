@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Haggadah - Page 1 (Front Cover)</title>
+  <style>
+    /*
+      Page 1: Front Cover
+      Background: LB1A.jpg (warm tan/parchment)
+      Size: 405pt x 405pt (5.625" x 5.625")
+      Bleed: 13.5pt all sides
+    */
+    @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@800&family=Frank+Ruhl+Libre:wght@900&family=Fredoka+One&family=Secular+One&family=Lato:wght@700;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #ccc;
+    }
+
+    .page {
+      width: 405pt;
+      height: 405pt;
+      background-color: #e8d5b7;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+
+    /* ── Background image placeholder ── */
+    .page-bg {
+      position: absolute;
+      inset: 0;
+      /* In production: background-image: url('images/LB1A.jpg'); */
+      background-color: #e8d5b7;
+      background-size: cover;
+    }
+
+    /* ── Content layers ── */
+    .cover-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* ── Decorative food images ──
+       Matzah (3 copies, rotated) and cups (5 copies) scattered around the page.
+       In production these will be actual PNGs. */
+    .deco-matzah, .deco-cup, .deco-photo {
+      position: absolute;
+      opacity: 0.9;
+    }
+
+    .deco-matzah {
+      width: 124pt;
+      height: 124pt;
+      /* border: 1px dashed rgba(0,0,0,0.15); placeholder */
+    }
+    .deco-matzah.m1 { top: 10pt; right: 20pt; transform: rotate(-5deg); }
+    .deco-matzah.m2 { top: 160pt; left: -20pt; transform: rotate(55deg); }
+    .deco-matzah.m3 { bottom: 50pt; right: 70pt; transform: rotate(-15deg); }
+
+    .deco-cup {
+      width: 50pt;
+      height: 70pt;
+    }
+    .deco-cup.c1 { top: 30pt; left: 40pt; }
+    .deco-cup.c2 { top: 100pt; right: 60pt; }
+    .deco-cup.c3 { bottom: 120pt; left: 15pt; }
+    .deco-cup.c4 { bottom: 30pt; left: 100pt; }
+    .deco-cup.c5 { bottom: 60pt; right: 10pt; }
+
+    /* Stock photos used as border elements (rotated ~90deg each) */
+    .deco-photo {
+      width: 80pt;
+      height: 80pt;
+    }
+
+    /* ── Logo ── */
+    .logo {
+      position: absolute;
+      bottom: 12pt;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 30pt;
+    }
+
+    /* ── Title block (lower-center area) ── */
+    .title-block {
+      position: absolute;
+      bottom: 80pt;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      width: 340pt;
+    }
+
+    .hebrew-title {
+      font-family: 'Frank Ruhl Libre', serif;
+      font-weight: 900;
+      font-size: 50pt;
+      color: #095354; /* mainHebrew */
+      line-height: 1.1;
+      direction: rtl;
+      margin-bottom: 4pt;
+    }
+
+    .english-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 28pt;
+      color: #095354; /* mainHebrew */
+      direction: ltr;
+      line-height: 1.1;
+    }
+
+    /* ── "Personalize Me" promo block (upper-center) ── */
+    .promo-block {
+      position: absolute;
+      top: 100pt;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      width: 200pt;
+    }
+
+    .personalize-text {
+      font-size: 18pt;
+      line-height: 1.2;
+      letter-spacing: 0.5pt;
+      direction: ltr;
+    }
+    /* Each letter in a different style - ransom-note effect */
+    .personalize-text .l1  { font-family: sans-serif; font-weight: bold; color: #00ffff; }
+    .personalize-text .l2  { font-family: 'Lato', serif; color: #333; }
+    .personalize-text .l3  { font-family: sans-serif; font-weight: bold; color: #3ff200; }
+    .personalize-text .l4  { font-family: serif; color: #0054aa; }
+    .personalize-text .l5  { font-family: serif; color: #f8333a; font-size: 14pt; }
+    .personalize-text .l6  { font-family: serif; color: #ead602; }
+    .personalize-text .l7  { font-family: sans-serif; font-weight: 900; color: #3ff200; }
+    .personalize-text .l8  { font-family: serif; color: #5b9b5c; }
+    .personalize-text .l9  { font-family: 'Assistant', sans-serif; font-weight: 800; color: #bc0000; }
+    .personalize-text .l10 { font-family: cursive; font-weight: bold; color: #ffffff; }
+    .personalize-text .l11 { font-family: serif; font-style: italic; color: #f9194f; font-size: 22pt; }
+    .personalize-text .l12 { font-family: sans-serif; font-weight: bold; color: #0b2e6e; }
+    .personalize-text .l13 { font-family: sans-serif; font-weight: bold; color: #3ff200; }
+
+    .promo-tagline {
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      font-size: 9pt;
+      color: #ffffff;
+      letter-spacing: 1pt;
+      text-transform: uppercase;
+      direction: ltr;
+      margin-top: 2pt;
+    }
+
+    .promo-subtitle {
+      font-family: 'Lato', sans-serif;
+      font-weight: 400;
+      font-style: italic;
+      font-size: 8pt;
+      color: #ffffff;
+      direction: ltr;
+      margin-top: 1pt;
+    }
+
+    .promo-url {
+      font-family: 'Lato', sans-serif;
+      font-weight: 900;
+      font-size: 15pt;
+      color: #bc0000; /* Rouge */
+      direction: ltr;
+      margin-top: 4pt;
+    }
+
+    /* ── "Sample!!!" banner (rotated, top-right area) ── */
+    .sample-banner {
+      position: absolute;
+      top: 40pt;
+      right: 25pt;
+      transform: rotate(-12deg);
+      direction: ltr;
+    }
+
+    .sample-text {
+      font-family: 'Fredoka One', cursive;
+      color: #ffe800; /* Black copy 5 = bright yellow */
+      line-height: 1;
+      /* Each letter gets bigger */
+    }
+    .sample-text .s1 { font-size: 33pt; }
+    .sample-text .s2 { font-size: 35pt; }
+    .sample-text .s3 { font-size: 37pt; }
+    .sample-text .s4 { font-size: 38pt; }
+    .sample-text .s5 { font-size: 41pt; }
+    .sample-text .s6 { font-size: 42pt; }
+    .sample-text .s7 { font-size: 44pt; }
+    .sample-text .s8 { font-size: 47pt; }
+
+    .order-text {
+      position: absolute;
+      top: 85pt;
+      right: 10pt;
+      transform: rotate(-11deg);
+      font-family: 'Fredoka One', cursive;
+      font-style: italic;
+      font-size: 19pt;
+      color: #ffffff;
+      direction: ltr;
+    }
+
+    .mailed-text {
+      position: absolute;
+      top: 120pt;
+      right: 40pt;
+      transform: rotate(-11deg);
+      font-family: 'Fredoka One', cursive;
+      font-size: 14pt;
+      color: #ffffff;
+      direction: ltr;
+      line-height: 1.3;
+    }
+    .mailed-text strong {
+      font-size: 16pt;
+    }
+
+    /* ── Copyright ── */
+    .copyright {
+      position: absolute;
+      bottom: 50pt;
+      right: 10pt;
+      width: 141pt;
+      font-family: 'Secular One', sans-serif;
+      color: #0019e5; /* letre */
+      direction: ltr;
+      text-align: left;
+    }
+
+    .copyright .line1 {
+      font-size: 6pt;
+    }
+
+    .copyright .line2 {
+      font-size: 6.8pt;
+      margin-top: 2pt;
+    }
+
+    /* ── Warm amber accent bar ── */
+    .accent-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30pt;
+      background-color: #ff9414; /* c0m42y92k0 */
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page" data-page="1" data-type="cover">
+  <div class="page-bg"></div>
+
+  <div class="cover-content">
+
+    <!-- Decorative matzah images (Asset 5matzawhole.png x3, various rotations) -->
+    <div class="deco-matzah m1" data-image="Asset 5matzawhole.png"></div>
+    <div class="deco-matzah m2" data-image="Asset 5matzawhole.png"></div>
+    <div class="deco-matzah m3" data-image="Asset 5matzawhole.png"></div>
+
+    <!-- Decorative cup images (Asset 4cup.png x5) -->
+    <div class="deco-cup c1" data-image="Asset 4cup.png"></div>
+    <div class="deco-cup c2" data-image="Asset 4cup.png"></div>
+    <div class="deco-cup c3" data-image="Asset 4cup.png"></div>
+    <div class="deco-cup c4" data-image="Asset 4cup.png"></div>
+    <div class="deco-cup c5" data-image="Asset 4cup.png"></div>
+
+    <!-- "Sample!!!" banner (rotated, escalating font sizes, yellow) -->
+    <div class="sample-banner">
+      <span class="sample-text"><span class="s1">S</span><span class="s2">a</span><span class="s3">m</span><span class="s4">p</span><span class="s5">l</span><span class="s6">e!</span><span class="s7">!</span><span class="s8">!</span></span>
+    </div>
+
+    <!-- "Order your copies today!" (rotated, white) -->
+    <div class="order-text">Order your copies today!</div>
+
+    <!-- "mailed DIRECT FOR PESACH..." (rotated, white) -->
+    <div class="mailed-text">mailed <strong>DIRECT</strong> FOR PESACH...</div>
+
+    <!-- "Personalize Me" promo block -->
+    <div class="promo-block">
+      <div class="personalize-text">
+        <span class="l1">P</span><span class="l2">e</span><span class="l3">r</span><span class="l4">s</span><span class="l5">o</span><span class="l6">n</span><span class="l7">a</span><span class="l8">l</span><span class="l9">i</span><span class="l10">z</span><span class="l11">e</span>
+        <span class="l12">M</span><span class="l13">e</span>
+      </div>
+      <div class="promo-tagline">PICTURES · COLORS · STYLE</div>
+      <div class="promo-subtitle">Design your own Jewish books</div>
+      <div class="promo-url">www.alefbook.org</div>
+    </div>
+
+    <!-- Title block -->
+    <div class="title-block">
+      <div class="hebrew-title" dir="rtl" lang="he">הגדה של פסח</div>
+      <div class="english-title" dir="ltr">My Passover Haggadah</div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="copyright">
+      <div class="line1">Personalized books and Judaica for every child.</div>
+      <div class="line2">© 2022 Alef Book. All rights reserved. English translation from Rabbi A. Green, London 1897, modified and updated.</div>
+    </div>
+
+    <!-- Logo (LOGO11B-2X1.psd) -->
+    <div class="logo" data-image="LOGO11B-2X1.psd"></div>
+
+    <!-- Accent bar at bottom -->
+    <div class="accent-bar"></div>
+
+  </div>
+</div>
+
+</body>
+</html>
