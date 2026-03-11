@@ -1,36 +1,44 @@
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
-const redis = Redis.fromEnv()
+let _rateLimits: Record<string, Ratelimit> | null = null
 
-export const rateLimits = {
-  aiCalls: new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(30, '1 h'),
-    prefix: 'ratelimit:ai',
-  }),
-  imageGen: new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(10, '1 h'),
-    prefix: 'ratelimit:imagegen',
-  }),
-  pdfExports: new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(5, '1 h'),
-    prefix: 'ratelimit:pdf',
-  }),
-  uploads: new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(20, '1 h'),
-    prefix: 'ratelimit:uploads',
-  }),
+function getRateLimits() {
+  if (!_rateLimits) {
+    const redis = Redis.fromEnv()
+    _rateLimits = {
+      aiCalls: new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(30, '1 h'),
+        prefix: 'ratelimit:ai',
+      }),
+      imageGen: new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(10, '1 h'),
+        prefix: 'ratelimit:imagegen',
+      }),
+      pdfExports: new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(5, '1 h'),
+        prefix: 'ratelimit:pdf',
+      }),
+      uploads: new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(20, '1 h'),
+        prefix: 'ratelimit:uploads',
+      }),
+    }
+  }
+  return _rateLimits
 }
 
+type RateLimitType = 'aiCalls' | 'imageGen' | 'pdfExports' | 'uploads'
+
 export async function checkLimit(
-  type: keyof typeof rateLimits,
+  type: RateLimitType,
   userId: string
 ): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
-  const result = await rateLimits[type].limit(userId)
+  const result = await getRateLimits()[type].limit(userId)
   return {
     allowed: result.success,
     retryAfterSeconds: result.success

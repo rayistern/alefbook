@@ -1,13 +1,19 @@
 import OpenAI from 'openai'
 
-const client = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY,
-  defaultHeaders: {
-    'HTTP-Referer': 'https://alefbook.org',
-    'X-Title': 'AlefBook Designer',
-  },
-})
+let _client: OpenAI | null = null
+function getClient() {
+  if (!_client) {
+    _client = new OpenAI({
+      baseURL: 'https://openrouter.ai/api/v1',
+      apiKey: process.env.OPENROUTER_API_KEY,
+      defaultHeaders: {
+        'HTTP-Referer': 'https://alefbook.org',
+        'X-Title': 'AlefBook Designer',
+      },
+    })
+  }
+  return _client
+}
 
 // PHASE 3: Add image generation prompt templates here
 
@@ -19,7 +25,7 @@ export interface ImageGenerationResult {
 export async function generateImage(
   prompt: string
 ): Promise<ImageGenerationResult> {
-  const response = await client.images.generate({
+  const response = await getClient().images.generate({
     model: 'openai/dall-e-3',
     prompt,
     n: 1,

@@ -11,14 +11,20 @@ import { savePageStates } from '@/lib/templates/page-state'
 const PRIMARY_MODEL = 'anthropic/claude-3.5-sonnet'
 const FALLBACK_MODEL = 'openai/gpt-4o'
 
-const client = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY,
-  defaultHeaders: {
-    'HTTP-Referer': 'https://alefbook.org',
-    'X-Title': 'AlefBook Designer',
-  },
-})
+let _client: OpenAI | null = null
+function getClient() {
+  if (!_client) {
+    _client = new OpenAI({
+      baseURL: 'https://openrouter.ai/api/v1',
+      apiKey: process.env.OPENROUTER_API_KEY,
+      defaultHeaders: {
+        'HTTP-Referer': 'https://alefbook.org',
+        'X-Title': 'AlefBook Designer',
+      },
+    })
+  }
+  return _client
+}
 
 export interface Message {
   role: 'user' | 'assistant' | 'system'
@@ -49,7 +55,7 @@ async function callAI(
   model: string = PRIMARY_MODEL
 ): Promise<string> {
   try {
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model,
       messages,
       max_tokens: 8192,
