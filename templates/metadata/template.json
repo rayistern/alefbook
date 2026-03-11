@@ -1,0 +1,12 @@
+{
+  "template_id": "haggadah-he-en-v1",
+  "name": "Hebrew-English Haggadah",
+  "description": "A traditional Passover Haggadah with Hebrew text and English translation",
+  "page_count": 82,
+  "page_width_px": 540,
+  "page_height_px": 540,
+  "bleed_px": 18,
+  "binding": "perfect",
+  "languages": ["he", "en"],
+  "version": "1.0.0"
+}
