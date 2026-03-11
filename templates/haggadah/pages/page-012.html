@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Page 12 — Family Photo [ADDED SPREAD]</title>
+<style>
+  :root {
+    --color-bg:     #cf9f32;   /* gold, matching book palette */
+    --color-dark:   #2a1500;
+    --color-light:  #fff8ee;
+    --font-hebrew:  'Adobe Hebrew', serif;
+    --font-english: 'DIN Next LT Pro', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .bleed-wrapper {
+    width: 576px; height: 576px;
+    padding: 18px;
+    background: var(--color-bg);
+    overflow: hidden;
+  }
+
+  .page {
+    width: 540px; height: 540px;
+    position: relative;
+    background: var(--color-bg);
+    overflow: hidden;
+  }
+
+  .image-slot {
+    position: absolute;
+    left: 30px; top: 30px;
+    width: 480px; height: 440px;
+    border: 3px solid rgba(255,255,255,0.4);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .image-slot img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .image-slot-placeholder {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.2);
+    color: rgba(255,255,255,0.7);
+    font-family: var(--font-english);
+    font-size: 14px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .image-slot-placeholder::before { content: "📷"; font-size: 32px; }
+  .image-slot img[src=""] ~ .image-slot-placeholder,
+  .image-slot img:not([src]) ~ .image-slot-placeholder { display: flex; }
+  .image-slot img[src]:not([src=""]) ~ .image-slot-placeholder { display: none; }
+
+  .caption {
+    position: absolute;
+    left: 30px; bottom: 12px;
+    width: 480px;
+    text-align: center;
+    font-family: var(--font-hebrew);
+    font-size: 16px;
+    color: var(--color-dark);
+    direction: rtl;
+  }
+</style>
+</head>
+<body>
+<div class="bleed-wrapper">
+<div class="page" id="page-012"
+  data-page-number="12"
+  data-section="added-spread"
+  data-is-fixed-liturgy="false">
+
+  <div class="image-slot"
+    data-slot-id="interior-1"
+    data-slot-label="Family Photo 1">
+    <img src="" alt="Family photo" />
+    <div class="image-slot-placeholder">Add your family photo here</div>
+  </div>
+
+  <div class="caption" data-field="caption_1"></div>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Page 1 — Front Cover [PLACEHOLDER]</title>
+<style>
+  /*
+   * PLACEHOLDER — Front Cover
+   * Replace with full conversion from IDML Spread_ucc.xml (the cover spread).
+   * The cover has complex illustrated elements, rotated graphics, and decorative
+   * polygons — see Spread_ucc.xml for full structure.
+   * 
+   * CSS classes the Phase 2 app will target:
+   *   .image-slot       — user photo overlay
+   *   .english-text     — toggleable English elements
+   *   .page-title-he    — main Hebrew title
+   */
+
+  :root {
+    --color-bg:       #1a0a00;   /* dark cover background */
+    --color-gold:     #cf9f32;   /* approximate gold from cover design */
+    --color-cream:    #fff8ee;
+    --font-hebrew:    'Adobe Hebrew', serif;
+    --font-display:   'BadaBoom BB', 'ACME Secret Agent BB', cursive;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .bleed-wrapper {
+    width: 576px; height: 576px;
+    padding: 18px;
+    background: var(--color-bg);
+    overflow: hidden;
+  }
+
+  .page {
+    width: 540px; height: 540px;
+    position: relative;
+    background: var(--color-bg);
+    overflow: hidden;
+  }
+
+  /* ---- Image slot: user photo (behind all other elements) ---- */
+  .image-slot {
+    position: absolute;
+    left: 0; top: 0;
+    width: 540px; height: 540px;
+    z-index: 1;
+  }
+  .image-slot img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .image-slot-placeholder {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2a1500;
+    color: #888;
+    font-family: sans-serif;
+    font-size: 14px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .image-slot-placeholder::before {
+    content: "📷";
+    font-size: 32px;
+  }
+  .image-slot img[src=""] ~ .image-slot-placeholder,
+  .image-slot img:not([src]) ~ .image-slot-placeholder { display: flex; }
+  .image-slot img[src]:not([src=""]) ~ .image-slot-placeholder { display: none; }
+
+  /* ---- Cover overlay (sits on top of photo) ---- */
+  .cover-overlay {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    z-index: 2;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.55) 0%,
+      rgba(0,0,0,0.1)  40%,
+      rgba(0,0,0,0.1)  60%,
+      rgba(0,0,0,0.65) 100%
+    );
+  }
+
+  /* ---- Title area ---- */
+  .cover-title-area {
+    position: absolute;
+    left: 0; top: 60px;
+    width: 540px;
+    text-align: center;
+    z-index: 3;
+  }
+
+  .cover-title-he {
+    font-family: var(--font-hebrew);
+    font-size: 52px;
+    font-weight: bold;
+    color: var(--color-gold);
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+    display: block;
+    line-height: 1.2;
+    direction: rtl;
+  }
+
+  .cover-subtitle-he {
+    font-family: var(--font-hebrew);
+    font-size: 28px;
+    color: var(--color-cream);
+    display: block;
+    margin-top: 8px;
+    direction: rtl;
+  }
+
+  .cover-subtitle-en {
+    font-family: 'DIN Next LT Pro', Arial, sans-serif;
+    font-size: 18px;
+    color: var(--color-cream);
+    display: block;
+    margin-top: 4px;
+    direction: ltr;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- Bottom area ---- */
+  .cover-bottom {
+    position: absolute;
+    left: 20px; bottom: 30px;
+    width: 500px;
+    text-align: center;
+    z-index: 3;
+  }
+
+  .family-name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    color: var(--color-gold);
+    letter-spacing: 0.1em;
+  }
+
+  /* ---- Placeholder guide overlay (remove in production) ---- */
+  .placeholder-notice {
+    position: absolute;
+    top: 4px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,165,0,0.85);
+    color: #000;
+    font-family: monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    z-index: 99;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="bleed-wrapper">
+<div class="page" id="page-001"
+  data-page-number="1"
+  data-section="cover"
+  data-is-fixed-liturgy="false">
+
+  <div class="placeholder-notice">⚠ PLACEHOLDER — Replace with IDML cover conversion</div>
+
+  <!-- IMAGE SLOT: user photo (full bleed, behind all) -->
+  <div class="image-slot"
+    data-slot-id="cover"
+    data-slot-label="Cover Photo">
+    <img src="" alt="Cover photo" />
+    <div class="image-slot-placeholder">Add your cover photo here</div>
+  </div>
+
+  <!-- Gradient overlay -->
+  <div class="cover-overlay"></div>
+
+  <!-- Title -->
+  <div class="cover-title-area">
+    <span class="cover-title-he">הַגָּדָה שֶׁל פֶּסַח</span>
+    <span class="cover-subtitle-he">לְשֵׁם יִחוּד</span>
+    <span class="cover-subtitle-en english-text">The Passover Haggadah</span>
+  </div>
+
+  <!-- Bottom: family name (editable) -->
+  <div class="cover-bottom">
+    <div class="family-name" data-field="family_name">
+      The [Family Name] Family
+    </div>
+  </div>
+
+</div>
+</div>
+</body>
+</html>
