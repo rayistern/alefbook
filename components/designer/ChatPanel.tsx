@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
-import { ArrowUp } from 'lucide-react'
+import { ArrowUp, Pencil, X, Check } from 'lucide-react'
 
 export interface ChatMessage {
   id: string
@@ -15,6 +15,7 @@ export interface ChatMessage {
 interface ChatPanelProps {
   messages: ChatMessage[]
   onSend: (message: string) => void
+  onEditMessage?: (messageId: string, newContent: string) => void
   isWorking: boolean
   passInfo?: { current: number; total: number } | null
 }
@@ -26,10 +27,13 @@ const CONVERSATION_STARTERS = [
   'Add a family photo placeholder',
 ]
 
-export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelProps) {
+export function ChatPanel({ messages, onSend, onEditMessage, isWorking, passInfo }: ChatPanelProps) {
   const [input, setInput] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -45,12 +49,19 @@ export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelPr
     textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`
   }, [input])
 
+  // Auto-resize edit textarea
+  useEffect(() => {
+    const textarea = editTextareaRef.current
+    if (!textarea) return
+    textarea.style.height = 'auto'
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`
+  }, [editText])
+
   const handleSend = useCallback(() => {
     const trimmed = input.trim()
     if (!trimmed || isWorking) return
     onSend(trimmed)
     setInput('')
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
     }
@@ -72,6 +83,36 @@ export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelPr
       onSend(starter)
     },
     [isWorking, onSend]
+  )
+
+  const handleStartEdit = useCallback((msg: ChatMessage) => {
+    setEditingId(msg.id)
+    setEditText(msg.content)
+  }, [])
+
+  const handleCancelEdit = useCallback(() => {
+    setEditingId(null)
+    setEditText('')
+  }, [])
+
+  const handleConfirmEdit = useCallback(() => {
+    if (!editingId || !editText.trim() || !onEditMessage) return
+    onEditMessage(editingId, editText.trim())
+    setEditingId(null)
+    setEditText('')
+  }, [editingId, editText, onEditMessage])
+
+  const handleEditKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        handleConfirmEdit()
+      }
+      if (e.key === 'Escape') {
+        handleCancelEdit()
+      }
+    },
+    [handleConfirmEdit, handleCancelEdit]
   )
 
   const designingLabel = passInfo
@@ -113,12 +154,55 @@ export function ChatPanel({ messages, onSend, isWorking, passInfo }: ChatPanelPr
             <div key={msg.id} className="flex flex-col gap-1">
               {msg.role === 'user' ? (
                 <div className="flex justify-end">
-                  <div className="max-w-[85%] rounded-3xl bg-muted px-4 py-2.5 text-sm">
-                    {msg.content}
-                  </div>
+                  {editingId === msg.id ? (
+                    <div className="flex max-w-[85%] flex-col gap-2">
+                      <textarea
+                        ref={editTextareaRef}
+                        value={editText}
+                        onChange={e => setEditText(e.target.value)}
+                        onKeyDown={handleEditKeyDown}
+                        className="min-h-[44px] resize-none rounded-2xl border bg-muted px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+                        rows={1}
+                        autoFocus
+                      />
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7"
+                          onClick={handleCancelEdit}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={handleConfirmEdit}
+                          disabled={!editText.trim()}
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="group relative max-w-[85%]">
+                      <div className="rounded-3xl bg-muted px-4 py-2.5 text-sm">
+                        {msg.content}
+                      </div>
+                      {!isWorking && onEditMessage && (
+                        <button
+                          onClick={() => handleStartEdit(msg)}
+                          className="absolute -left-8 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover:opacity-100"
+                          title="Edit message"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="text-sm leading-relaxed text-foreground">
+                <div className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
                   {msg.content}
                 </div>
               )}

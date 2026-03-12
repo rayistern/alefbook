@@ -8,8 +8,8 @@ import { applyPageUpdate, parsePageHtmlBlocks } from './html-editor'
 import { renderPageToImage } from '@/lib/rendering/puppeteer'
 import { savePageStates } from '@/lib/templates/page-state'
 
-const PRIMARY_MODEL = 'anthropic/claude-3.5-sonnet'
-const FALLBACK_MODEL = 'openai/gpt-4o'
+const PRIMARY_MODEL = 'openai/gpt-5-mini'
+const FALLBACK_MODEL = 'openai/gpt-4o-mini'
 
 let _client: OpenAI | null = null
 function getClient() {
@@ -37,6 +37,7 @@ export interface DesignerResult {
   renders: Record<number, Buffer>
   passCount: number
   reviewPassed: boolean
+  unresolvedIssues: string[]
 }
 
 interface DesignerParams {
@@ -84,21 +85,26 @@ async function parseIntent(params: DesignerParams): Promise<{
   })
 
   const messages: OpenAI.ChatCompletionMessageParam[] = [
-    { role: 'system', content: systemPrompt },
+    {
+      role: 'system',
+      content: `${systemPrompt}
+
+## Intent parsing task
+The user is currently viewing page ${params.currentPage}.
+Given the conversation history and the user's latest message below, determine which pages need to be edited and what changes to make.
+Respond with JSON only — no other text:
+{
+  "target_pages": [list of page numbers to edit],
+  "instructions": "detailed description of what to change on each page"
+}`,
+    },
     ...params.chatHistory.map(m => ({
       role: m.role as 'user' | 'assistant' | 'system',
       content: m.content,
     })),
     {
       role: 'user',
-      content: `The user is currently viewing page ${params.currentPage}. Their request: "${params.userMessage}"
-
-Determine which pages need to be edited and what changes to make.
-Respond with JSON only:
-{
-  "target_pages": [list of page numbers to edit],
-  "instructions": "detailed description of what to change on each page"
-}`,
+      content: params.userMessage,
     },
   ]
 
@@ -153,22 +159,23 @@ ${html}
     templateMeta: params.templateMeta,
   })
 
-  const userContent = `
-## Task (Pass ${params.passNumber}/5)
-${params.instructions}
+  const editSystemPrompt = `${systemPrompt}
 
-${params.reviewFeedback ? `## Feedback from previous review\n${params.reviewFeedback}\n` : ''}
+## Output instructions
+- Return the COMPLETE updated HTML for each modified page using the page-html code block format.
+- Also include a SINGLE brief message (1-3 sentences) to the user explaining what you changed.
+- Do NOT include multiple conflicting statements. Give one clear, confident response.
+- Do NOT echo back the instructions or say "I understand". Just describe what you changed.
+- The user's request always takes priority over design guidelines — if they ask for something specific, do it.
 
 ## Pages to edit
 ${pagesContext}
 
-Return the COMPLETE updated HTML for each modified page using the page-html code block format.
-Also include a brief message to the user explaining what you changed.
-`
+${params.reviewFeedback ? `## Feedback from previous review (pass ${params.passNumber}/5)\n${params.reviewFeedback}` : ''}`
 
   const messages: OpenAI.ChatCompletionMessageParam[] = [
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: userContent },
+    { role: 'system', content: editSystemPrompt },
+    { role: 'user', content: params.instructions },
   ]
 
   const response = await callAI(messages)
@@ -219,7 +226,7 @@ async function reviewRender(params: {
     },
   ]
 
-  const response = await callAI(imageMessages)
+  const response = await callAI(imageMessages, PRIMARY_MODEL)
 
   try {
     const parsed = JSON.parse(response.replace(/```json?\n?/g, '').replace(/```/g, '').trim())
@@ -280,6 +287,7 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
       currentPageStates[Number(pageNumStr)] = newHtml
     }
 
+    // Only keep the latest pass's response text (don't concatenate across passes)
     responseText = editResult.responseText
 
     // Step 3: render edited pages to PNG via Puppeteer
@@ -296,11 +304,6 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
     })
 
     if (reviewResult.passed) break
-
-    if (passCount >= 5) {
-      responseText += `\n\n*I wasn't able to fully resolve: ${reviewResult.issues.join(', ')}. You can ask me to try again.*`
-      break
-    }
   }
 
   // Save updated page states
@@ -312,5 +315,6 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
     renders,
     passCount,
     reviewPassed: reviewResult?.passed ?? false,
+    unresolvedIssues: reviewResult?.passed === false ? (reviewResult.issues ?? []) : [],
   }
 }

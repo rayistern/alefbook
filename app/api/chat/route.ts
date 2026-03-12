@@ -126,6 +126,7 @@ export async function POST(req: Request) {
       renderUrls,
       passCount: result.passCount,
       reviewPassed: result.reviewPassed,
+      unresolvedIssues: result.unresolvedIssues,
     })
   } catch (error) {
     console.error('Designer loop failed:', error)

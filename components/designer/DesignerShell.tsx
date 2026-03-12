@@ -206,10 +206,16 @@ export function DesignerShell({
 
         const data = await res.json()
 
+        // Build response: main text + unresolved issues as a separate note
+        let fullResponse = data.responseText || ''
+        if (data.unresolvedIssues?.length > 0) {
+          fullResponse += `\n\nSome issues remain: ${data.unresolvedIssues.join('; ')}. You can ask me to try again.`
+        }
+
         const assistantMsg: ChatMessage = {
           id: `asst-${Date.now()}`,
           role: 'assistant',
-          content: data.responseText,
+          content: fullResponse,
           createdAt: new Date().toISOString(),
         }
         setMessages(prev => [...prev, assistantMsg])
@@ -248,6 +254,21 @@ export function DesignerShell({
       }
     },
     [projectId, currentPage]
+  )
+
+  const handleEditMessage = useCallback(
+    (messageId: string, newContent: string) => {
+      if (isWorking) return
+      // Remove the edited message and everything after it
+      setMessages(prev => {
+        const idx = prev.findIndex(m => m.id === messageId)
+        if (idx === -1) return prev
+        return prev.slice(0, idx)
+      })
+      // Resend with new content
+      handleSendMessage(newContent)
+    },
+    [isWorking, handleSendMessage]
   )
 
   const handleUpload = useCallback(
@@ -395,6 +416,7 @@ export function DesignerShell({
         <ChatPanel
           messages={messages}
           onSend={handleSendMessage}
+          onEditMessage={handleEditMessage}
           isWorking={isWorking}
           passInfo={passInfo}
         />
