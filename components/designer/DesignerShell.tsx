@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
 import { ChatPanel, type ChatMessage } from './ChatPanel'
@@ -19,6 +19,7 @@ import {
   ImageIcon,
   ArrowLeft,
   ShoppingCart,
+  Check,
 } from 'lucide-react'
 
 interface PageMeta {
@@ -71,6 +72,11 @@ export function DesignerShell({
   const [passInfo, setPassInfo] = useState<{ current: number; total: number } | null>(null)
   const [uploading, setUploading] = useState(false)
   const [mobileView, setMobileView] = useState<'chat' | 'page' | 'photos'>('chat')
+  const [title, setTitle] = useState(projectName)
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved')
+  const titleInputRef = useRef<HTMLInputElement>(null)
+  const saveTitleTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
 
   // Render current page on mount / page change if no cached render
   useEffect(() => {
@@ -79,6 +85,14 @@ export function DesignerShell({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage])
+
+  // Focus title input when editing starts
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus()
+      titleInputRef.current.select()
+    }
+  }, [isEditingTitle])
 
   async function renderPage(pageNum: number) {
     try {
@@ -99,6 +113,61 @@ export function DesignerShell({
     }
   }
 
+  async function saveTitle(newTitle: string) {
+    setSaveStatus('saving')
+    try {
+      const res = await fetch('/api/project', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: projectId, name: newTitle }),
+      })
+      if (res.ok) {
+        setSaveStatus('saved')
+      } else {
+        setSaveStatus('unsaved')
+      }
+    } catch {
+      setSaveStatus('unsaved')
+    }
+  }
+
+  function handleTitleChange(newTitle: string) {
+    setTitle(newTitle)
+    setSaveStatus('unsaved')
+    if (saveTitleTimeoutRef.current) {
+      clearTimeout(saveTitleTimeoutRef.current)
+    }
+    saveTitleTimeoutRef.current = setTimeout(() => {
+      saveTitle(newTitle)
+    }, 1000)
+  }
+
+  function handleTitleBlur() {
+    setIsEditingTitle(false)
+    const trimmed = title.trim()
+    if (!trimmed) {
+      setTitle(projectName)
+      return
+    }
+    if (trimmed !== projectName) {
+      if (saveTitleTimeoutRef.current) {
+        clearTimeout(saveTitleTimeoutRef.current)
+      }
+      saveTitle(trimmed)
+    }
+  }
+
+  function handleTitleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleTitleBlur()
+    }
+    if (e.key === 'Escape') {
+      setTitle(projectName)
+      setIsEditingTitle(false)
+    }
+  }
+
   const handleSendMessage = useCallback(
     async (message: string) => {
       const userMsg: ChatMessage = {
@@ -110,6 +179,7 @@ export function DesignerShell({
       setMessages(prev => [...prev, userMsg])
       setIsWorking(true)
       setPassInfo({ current: 1, total: 5 })
+      setSaveStatus('saving')
 
       try {
         const res = await fetch('/api/chat', {
@@ -174,6 +244,7 @@ export function DesignerShell({
       } finally {
         setIsWorking(false)
         setPassInfo(null)
+        setSaveStatus('saved')
       }
     },
     [projectId, currentPage]
@@ -256,6 +327,15 @@ export function DesignerShell({
     }
   }, [projectId, shopifyStoreUrl, shopifyVariantId])
 
+  // Prevent page navigation while working
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (isWorking) return
+      setCurrentPage(page)
+    },
+    [isWorking]
+  )
+
   return (
     <div className="flex h-screen flex-col">
       {/* Header */}
@@ -264,8 +344,41 @@ export function DesignerShell({
           <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-sm font-semibold">{projectName}</h1>
         </div>
+
+        {/* Center: editable title + save indicator */}
+        <div className="flex items-center gap-2">
+          {isEditingTitle ? (
+            <input
+              ref={titleInputRef}
+              value={title}
+              onChange={e => handleTitleChange(e.target.value)}
+              onBlur={handleTitleBlur}
+              onKeyDown={handleTitleKeyDown}
+              className="rounded border-none bg-transparent px-2 py-1 text-center text-sm font-semibold outline-none ring-1 ring-ring"
+              style={{ minWidth: 120, maxWidth: 300 }}
+            />
+          ) : (
+            <button
+              onClick={() => setIsEditingTitle(true)}
+              className="rounded px-2 py-1 text-sm font-semibold transition-colors hover:bg-accent"
+              title="Click to rename"
+            >
+              {title}
+            </button>
+          )}
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            {saveStatus === 'saved' && (
+              <>
+                <Check className="h-3 w-3" />
+                Saved
+              </>
+            )}
+            {saveStatus === 'saving' && 'Saving...'}
+            {saveStatus === 'unsaved' && 'Unsaved'}
+          </span>
+        </div>
+
         <div className="flex items-center gap-2">
           {shopifyVariantId && (
             <Button size="sm" onClick={handleOrderPrint}>
@@ -277,8 +390,8 @@ export function DesignerShell({
         </div>
       </header>
 
-      {/* Desktop 3-panel layout */}
-      <div className="hidden flex-1 overflow-hidden md:grid md:grid-cols-[320px_1fr_280px] md:[grid-template-rows:minmax(0,1fr)]">
+      {/* Desktop 3-panel layout: chat 360px, sidebar 320px */}
+      <div className="hidden flex-1 overflow-hidden md:grid md:grid-cols-[360px_1fr_320px] md:[grid-template-rows:minmax(0,1fr)]">
         <ChatPanel
           messages={messages}
           onSend={handleSendMessage}
@@ -292,7 +405,7 @@ export function DesignerShell({
           renderUrl={renderUrls[currentPage] ?? null}
           isWorking={isWorking}
           passInfo={passInfo}
-          onPageChange={setCurrentPage}
+          onPageChange={handlePageChange}
           onPreviewPdf={handlePreviewPdf}
         />
         <Sidebar
@@ -304,8 +417,9 @@ export function DesignerShell({
           renderUrls={renderUrls}
           onUpload={handleUpload}
           onPhotoClick={handlePhotoClick}
-          onPageSelect={setCurrentPage}
+          onPageSelect={handlePageChange}
           uploading={uploading}
+          isWorking={isWorking}
         />
       </div>
 
@@ -330,7 +444,7 @@ export function DesignerShell({
               renderUrl={renderUrls[currentPage] ?? null}
               isWorking={isWorking}
               passInfo={passInfo}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
               onPreviewPdf={handlePreviewPdf}
             />
           </div>
@@ -351,8 +465,9 @@ export function DesignerShell({
                 renderUrls={renderUrls}
                 onUpload={handleUpload}
                 onPhotoClick={handlePhotoClick}
-                onPageSelect={setCurrentPage}
+                onPageSelect={handlePageChange}
                 uploading={uploading}
+                isWorking={isWorking}
               />
             </SheetContent>
           </Sheet>

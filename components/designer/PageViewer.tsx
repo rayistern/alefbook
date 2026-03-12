@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, FileDown } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileDown, Loader2 } from 'lucide-react'
 
 interface PageViewerProps {
   projectId: string
@@ -11,7 +12,7 @@ interface PageViewerProps {
   isWorking: boolean
   passInfo?: { current: number; total: number } | null
   onPageChange: (page: number) => void
-  onPreviewPdf: () => void
+  onPreviewPdf: () => Promise<void> | void
 }
 
 export function PageViewer({
@@ -24,7 +25,23 @@ export function PageViewer({
   onPageChange,
   onPreviewPdf,
 }: PageViewerProps) {
+  const [pdfLoading, setPdfLoading] = useState(false)
   const iframeSrc = `/api/page-html?projectId=${projectId}&page=${currentPage}`
+
+  const designingLabel = passInfo
+    ? passInfo.current <= 1
+      ? 'Designing...'
+      : `Designing... (pass ${passInfo.current}/${passInfo.total})`
+    : 'Designing...'
+
+  async function handlePreviewPdf() {
+    setPdfLoading(true)
+    try {
+      await onPreviewPdf()
+    } finally {
+      setPdfLoading(false)
+    }
+  }
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
@@ -32,7 +49,7 @@ export function PageViewer({
         {/* Page render display */}
         <div
           className="relative overflow-hidden rounded-lg border bg-white shadow-md"
-          style={{ width: 540, height: 540 }}
+          style={{ width: 540, height: 540, minWidth: 320, minHeight: 320 }}
         >
           {renderUrl ? (
             <>
@@ -45,12 +62,12 @@ export function PageViewer({
                 }`}
                 width={540}
                 height={540}
+                style={{ minWidth: 320, minHeight: 320 }}
               />
               {isWorking && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="rounded-lg bg-black/60 px-4 py-2 text-sm text-white">
-                    Designing...
-                    {passInfo && ` (pass ${passInfo.current}/${passInfo.total})`}
+                    {designingLabel}
                   </div>
                   {/* Shimmer overlay */}
                   <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-transparent via-white/10 to-transparent" />
@@ -72,8 +89,7 @@ export function PageViewer({
           {isWorking && !renderUrl && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="rounded-lg bg-black/60 px-4 py-2 text-sm text-white">
-                Designing...
-                {passInfo && ` (pass ${passInfo.current}/${passInfo.total})`}
+                {designingLabel}
               </div>
             </div>
           )}
@@ -86,7 +102,7 @@ export function PageViewer({
           variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage <= 1}
+          disabled={currentPage <= 1 || isWorking}
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -97,16 +113,20 @@ export function PageViewer({
           variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage >= totalPages}
+          disabled={currentPage >= totalPages || isWorking}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
       {/* PDF Preview button */}
-      <Button variant="outline" onClick={onPreviewPdf}>
-        <FileDown className="mr-2 h-4 w-4" />
-        Preview PDF
+      <Button variant="outline" onClick={handlePreviewPdf} disabled={pdfLoading}>
+        {pdfLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <FileDown className="mr-2 h-4 w-4" />
+        )}
+        {pdfLoading ? 'Generating PDF...' : 'Preview PDF'}
       </Button>
     </div>
   )

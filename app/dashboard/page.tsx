@@ -13,12 +13,14 @@ interface Project {
   template_id: string
   created_at: string
   updated_at: string
+  cover_url?: string
 }
 
 export default function DashboardPage() {
   const router = useRouter()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
+  const [coverUrls, setCoverUrls] = useState<Record<string, string>>({})
 
   useEffect(() => {
     fetchProjects()
@@ -29,7 +31,31 @@ export default function DashboardPage() {
       const res = await fetch('/api/project')
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
-      setProjects(data.projects ?? [])
+      const projectList = data.projects ?? []
+      setProjects(projectList)
+
+      // Fetch cover thumbnails for each project
+      const urls: Record<string, string> = {}
+      await Promise.all(
+        projectList.map(async (p: Project) => {
+          try {
+            const renderRes = await fetch('/api/render', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ projectId: p.id, pageNumbers: [1] }),
+            })
+            if (renderRes.ok) {
+              const renderData = await renderRes.json()
+              if (renderData.renderUrls?.[1]) {
+                urls[p.id] = renderData.renderUrls[1]
+              }
+            }
+          } catch {
+            // Ignore individual render failures
+          }
+        })
+      )
+      setCoverUrls(urls)
     } catch (error) {
       console.error('Failed to load projects:', error)
     } finally {
@@ -76,7 +102,7 @@ export default function DashboardPage() {
         {loading ? (
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-48 animate-pulse rounded-lg bg-muted" />
+              <div key={i} className="h-64 animate-pulse rounded-lg bg-muted" />
             ))}
           </div>
         ) : projects.length === 0 ? (
@@ -96,18 +122,36 @@ export default function DashboardPage() {
               <button
                 key={project.id}
                 onClick={() => router.push(`/designer/${project.id}`)}
-                className="flex flex-col rounded-lg border p-4 text-left transition-colors hover:bg-accent"
+                className="group flex flex-col overflow-hidden rounded-lg border text-left transition-colors hover:bg-accent"
               >
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-muted-foreground" />
-                  <span className="font-medium">{project.name}</span>
+                {/* Thumbnail */}
+                <div className="relative h-40 w-full overflow-hidden bg-muted">
+                  {coverUrls[project.id] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={coverUrls[project.id]}
+                      alt={`${project.name} cover`}
+                      className="h-full w-full object-contain transition-transform group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <BookOpen className="h-10 w-10 text-muted-foreground/40" />
+                    </div>
+                  )}
                 </div>
-                <span className="mt-2 text-sm text-muted-foreground">
-                  {project.status === 'draft' ? 'Draft' : project.status === 'completed' ? 'Completed' : 'Ordered'}
-                </span>
-                <span className="mt-1 text-xs text-muted-foreground">
-                  Updated {new Date(project.updated_at).toLocaleDateString()}
-                </span>
+
+                {/* Info */}
+                <div className="p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{project.name}</span>
+                  </div>
+                  <span className="mt-1 inline-block text-sm text-muted-foreground">
+                    {project.status === 'draft' ? 'Draft' : project.status === 'completed' ? 'Completed' : 'Ordered'}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Updated {new Date(project.updated_at).toLocaleDateString()}
+                  </span>
+                </div>
               </button>
             ))}
           </div>
