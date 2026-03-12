@@ -111,11 +111,13 @@ export async function POST(req: Request) {
         continue
       }
 
-      const { data: urlData } = supabase.storage
+      const { data: signedData, error: signError } = await supabase.storage
         .from('renders')
-        .getPublicUrl(storagePath)
+        .createSignedUrl(storagePath, 3600)
 
-      renderUrls[pageNum] = urlData.publicUrl
+      if (!signError && signedData?.signedUrl) {
+        renderUrls[pageNum] = signedData.signedUrl
+      }
     }
 
     return Response.json({

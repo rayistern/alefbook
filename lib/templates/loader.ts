@@ -59,6 +59,12 @@ export function loadPageHTML(pageNumber: number, projectPageState?: string): str
     return fs.readFileSync(filePath, 'utf-8')
   }
 
+  // Check for variant with 'r' suffix (right-side pages in spreads)
+  const filePathR = path.join(dir, `page-${paddedNum}r.html`)
+  if (fs.existsSync(filePathR)) {
+    return fs.readFileSync(filePathR, 'utf-8')
+  }
+
   // Fallback: load cover stub for page 1, back stub for last page, interior for others
   // (only relevant while using stubs)
   return loadStubFallback(pageNumber)

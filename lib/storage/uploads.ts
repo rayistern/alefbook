@@ -85,6 +85,13 @@ export async function getProjectUploads(projectId: string): Promise<Upload[]> {
 
 export async function getUploadDisplayUrl(storagePath: string): Promise<string> {
   const supabase = createClient()
-  const { data } = supabase.storage.from('uploads').getPublicUrl(storagePath)
-  return data.publicUrl
+  const { data, error } = await supabase.storage
+    .from('uploads')
+    .createSignedUrl(storagePath, 3600)
+  if (error || !data?.signedUrl) {
+    // Fallback to public URL if signing fails
+    const { data: pubData } = supabase.storage.from('uploads').getPublicUrl(storagePath)
+    return pubData.publicUrl
+  }
+  return data.signedUrl
 }

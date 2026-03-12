@@ -71,10 +71,12 @@ export default async function DesignerPage({ params }: DesignerPageProps) {
 
   const renderUrls: Record<number, string> = {}
   for (const render of renders ?? []) {
-    const { data: urlData } = supabase.storage
+    const { data: signedData, error: signError } = await supabase.storage
       .from('renders')
-      .getPublicUrl(render.image_path)
-    renderUrls[render.page_number] = urlData.publicUrl
+      .createSignedUrl(render.image_path, 3600)
+    if (!signError && signedData?.signedUrl) {
+      renderUrls[render.page_number] = signedData.signedUrl
+    }
   }
 
   return (

@@ -52,10 +52,12 @@ export async function POST(req: Request) {
         .single()
 
       if (cached) {
-        const { data: urlData } = supabase.storage
+        const { data: signedData, error: signError } = await supabase.storage
           .from('renders')
-          .getPublicUrl(cached.image_path)
-        renderUrls[pageNum] = urlData.publicUrl
+          .createSignedUrl(cached.image_path, 3600)
+        if (!signError && signedData?.signedUrl) {
+          renderUrls[pageNum] = signedData.signedUrl
+        }
         continue
       }
 
@@ -87,10 +89,12 @@ export async function POST(req: Request) {
         { onConflict: 'project_id,html_hash' }
       )
 
-      const { data: urlData } = supabase.storage
+      const { data: signedData, error: signError } = await supabase.storage
         .from('renders')
-        .getPublicUrl(imagePath)
-      renderUrls[pageNum] = urlData.publicUrl
+        .createSignedUrl(imagePath, 3600)
+      if (!signError && signedData?.signedUrl) {
+        renderUrls[pageNum] = signedData.signedUrl
+      }
     } catch (err) {
       console.error(`Failed to render page ${pageNum}:`, err)
     }

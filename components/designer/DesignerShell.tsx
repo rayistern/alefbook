@@ -278,7 +278,7 @@ export function DesignerShell({
       </header>
 
       {/* Desktop 3-panel layout */}
-      <div className="hidden flex-1 overflow-hidden md:grid md:grid-cols-[320px_1fr_280px]">
+      <div className="hidden flex-1 overflow-hidden md:grid md:grid-cols-[320px_1fr_280px] md:[grid-template-rows:minmax(0,1fr)]">
         <ChatPanel
           messages={messages}
           onSend={handleSendMessage}
@@ -324,6 +324,7 @@ export function DesignerShell({
         {mobileView === 'page' && (
           <div className="flex-1 overflow-auto">
             <PageViewer
+              projectId={projectId}
               currentPage={currentPage}
               totalPages={totalPages}
               renderUrl={renderUrls[currentPage] ?? null}
@@ -342,6 +343,7 @@ export function DesignerShell({
             <SheetContent>
               <SheetTitle>Photos & Pages</SheetTitle>
               <Sidebar
+                projectId={projectId}
                 uploads={uploads}
                 pages={pages}
                 currentPage={currentPage}
