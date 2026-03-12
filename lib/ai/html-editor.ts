@@ -1,31 +1,39 @@
-export function validatePageHTML(html: string): { valid: boolean; errors: string[] } {
-  const errors: string[] = []
+/**
+ * Sanitize AI-generated HTML by stripping forbidden elements
+ * instead of rejecting the entire edit.
+ */
+export function sanitizePageHTML(html: string): string {
+  // Strip <script> tags and their contents
+  let sanitized = html.replace(/<script[\s\S]*?<\/script>/gi, '')
+  sanitized = sanitized.replace(/<script[^>]*\/>/gi, '')
+
+  // Strip external URLs from src/href attributes (replace with empty string)
+  // Allowed: /templates/, /uploads/, /api/, /fonts/, /images/, /thumbnails/, data:, #, ./
+  const externalUrlPattern = /((?:src|href)=["'])(?!\/templates\/|\/uploads\/|\/api\/|\/fonts\/|\/images\/|\/thumbnails\/|data:|#|\.\/)(https?:\/\/[^"']*|\/\/[^"']*)(["'])/gi
+  sanitized = sanitized.replace(externalUrlPattern, '$1$3')
+
+  // Strip iframe, embed, object tags
+  sanitized = sanitized.replace(/<(?:iframe|embed|object)[\s\S]*?(?:<\/(?:iframe|embed|object)>|\/?>)/gi, '')
+
+  return sanitized
+}
+
+export function validatePageHTML(html: string): { valid: boolean; warnings: string[] } {
+  const warnings: string[] = []
 
   // Ensure required .page wrapper div with data-page-number
   if (!html.includes('data-page-number=')) {
-    errors.push('Missing data-page-number attribute on page wrapper')
+    warnings.push('Missing data-page-number attribute on page wrapper')
   }
 
-  // No scripts injected
+  // Log if we had to strip scripts (for debugging)
   if (/<script[\s>]/i.test(html)) {
-    errors.push('Script tags are not allowed in page HTML')
-  }
-
-  // No external resource URLs (only local paths and data: URIs allowed)
-  const urlPattern = /(?:src|href)=["'](?!\/templates\/|\/uploads\/|\/api\/|\/fonts\/|\/images\/|\/thumbnails\/|data:|#|\.\/)/gi
-  if (urlPattern.test(html)) {
-    errors.push('External resource URLs are not allowed — use only /templates/, /uploads/, or data: URIs')
-  }
-
-  // Check page dimensions are referenced (540px page within 576px with bleed)
-  // This is a soft check — the AI should maintain the page dimensions
-  if (!html.includes('540px') && !html.includes('540')) {
-    // Only warn, don't fail — some pages might use different unit systems
+    warnings.push('Script tags were present (will be stripped)')
   }
 
   return {
-    valid: errors.length === 0,
-    errors,
+    valid: html.includes('data-page-number='),
+    warnings,
   }
 }
 
@@ -33,12 +41,18 @@ export function applyPageUpdate(
   originalHtml: string,
   updatedHtml: string
 ): string {
-  const validation = validatePageHTML(updatedHtml)
-  if (!validation.valid) {
-    console.error('AI returned invalid HTML:', validation.errors)
-    return originalHtml // fall back to original, don't corrupt the page
+  // Sanitize first — strip forbidden elements instead of rejecting
+  const sanitized = sanitizePageHTML(updatedHtml)
+
+  const validation = validatePageHTML(sanitized)
+  if (validation.warnings.length > 0) {
+    console.warn('[HTML Editor] Warnings:', validation.warnings)
   }
-  return updatedHtml
+  if (!validation.valid) {
+    console.error('[HTML Editor] Invalid HTML after sanitization, keeping original')
+    return originalHtml
+  }
+  return sanitized
 }
 
 /**
