@@ -14,6 +14,7 @@ import { savePageStates } from '@/lib/templates/page-state'
 const isTestMode = process.env.AI_MODE !== 'production'
 const PRIMARY_MODEL = isTestMode ? 'openai/gpt-5.4' : 'openai/gpt-5.1-codex'
 const FALLBACK_MODEL = isTestMode ? 'openai/gpt-5.1-codex' : 'openai/gpt-5.4'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const IMAGE_GEN_MODEL = 'google/gemini-3-pro-image-preview'
 
 let _client: OpenAI | null = null
