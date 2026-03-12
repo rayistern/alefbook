@@ -24,6 +24,7 @@ RUN npm ci
 COPY . .
 
 # Make fonts and images available as static assets via Next.js public/
+# (thumbnails are already in public/thumbnails/ from the repo)
 RUN mkdir -p public/fonts public/images \
     && cp -r templates/fonts/* public/fonts/ \
     && cp -r images/* public/images/

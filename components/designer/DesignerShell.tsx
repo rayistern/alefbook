@@ -76,7 +76,7 @@ export function DesignerShell({
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved')
   const titleInputRef = useRef<HTMLInputElement>(null)
-  const saveTitleTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
+  const saveTitleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Render current page on mount / page change if no cached render
   useEffect(() => {

@@ -19,7 +19,7 @@ interface PageInfo {
 }
 
 interface SidebarProps {
-  projectId: string
+  projectId?: string
   uploads: UploadedImage[]
   pages: PageInfo[]
   currentPage: number
@@ -33,7 +33,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({
-  projectId,
   uploads,
   pages,
   currentPage,
@@ -122,7 +121,6 @@ export function Sidebar({
           {pages.map(page => (
             <PageThumbnail
               key={page.page_number}
-              projectId={projectId}
               pageNumber={page.page_number}
               label={page.label}
               thumbnailUrl={renderUrls[page.page_number] ?? null}
