@@ -10,6 +10,7 @@ interface PageThumbnailProps {
   isActive: boolean
   isEdited: boolean
   onClick: () => void
+  disabled?: boolean
 }
 
 export function PageThumbnail({
@@ -20,13 +21,16 @@ export function PageThumbnail({
   isActive,
   isEdited,
   onClick,
+  disabled = false,
 }: PageThumbnailProps) {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={cn(
         'relative flex flex-col items-center gap-1 rounded p-1 transition-colors hover:bg-accent',
-        isActive && 'ring-2 ring-primary'
+        isActive && 'ring-2 ring-primary',
+        disabled && 'cursor-not-allowed opacity-50'
       )}
       title={`${label} (page ${pageNumber})`}
     >

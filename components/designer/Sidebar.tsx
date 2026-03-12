@@ -29,6 +29,7 @@ interface SidebarProps {
   onPhotoClick: (filename: string) => void
   onPageSelect: (page: number) => void
   uploading: boolean
+  isWorking?: boolean
 }
 
 export function Sidebar({
@@ -42,6 +43,7 @@ export function Sidebar({
   onPhotoClick,
   onPageSelect,
   uploading,
+  isWorking = false,
 }: SidebarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -57,7 +59,7 @@ export function Sidebar({
   )
 
   return (
-    <div className="flex h-full w-[280px] flex-col border-l">
+    <div className="flex h-full w-[320px] flex-col border-l">
       {/* My Photos section */}
       <div className="border-b px-4 py-3">
         <h3 className="font-semibold">My Photos</h3>
@@ -82,7 +84,7 @@ export function Sidebar({
         </Button>
 
         {uploads.length > 0 ? (
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="mt-3 grid grid-cols-3 gap-2">
             {uploads.map(upload => (
               <button
                 key={upload.id}
@@ -116,7 +118,7 @@ export function Sidebar({
       </div>
 
       <ScrollArea className="flex-1 p-3">
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-4 gap-1.5">
           {pages.map(page => (
             <PageThumbnail
               key={page.page_number}
@@ -127,6 +129,7 @@ export function Sidebar({
               isActive={page.page_number === currentPage}
               isEdited={editedPages.has(page.page_number)}
               onClick={() => onPageSelect(page.page_number)}
+              disabled={isWorking}
             />
           ))}
         </div>
