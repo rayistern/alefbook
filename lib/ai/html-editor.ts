@@ -8,9 +8,14 @@ export function sanitizePageHTML(html: string): string {
   sanitized = sanitized.replace(/<script[^>]*\/>/gi, '')
 
   // Strip external URLs from src/href attributes (replace with empty string)
-  // Allowed: /templates/, /uploads/, /api/, /fonts/, /images/, /thumbnails/, data:, #, ./
+  // Allowed: local paths, data: URIs, and Supabase storage URLs (for uploaded images)
+  const supabaseHost = (process.env.SUPABASE_URL || '').replace(/^https?:\/\//, '')
   const externalUrlPattern = /((?:src|href)=["'])(?!\/templates\/|\/uploads\/|\/api\/|\/fonts\/|\/images\/|\/thumbnails\/|data:|#|\.\/)(https?:\/\/[^"']*|\/\/[^"']*)(["'])/gi
-  sanitized = sanitized.replace(externalUrlPattern, '$1$3')
+  sanitized = sanitized.replace(externalUrlPattern, (match, prefix, url, suffix) => {
+    // Allow Supabase storage URLs (signed upload URLs)
+    if (supabaseHost && url.includes(supabaseHost)) return match
+    return `${prefix}${suffix}`
+  })
 
   // Strip iframe, embed, object tags
   sanitized = sanitized.replace(/<(?:iframe|embed|object)[\s\S]*?(?:<\/(?:iframe|embed|object)>|\/?>)/gi, '')

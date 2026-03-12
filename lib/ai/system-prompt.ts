@@ -1,10 +1,14 @@
 import type { Upload } from '@/lib/storage/uploads'
 import type { TemplateMeta } from '@/lib/templates/loader'
 
+export interface UploadWithUrl extends Upload {
+  displayUrl: string
+}
+
 export function buildSystemPrompt(context: {
   currentPage: number
   projectName: string
-  uploads: Upload[]
+  uploads: UploadWithUrl[]
   templateMeta: TemplateMeta
 }): string {
   return `
@@ -42,13 +46,14 @@ You may return multiple page-html blocks if editing multiple pages.
 ## Allowed in page HTML
 - Inline CSS and <style> blocks (this is your primary tool)
 - <img> tags referencing: /images/*, /fonts/*, /thumbnails/*, /uploads/*, /templates/*, data: URIs
+- <img> tags with the EXACT signed URLs provided for uploaded photos (these are full https:// URLs — use them as-is)
 - Standard HTML elements (div, span, p, h1-h6, img, table, etc.)
 - CSS @font-face rules using url(/fonts/...)
 - SVG elements inline
 
 ## FORBIDDEN in page HTML — these will cause your edit to be rejected
-- <script> tags (there is no JS runtime — scripts are stripped and your edit is discarded)
-- External URLs (no https://, no http://, no //cdn...) — only local paths listed above and data: URIs
+- <script> tags (there is no JS runtime — scripts are stripped)
+- External URLs other than the signed upload URLs provided above
 - iframes, embeds, objects
 - Any reference to resources outside the allowed paths above
 
@@ -65,7 +70,10 @@ If your edit is rejected, the original page is kept unchanged and the user sees 
 ## Current session
 - Viewing: page ${context.currentPage} of ${context.templateMeta.page_count}
 - Project: ${context.projectName}
-- Uploaded photos: ${context.uploads.map(u => u.filename).join(', ') || 'none yet'}
+- Uploaded photos:
+${context.uploads.length > 0
+  ? context.uploads.map(u => `  - "${u.filename}" → use this exact src: ${u.displayUrl}`).join('\n')
+  : '  none yet'}
 
 ## Page directory
 ${JSON.stringify(

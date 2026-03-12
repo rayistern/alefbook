@@ -1,9 +1,10 @@
 import OpenAI from 'openai'
 import type { TemplateMeta } from '@/lib/templates/loader'
 import type { Upload } from '@/lib/storage/uploads'
+import { getUploadDisplayUrl } from '@/lib/storage/uploads'
 import type { ReviewResult } from './review-criteria'
 import { REVIEW_CRITERIA } from './review-criteria'
-import { buildSystemPrompt } from './system-prompt'
+import { buildSystemPrompt, type UploadWithUrl } from './system-prompt'
 import { applyPageUpdate, parsePageHtmlBlocks } from './html-editor'
 import { renderPageToImage } from '@/lib/rendering/puppeteer'
 import { savePageStates } from '@/lib/templates/page-state'
@@ -81,7 +82,7 @@ async function callAI(
   }
 }
 
-async function parseIntent(params: DesignerParams): Promise<{
+async function parseIntent(params: DesignerParams & { uploads: UploadWithUrl[] }): Promise<{
   targetPages: number[]
   instructions: string
 }> {
@@ -141,7 +142,7 @@ async function generateHTMLEdits(params: {
   reviewFeedback: string | null
   passNumber: number
   projectName: string
-  uploads: Upload[]
+  uploads: UploadWithUrl[]
 }): Promise<{
   pageUpdates: Record<number, string>
   responseText: string
@@ -269,9 +270,21 @@ async function renderPages(params: {
 }
 
 export async function runDesignerLoop(params: DesignerParams): Promise<DesignerResult> {
+  // Resolve signed URLs for all uploads so AI can reference them in HTML
+  const uploadsWithUrls: UploadWithUrl[] = await Promise.all(
+    params.uploads.map(async (u) => ({
+      ...u,
+      displayUrl: await getUploadDisplayUrl(u.storage_path_display),
+    }))
+  )
+  console.log('[Designer] Resolved upload URLs:', uploadsWithUrls.map(u => ({ filename: u.filename, url: u.displayUrl.substring(0, 80) })))
+
+  // Override uploads with URL-enriched versions for the rest of the loop
+  const paramsWithUrls = { ...params, uploads: uploadsWithUrls }
+
   // Step 1: determine intent — which pages to touch and what to do
   console.log('[Designer] Step 1: Parsing intent for message:', params.userMessage.substring(0, 100))
-  const { targetPages, instructions } = await parseIntent(params)
+  const { targetPages, instructions } = await parseIntent(paramsWithUrls)
   console.log('[Designer] Intent parsed:', { targetPages, instructions: instructions.substring(0, 200) })
 
   const currentPageStates = { ...params.pageStates }
@@ -289,11 +302,11 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
       instructions,
       targetPages,
       currentPageStates,
-      templateMeta: params.templateMeta,
+      templateMeta: paramsWithUrls.templateMeta,
       reviewFeedback: reviewResult?.feedback ?? null,
       passNumber: passCount,
-      projectName: params.projectName,
-      uploads: params.uploads,
+      projectName: paramsWithUrls.projectName,
+      uploads: paramsWithUrls.uploads,
     })
     console.log(`[Designer] Pass ${passCount}: HTML edits generated for pages:`, Object.keys(editResult.pageUpdates))
 
