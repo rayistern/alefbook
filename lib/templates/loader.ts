@@ -8,6 +8,7 @@ export interface PageMeta {
   is_fixed_liturgy: boolean
   content_summary: string
   has_image_slots: boolean
+  editable: boolean
 }
 
 export interface TemplateMeta {

@@ -29,6 +29,7 @@ interface PageMeta {
   is_fixed_liturgy: boolean
   content_summary: string
   has_image_slots: boolean
+  editable: boolean
 }
 
 interface UploadedImage {
@@ -381,6 +382,10 @@ export function DesignerShell({
     [isWorking]
   )
 
+  // Get current page metadata
+  const currentPageMeta = pages.find(p => p.page_number === currentPage)
+  const isCurrentPageEditable = currentPageMeta?.editable !== false
+
   return (
     <div className="flex h-screen flex-col">
       {/* Header */}
@@ -450,6 +455,8 @@ export function DesignerShell({
           totalPages={totalPages}
           renderUrl={renderUrls[currentPage] ?? null}
           isWorking={isWorking}
+          isEditable={isCurrentPageEditable}
+          pageLabel={currentPageMeta?.label ?? `Page ${currentPage}`}
           passInfo={passInfo}
           onPageChange={handlePageChange}
           onPreviewPdf={handlePreviewPdf}
