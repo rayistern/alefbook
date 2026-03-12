@@ -32,6 +32,11 @@
     width: 540px; height: 540px;
     position: relative; margin: 18px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 30px;
   }
   .bg-bleed {
     position: absolute; left: 0; top: 0;
@@ -41,16 +46,67 @@
     width: 100%; height: 100%;
     object-fit: cover; display: block;
   }
-  .el { position: absolute; }
-  .hebrew-text { direction: rtl; unicode-bidi: embed; }
-  .english-text { direction: ltr; unicode-bidi: embed; }
 
-  .seder-step .english {
-    font-family: 'Fredoka One', serif;
-    font-size: 21.3px;
-    color: var(--color-english);
+  .content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+  }
+
+  .title-hebrew {
+    font-family: 'Yiddishkeit', serif;
+    font-weight: 700;
+    font-size: 54px;
+    color: var(--color-mainHebrew);
+    text-align: center;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    direction: rtl;
+  }
+
+  .title-english {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 26px;
+    color: var(--color-mainHebrew);
+    text-align: center;
+    line-height: 1.4;
     direction: ltr;
+    margin-bottom: 20px;
+  }
+
+  .seder-row {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .seder-row .hebrew {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 48px;
+    color: var(--color-letre2);
     line-height: 1.3;
+    letter-spacing: 0.01em;
+    direction: rtl;
+  }
+
+  .seder-row .english-labels {
+    display: flex;
+    justify-content: space-around;
+    direction: ltr;
+    padding: 0 10px;
+    margin-bottom: 12px;
+  }
+
+  .seder-row .english-labels span {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 17px;
+    color: var(--color-english);
+    text-align: center;
+    flex: 1;
   }
 </style>
 </head>
@@ -65,136 +121,53 @@
        data-section="front-matter"
        data-is-fixed-liturgy="false">
 
-    <!-- Hebrew title -->
-    <div class="el hebrew-text" style="
-      left: 65px; top: 28px;
-      width: 411px; height: 55px;
-      z-index: 10;
-      text-align: center;
-      font-family: 'Yiddishkeit', serif;
-      font-weight: 700;
-      font-size: 66.7px;
-      color: var(--color-mainHebrew);
-      line-height: 55px;
-    ">סִימַן סֵדֶר שֶׁל פֶּסַח</div>
+    <div class="content">
 
-    <!-- English subtitle -->
-    <div class="el english-text" style="
-      left: 0; top: 95px;
-      width: 540px; height: 45px;
-      z-index: 11;
-      text-align: center;
-      font-family: 'Fredoka One', serif;
-      font-size: 32px;
-      color: var(--color-mainHebrew);
-      line-height: 45px;
-    ">The Order of the Pesach Seder</div>
+      <div class="title-hebrew">סִימַן סֵדֶר שֶׁל פֶּסַח</div>
+      <div class="title-english">The Order of the Pesach Seder</div>
 
-    <!-- Row 1 Hebrew -->
-    <div class="el hebrew-text" style="
-      left: 70px; top: 145px;
-      width: 400px; height: 72px;
-      z-index: 12;
-      text-align: center;
-      font-family: 'Fredoka One', serif;
-      font-size: 64px;
-      color: var(--color-letre2);
-      line-height: 72px;
-      letter-spacing: 0.01em;
-    ">קַדֵּשׁ. וּרְחַץ. כַּרְפַּס. יַחַץ.</div>
+      <!-- Row 1: Kadesh, Urchatz, Karpas, Yachatz -->
+      <div class="seder-row">
+        <div class="hebrew">קַדֵּשׁ. וּרְחַץ. כַּרְפַּס. יַחַץ.</div>
+        <div class="english-labels">
+          <span>Yachatz</span>
+          <span>Karpas</span>
+          <span>Urchatz</span>
+          <span>Kadesh</span>
+        </div>
+      </div>
 
-    <!-- Row 1 English -->
-    <div class="el" style="
-      left: 50px; top: 218px;
-      width: 440px; height: 26px;
-      z-index: 13;
-      display: flex; justify-content: space-around;
-      direction: ltr;
-    ">
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Yachatz</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Karpas</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Urchatz</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Kadesh</span>
+      <!-- Row 2: Magid, Rochtza, Motzi Matzah -->
+      <div class="seder-row">
+        <div class="hebrew">מַגִּיד. רָחְצָה. מוֹצִיא מַצָּה.</div>
+        <div class="english-labels">
+          <span>Motzi Matzah</span>
+          <span>Rochtza</span>
+          <span>Magid</span>
+        </div>
+      </div>
+
+      <!-- Row 3: Maror, Korech, Shulchan Orech -->
+      <div class="seder-row">
+        <div class="hebrew">מָרוֹר כּוֹרֵךְ שֻׁלְחָן עוֹרֵךְ</div>
+        <div class="english-labels">
+          <span>Shulchan Orech</span>
+          <span>Korech</span>
+          <span>Maror</span>
+        </div>
+      </div>
+
+      <!-- Row 4: Tzafun, Beirach, Hallel Nirtzah -->
+      <div class="seder-row">
+        <div class="hebrew">צָפוּן. בֵּרַךְ. הַלֵּל נִרְצָה.</div>
+        <div class="english-labels">
+          <span>Hallel Nirtzah</span>
+          <span>Beirach</span>
+          <span>Tzafun</span>
+        </div>
+      </div>
+
     </div>
-
-    <!-- Row 2 Hebrew -->
-    <div class="el hebrew-text" style="
-      left: 55px; top: 260px;
-      width: 430px; height: 72px;
-      z-index: 14;
-      text-align: center;
-      font-family: 'Fredoka One', serif;
-      font-size: 64px;
-      color: var(--color-letre2);
-      line-height: 72px;
-      letter-spacing: 0.01em;
-    ">מַגִּיד. רָחְצָה. מוֹצִיא מַצָּה.</div>
-
-    <!-- Row 2 English -->
-    <div class="el" style="
-      left: 60px; top: 333px;
-      width: 420px; height: 26px;
-      z-index: 15;
-      display: flex; justify-content: space-around;
-      direction: ltr;
-    ">
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Motzi Matzah</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Rochtza</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Magid</span>
-    </div>
-
-    <!-- Row 3 Hebrew -->
-    <div class="el hebrew-text" style="
-      left: 55px; top: 370px;
-      width: 430px; height: 72px;
-      z-index: 16;
-      text-align: center;
-      font-family: 'Fredoka One', serif;
-      font-size: 64px;
-      color: var(--color-letre2);
-      line-height: 72px;
-      letter-spacing: 0.01em;
-    ">מָרוֹר כּוֹרֵךְ שֻׁלְחָן עוֹרֵךְ</div>
-
-    <!-- Row 3 English -->
-    <div class="el" style="
-      left: 60px; top: 443px;
-      width: 420px; height: 26px;
-      z-index: 17;
-      display: flex; justify-content: space-around;
-      direction: ltr;
-    ">
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Shulchan Orech</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Korech</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Maror</span>
-    </div>
-
-    <!-- Row 4 Hebrew -->
-    <div class="el hebrew-text" style="
-      left: 55px; top: 475px;
-      width: 430px; height: 72px;
-      z-index: 18;
-      text-align: center;
-      font-family: 'Fredoka One', serif;
-      font-size: 64px;
-      color: var(--color-letre2);
-      line-height: 72px;
-      letter-spacing: 0.01em;
-    ">צָפוּן. בֵּרַךְ. הַלֵּל נִרְצָה.</div>
-
-    <!-- Row 4 English -->
-    <div class="el" style="
-      left: 60px; top: 505px;
-      width: 420px; height: 26px;
-      z-index: 19;
-      display: flex; justify-content: space-around;
-      direction: ltr;
-    ">
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Hallel Nirtzah</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Beirach</span>
-      <span style="font-family: 'Fredoka One', serif; font-size: 21.3px; color: var(--color-english); text-align: center; flex: 1;">Tzafun</span>
-    </div>
-
   </div>
 </div>
 </body>
