@@ -14,7 +14,7 @@
   }
   @font-face {
     font-family: 'ACME Secret Agent BB';
-    src: url('../../../Document fonts/ACMESecretAgentBB_Reg.otf') format('opentype');
+    src: url('../../../Document fonts/ACMESecretAgentBB_Ital.otf') format('opentype');
     font-weight: 400;
   }
   @font-face {
@@ -32,6 +32,11 @@
     src: url('../../../Document fonts/GIL_____.TTF') format('truetype');
     font-weight: 400;
   }
+  @font-face {
+    font-family: 'Gill Sans MT Bold';
+    src: url('../../../Document fonts/GILB____.TTF') format('truetype');
+    font-weight: 700;
+  }
 
   .bleed-wrapper {
     width: 576px; height: 576px;
@@ -42,8 +47,9 @@
     position: relative; margin: 18px;
     overflow: hidden;
   }
+  /* Background spans the full bleed area */
   .bg-bleed {
-    position: absolute; left: 0; top: 0;
+    position: absolute; left: -18px; top: -18px;
     width: 576px; height: 576px; z-index: 0;
   }
   .bg-bleed img {
@@ -53,123 +59,144 @@
   .el { position: absolute; }
   .hebrew-text { direction: rtl; unicode-bidi: embed; }
   .english-text { direction: ltr; unicode-bidi: embed; }
-
-  .step-num {
-    width: 42px; height: 42px;
-    border-radius: 50%;
-    background-color: #e4e0d5;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'KG Second Chances Sketch', cursive;
-    font-size: 30px;
-    color: #333;
-  }
 </style>
 </head>
 <body>
 <div class="bleed-wrapper">
-  <div class="bg-bleed">
-    <img src="../../../images/LB1A.jpg" alt="Parchment background" />
-  </div>
-
   <div class="page" id="page-006"
        data-page-number="6"
        data-section="maggid"
        data-is-fixed-liturgy="false">
 
-    <!-- Hebrew title: מגיד -->
-    <div class="el hebrew-text" style="
-      left: 28px; top: 22px;
-      width: 188px; height: 53px;
-      z-index: 10;
-      text-align: center;
-      font-family: 'Fredoka One', serif;
-      font-size: 48px;
-      color: #0d32d1;
-      line-height: 53px;
-    ">מַגִּיד</div>
-
-    <!-- English label: Maggid -->
-    <div class="el english-text" style="
-      left: 203px; top: 37px;
-      width: 108px; height: 31px;
-      z-index: 11;
-      text-align: center;
-      font-family: 'Fredoka One', serif;
-      font-size: 21px;
-      color: #270500;
-      line-height: 31px;
-    ">Maggid</div>
-
-    <!-- Step number 5 -->
-    <div class="el step-num" style="left: 412px; top: 22px; z-index: 15;">5</div>
-
-    <!-- Instruction text -->
-    <div class="el english-text" style="
-      left: 59px; top: 83px;
-      width: 463px; height: 16px;
-      z-index: 12;
-      font-family: 'ACME Secret Agent BB', cursive;
-      font-size: 11px;
-      color: #222;
-      text-align: center;
-      line-height: 16px;
-    ">We fill the second cup Uncover the Matzah, as we begin telling the story of our exodus...</div>
-
-    <!-- Two-column text area -->
-    <div class="el" style="
-      left: 0; top: 100px;
-      width: 540px; height: 165px;
-      z-index: 13;
-      display: flex; gap: 10px;
-    ">
-      <!-- English (left) -->
-      <div class="english-text" style="
-        flex: 1;
-        font-family: 'Gill Sans MT', sans-serif;
-        font-size: 13.3px;
-        color: #222;
-        line-height: 1.55;
-        text-align: center;
-      ">This is the bread of affliction which our fathers did eat in the land of Egypt. Let all who are hungry come in and eat; let all who need come in and celebrate Passover. This year we celebrate it here, may we celebrate it next year in the land of Israel. This year we are in exile, next year may we be free.</div>
-
-      <!-- Hebrew (right) -->
-      <div class="hebrew-text" style="
-        flex: 1;
-        font-family: 'EFT Texty', serif;
-        font-size: 14.7px;
-        color: #222;
-        line-height: 1.6;
-        text-align: center;
-      ">הֵא לַחְמָא עַנְיָא דִּי אֲכָלוּ אַבְהָתָנָא בְּאַרְעָא דְמִצְרָיִם כֹּל דִּכְפִין יֵיתֵי וְיֵיכוֹל. כֹּל דִּצְרִיךְ יֵיתֵי וְיִפְסָח. הַשַּׁתָּא הָכָא. לְשָׁנָה הַבָּאָה בְּאַרְעָא דְיִשְׂרָאֵל. הַשַּׁתָּא עַבְדִּין לְשָׁנָה הַבָּאָה בְּנֵי חוֹרִין:</div>
+    <!-- Background image (LB1A.jpg) positioned per IDML -->
+    <!-- IDML: left=-558px top=-18px, 1116x576px in spread coords -->
+    <!-- For page 6 we show the right half: offset by -558px from page left = clip to 0 -->
+    <div class="bg-bleed">
+      <img src="../../../images/LB1A.jpg" alt="Background" />
     </div>
 
-    <!-- Matzah images -->
+    <!-- Header group: Hebrew title + English title + step number aligned in one band -->
+    <div class="el hebrew-text" style="
+      left: 20px; top: 20px;
+      width: 180px; height: 53px;
+      z-index: 10;
+      text-align: center;
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 36px;
+      color: #0d32d1;
+      line-height: 53px;
+      letter-spacing: 0.05em;
+    ">מַגִּיד</div>
+
+    <div class="el english-text" style="
+      left: 210px; top: 30px;
+      width: 120px; height: 40px;
+      z-index: 11;
+      text-align: center;
+      font-family: 'Fredoka One', sans-serif;
+      font-size: 24px;
+      color: #095354;
+      line-height: 40px;
+    ">Maggid</div>
+
+    <div class="el english-text" style="
+      left: 460px; top: 15px;
+      width: 58px; height: 58px;
+      z-index: 15;
+      text-align: center;
+      font-family: 'KG Second Chances Sketch', cursive;
+      font-size: 40px;
+      color: #095354;
+      line-height: 58px;
+    ">5</div>
+
+    <!-- Subtitle text (story u11ba) -->
+    <!-- IDML frame: left=59.3px top=85.6px width=463.4px height=31.3px -->
+    <!-- Font: ACME Secret Agent BB (italic), ~10pt=13px, leading 13.5pt=18px -->
+    <!-- Two visual lines as displayed in PDF -->
+    <div class="el english-text" style="
+      left: 59px; top: 85px;
+      width: 463px; height: 32px;
+      z-index: 12;
+      font-family: 'ACME Secret Agent BB', cursive;
+      font-size: 13px;
+      color: #1a1a1a;
+      text-align: center;
+      line-height: 16px;
+      overflow: hidden;
+    ">We fill the second cup<br>Uncover the Matzah, as we begin telling the story of our exodus...</div>
+
+    <!-- English body text (story u11d2) -->
+    <!-- IDML frame: left=28.8px top=99.6px width=246.7px height=163.8px -->
+    <!-- Font: Gill Sans MT, 10pt=13.3px, LTR, left-justified -->
+    <!-- "This" is bold -->
+    <div class="el english-text" style="
+      left: 29px; top: 120px;
+      width: 247px; height: 164px;
+      z-index: 13;
+      font-family: 'Gill Sans MT', sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      text-align: left;
+      line-height: 1.6;
+      overflow: hidden;
+    "><span style="font-family: 'Gill Sans MT Bold', 'Gill Sans MT', sans-serif; font-weight: 700;">This</span> is the bread of affliction which our fathers did eat in the land of Egypt. Let all who are hungry come in and eat; let all who need come in and celebrate Passover. This year we celebrate it here, may we celebrate it next year in the land of Israel. This year we are in exile, next year may we be free.</div>
+
+    <!-- Hebrew body text (story u10ac) -->
+    <!-- IDML frame: left=297.6px top=112.7px width=202.2px height=135.6px -->
+    <!-- Font: EFT Texty, inherited ~12pt=16px, RTL, center-justified -->
+    <div class="el hebrew-text" style="
+      left: 298px; top: 113px;
+      width: 202px; height: 136px;
+      z-index: 13;
+      font-family: 'EFT Texty', serif;
+      font-size: 15px;
+      color: #1a1a1a;
+      text-align: right;
+      line-height: 1.75;
+      overflow: hidden;
+    ">הֵא לַחְמָא עַנְיָא דִּי אֲכָלוּ אַבְהָתָנָא בְּאַרְעָא דְמִצְרָיִם כֹּל דִּכְפִין יֵיתֵי וְיֵיכוֹל. כֹּל דִּצְרִיךְ יֵיתֵי וְיִפְסָח. הַשַּׁתָּא הָכָא. לְשָׁנָה הַבָּאָה בְּאַרְעָא דְיִשְׂרָאֵל. הַשַּׁתָּא עַבְדִּין לְשָׁנָה הַבָּאָה בְּנֵי חוֹרִין:</div>
+
+    <!-- Images pushed below text area (~290px), slightly smaller to avoid overlap -->
     <div class="el" style="
-      left: 8px; top: 275px;
-      width: 265px; height: 266px;
+      left: -30px; top: 280px;
+      width: 300px; height: 300px;
       z-index: 5;
     ">
       <img src="../../../images/Asset 5matzawhole.png" alt="Matzah"
-        style="width: 100%; height: 100%; object-fit: contain;" />
+        style="width: 100%; height: 100%; object-fit: contain; display: block;" />
     </div>
 
     <div class="el" style="
-      left: 71px; top: 242px;
-      width: 186px; height: 297px;
+      left: 60px; top: 290px;
+      width: 160px; height: 255px;
       z-index: 6;
     ">
-      <img src="../../../images/Asset 10leftmatza.png" alt="Matzah with glasses"
-        style="width: 100%; height: 100%; object-fit: contain;" />
+      <img src="../../../images/Asset 10leftmatza.png" alt="Matzah character"
+        style="width: 100%; height: 100%; object-fit: contain; display: block;" />
     </div>
 
-    <!-- Page number -->
     <div class="el" style="
-      left: 505px; top: 515px;
+      left: 210px; top: 270px;
+      width: 310px; height: 310px;
+      z-index: 7;
+    ">
+      <img src="../../../images/Asset 1.svg" alt="Matzah with Haggadah"
+        style="width: 100%; height: 100%; object-fit: contain; display: block;" />
+    </div>
+
+    <!-- Page number 6 (story u388a) -->
+    <!-- IDML frame: left=499.3px top=509.5px width=28.1px height=18.5px -->
+    <div class="el english-text" style="
+      left: 499px; top: 510px;
       width: 28px; height: 18px;
       z-index: 50;
       font-family: 'Gill Sans MT', sans-serif;
-      font-size: 10px; color: #666;
-      text-align: center; direction: ltr;
+      font-size: 11px;
+      color: #555555;
+      text-align: center;
+      line-height: 18px;
+      direction: ltr;
     ">6</div>
 
   </div>
