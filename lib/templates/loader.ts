@@ -48,7 +48,8 @@ export function loadTemplateMeta(): TemplateMeta {
 
 export function loadPageHTML(pageNumber: number, projectPageState?: string): string {
   // If project has a saved state for this page, use that
-  if (projectPageState) return rewriteAssetPaths(projectPageState)
+  // Strip any old spinner/script that may have been saved before we split it out
+  if (projectPageState) return rewriteAssetPaths(stripFontSpinner(projectPageState))
 
   // Otherwise load the template default
   const dir = getTemplateDir()
@@ -72,12 +73,13 @@ export function loadPageHTML(pageNumber: number, projectPageState?: string): str
 
 /**
  * Rewrite relative asset paths from IDML-era conventions to paths
- * served by Next.js public/ directory, add font-display: swap to
- * prevent invisible text during font loading, and inject a loading
- * spinner that hides until all fonts are ready.
+ * served by Next.js public/ directory, and add font-display: swap to
+ * prevent invisible text during font loading.
+ *
+ * This is the "clean" version — no scripts, safe for AI editing and storage.
  */
 function rewriteAssetPaths(html: string): string {
-  let result = html
+  return html
     // Fix asset paths
     .replace(/\.\.\/\.\.\/\.\.\/Document fonts\//g, '/fonts/')
     .replace(/\.\.\/\.\.\/\.\.\/images\//g, '/images/')
@@ -87,9 +89,24 @@ function rewriteAssetPaths(html: string): string {
       if (body.includes('font-display')) return match
       return `@font-face {${body}  font-display: swap;\n}`
     })
+}
 
-  // Inject a loading overlay that disappears when fonts are ready.
-  // Uses document.fonts.ready (supported in all modern browsers).
+/**
+ * Inject a loading overlay + script for browser preview.
+ * Call this ONLY when serving HTML to the browser, never for AI or storage.
+ */
+/**
+ * Strip any previously-injected font spinner + script from stored HTML.
+ * Cleans up page states that were saved before we split out the spinner.
+ */
+export function stripFontSpinner(html: string): string {
+  return html
+    .replace(/<style>\s*\.font-loading-overlay[\s\S]*?<\/style>/g, '')
+    .replace(/<div class="font-loading-overlay"[\s\S]*?<\/div>\s*<\/div>/g, '')
+    .replace(/<script>[\s\S]*?document\.fonts\.ready[\s\S]*?<\/script>/g, '')
+}
+
+export function injectFontSpinner(html: string): string {
   const spinner = `
 <style>
   .font-loading-overlay {
@@ -114,21 +131,16 @@ function rewriteAssetPaths(html: string): string {
     var el = document.getElementById('fontOverlay');
     if (el) { el.classList.add('loaded'); setTimeout(function() { el.remove(); }, 400); }
   });
-  // Safety timeout — remove overlay after 4s even if fonts fail
   setTimeout(function() {
     var el = document.getElementById('fontOverlay');
     if (el) { el.classList.add('loaded'); setTimeout(function() { el.remove(); }, 400); }
   }, 4000);
 </script>`
 
-  // Inject just before </body>
-  if (result.includes('</body>')) {
-    result = result.replace('</body>', `${spinner}\n</body>`)
-  } else {
-    result += spinner
+  if (html.includes('</body>')) {
+    return html.replace('</body>', `${spinner}\n</body>`)
   }
-
-  return result
+  return html + spinner
 }
 
 function loadStubFallback(pageNumber: number): string {

@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/storage/supabase'
 import { getOrCreateUserId } from '@/lib/storage/user'
-import { loadPageHTML } from '@/lib/templates/loader'
+import { loadPageHTML, injectFontSpinner } from '@/lib/templates/loader'
 import { getPageStates } from '@/lib/templates/page-state'
 import { NextRequest } from 'next/server'
 
@@ -32,7 +32,8 @@ export async function GET(req: NextRequest) {
   const projectPageStates = await getPageStates(projectId)
   const html = loadPageHTML(pageNum, projectPageStates[String(pageNum)])
 
-  return new Response(html, {
+  // Inject font spinner only for browser preview, not stored in page state
+  return new Response(injectFontSpinner(html), {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'private, max-age=60',

@@ -8,8 +8,11 @@ import { applyPageUpdate, parsePageHtmlBlocks } from './html-editor'
 import { renderPageToImage } from '@/lib/rendering/puppeteer'
 import { savePageStates } from '@/lib/templates/page-state'
 
-const PRIMARY_MODEL = 'openai/gpt-5.1'
-const FALLBACK_MODEL = 'openai/gpt-5-mini'
+// Testing: GPT-5.4 primary, GPT-5.1-codex fallback
+// Production: GPT-5.1-codex primary, GPT-5.4 fallback
+const isTestMode = process.env.AI_MODE !== 'production'
+const PRIMARY_MODEL = isTestMode ? 'openai/gpt-5.4' : 'openai/gpt-5.1-codex'
+const FALLBACK_MODEL = isTestMode ? 'openai/gpt-5.1-codex' : 'openai/gpt-5.4'
 
 let _client: OpenAI | null = null
 function getClient() {
