@@ -3,229 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=576">
-<title>Page 9</title>
+<title>Page 9 — The Four Sons</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  @font-face {
-    font-family: 'ACME Secret Agent BB';
-    src: url('../../../Document fonts/ACMESecretAgentBB_Reg.otf') format('opentype');
-    font-weight: 400;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'ACME Secret Agent BB';
-    src: url('../../../Document fonts/ACMESecretAgentBB_Ital.otf') format('opentype');
-    font-weight: 400;
-    font-style: italic;
-  }
-  @font-face {
-    font-family: 'Anime Ace 3 BB';
-    src: url('../../../Document fonts/AnimeAce3BB_Regular.otf') format('opentype');
-    font-weight: 400;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Anime Ace 3 BB';
-    src: url('../../../Document fonts/AnimeAce3BB_Bold.otf') format('opentype');
-    font-weight: 700;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Anime Ace 3 BB';
-    src: url('../../../Document fonts/AnimeAce3BB_BoldItalic.otf') format('opentype');
-    font-weight: 700;
-    font-style: italic;
-  }
+  @font-face { font-family: 'EFT Texty'; src: url('../../../Document fonts/EFT_TEXTY OTP.ttf') format('truetype'); }
+  @font-face { font-family: 'Gill Sans MT'; src: url('../../../Document fonts/GIL_____.TTF') format('truetype'); font-weight: 400; }
+  @font-face { font-family: 'ACME Secret Agent BB'; src: url('../../../Document fonts/ACMESecretAgentBB_Reg.otf') format('opentype'); }
 
-  .bleed-wrapper {
-    width: 576px; height: 576px;
-    overflow: hidden; position: relative;
-  }
-
-  .page {
-    width: 540px; height: 540px;
-    position: relative; margin: 18px;
-    overflow: hidden;
-  }
-
-  .bg-bleed {
-    position: absolute;
-    left: 0; top: 0;
-    width: 576px; height: 576px;
-    z-index: 0;
-  }
-  .bg-bleed img {
-    width: 100%; height: 100%;
-    object-fit: cover; display: block;
-  }
-
+  .bleed-wrapper { width: 576px; height: 576px; overflow: hidden; position: relative; }
+  .page { width: 540px; height: 540px; position: relative; margin: 18px; overflow: hidden; }
+  .bg-bleed { position: absolute; left: 0; top: 0; width: 576px; height: 576px; z-index: 0; }
+  .bg-bleed img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .el { position: absolute; }
-  .hebrew-text { direction: rtl; unicode-bidi: embed; }
-  .english-text { direction: ltr; unicode-bidi: embed; }
+
+  .son-section {
+    position: absolute;
+    z-index: 5;
+  }
+  .son-hebrew {
+    font-family: 'EFT Texty', serif;
+    font-size: 12px;
+    direction: rtl;
+    line-height: 1.5;
+    color: #095354;
+    text-align: right;
+  }
+  .son-english {
+    font-family: 'Gill Sans MT', sans-serif;
+    font-size: 11px;
+    direction: ltr;
+    line-height: 1.45;
+    color: #1a1a1a;
+    text-align: left;
+  }
+  .son-label {
+    font-family: 'ACME Secret Agent BB', cursive;
+    font-size: 14px;
+    font-weight: 700;
+    color: #095354;
+    direction: ltr;
+  }
+  .center-box {
+    position: absolute;
+    z-index: 10;
+    background: rgba(255,255,255,0.85);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .center-text {
+    font-family: 'ACME Secret Agent BB', cursive;
+    font-size: 12px;
+    direction: ltr;
+    line-height: 1.4;
+    color: #1a1a1a;
+    text-align: center;
+  }
+  .green-stripe {
+    position: absolute;
+    width: 18px;
+    border-radius: 3px;
+  }
 </style>
 </head>
 <body>
 <div class="bleed-wrapper">
   <div class="bg-bleed">
-    <img src="../../../images/GREEN1A.jpg" alt="" />
+    <img src="../../../images/GREEN1A.jpg" alt="Green watercolor background" />
   </div>
 
   <div class="page" id="page-009"
        data-page-number="9"
-       data-section="interior"
-       data-is-fixed-liturgy="false">
+       data-section="maggid"
+       data-is-fixed-liturgy="true">
 
-    <div class="el hebrew-text" style="
-      left: 264.0px; top: 20.0px;
-      width: 259.2px; height: 95.7px;
-      z-index: 4;
-      text-align: right;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif">חָכָם </span><span style="font-family: 'EFT_Texty', serif">מַה הוּא אוֹמֵר מָה הָעֵדֹת וְהַחֻקִּים וְהַמִּשְׁפָּטִים אֲשֶׁר צִוָּה יְיָ אֱלֹהֵינוּ אֶתְכֶם וְאַף אַתָּה אֱמוֹר לוֹ כְּהִלְכוֹת הַפֶּסַח אֵין מַפְטִירִין אַחַר הַפֶּסַח אֲפִיקוֹמָן:</span></div>
-    <div class="el hebrew-text" style="
-      left: 11.0px; top: 20.0px;
-      width: 282.2px; height: 110.8px;
-      z-index: 5;
-      text-align: right;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif">רָשָׁע </span><span style="font-family: 'EFT_Texty', serif">מַה הוּא אוֹמֵר מָה הָעֲבוֹדָה הַזֹּאת לָכֶם. לָכֶם וְלֹא לוֹ. וּלְפִי שֶׁהוֹצִיא אֶת עַצְמוֹ מִן הַכְּלָל כָּפַר בְּעִקָּר. וְאַף אַתָּה הַקְהֵה אֶת שִׁנָּיו וֶאֱמֹר לוֹ בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם. לִי וְלֹא לוֹ אִלּוּ הָיָה שָׁם לֹא הָיָה נִגְאָל:</span></div>
-    <div class="el hebrew-text" style="
-      left: 325.9px; top: 408.8px;
-      width: 202.3px; height: 139.4px;
-      z-index: 6;
-      text-align: right;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif">תָּם </span><span style="font-family: 'EFT_Texty', serif">מַה הוּא אוֹמֵר, מַה זֹּאת. וְאָמַרְתָּ אֵלָיו בְּחֹזֶק יָד הוֹצִיאָנוּ יְיָ מִמִּצְרַיִם מִבֵּית עֲבָדִים:</span></div>
-    <div class="el hebrew-text" style="
-      left: 10.7px; top: 312.9px;
-      width: 231.6px; height: 107.8px;
-      z-index: 7;
-      text-align: right;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif">וְשֶׁאֵינוֹ </span><span style="font-family: 'EFT_Texty', serif">יוֹדֵעַ לִשְׁאוֹל אַתְּ פְּתַח לוֹ שֶׁנֶּאֱמַר וְהִגַּדְתָּ לְבִנְךָ בַּיּוֹם הַהוּא לֵאמֹר בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם:</span></div>
-    <div class="el english-text" style="
-      left: 281.2px; top: 101.3px;
-      width: 266.4px; height: 182.4px;
-      z-index: 8;
-      text-align: left;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'ACME Secret Agent BB', serif; font-size: 13.3px">Which is the wise child's question? "What are the 'testimonies and the statutes and the judgments' which the Lord our G-d has commanded you?" you shall answer him by telling him of the laws of Passover, down to the law that no 'afikoman' may follow the Paschal lamb.</span></div>
-    <div class="el english-text" style="
-      left: 229.9px; top: 470.3px;
-      width: 302.4px; height: 67.7px;
-      z-index: 9;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'ACME Secret Agent BB', serif; font-size: 13.3px">Which is the simple child's question? "What is this?" you shall answer him by saying: "with a strong hand the Lord brought us out from Egypt, from&lt;br/&gt;      the house of bondage."</span></div>
-    <div class="el english-text" style="
-      left: 2.2px; top: 136.5px;
-      width: 289.4px; height: 175.5px;
-      z-index: 10;
-      text-align: left;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'ACME Secret Agent BB', serif; font-size: 13.3px">Which is the wicked child's question? "What do you mean by this service?" he attributes the service to </span><span style="font-family: 'ACME Secret Agent BB', serif; font-size: 13.3px; font-style: italic">You</span><span style="font-family: 'ACME Secret Agent BB', serif; font-size: 13.3px">, deliberatey excluding himself, rejecting the primary principles of Judaism. Therefore you must retort upon him quoting, "This is done because of that which the Lord did for me when I came out of Egypt." For me, and not for him; if he had been there he would not have been redeemed.</span></div>
-    <div class="el english-text" style="
-      left: -0.0px; top: 399.2px;
-      width: 233.3px; height: 146.9px;
-      z-index: 11;
-      text-align: left;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'ACME Secret Agent BB', serif; font-size: 13.3px">If the child cannot engage with a question, you shall open the subject to him, as it is said, "And you shall show your child on that day, saying, This is done because of that which the Lord did for me when I came out of Egypt." </span></div>
-    <div class="el" style="
-      left: 459.4px; top: 156.9px;
-      width: 85.6px; height: 86.0px;
-      z-index: 12;
-      
-    ">
-      <img src="../../../images/Artwork 30.png" alt=""
-        style="width: 100%; height: 100%; object-fit: contain;" />
+    <!-- ═══════════════════════════════════
+         WISE SON — Top Right
+         ═══════════════════════════════════ -->
+    <div class="son-section" style="left: 264px; top: 10px; width: 270px; height: 100px;">
+      <div class="son-hebrew" style="font-size: 13px;">
+        חָכָם מַה הוּא אוֹמֵר מָה הָעֵדֹת וְהַחֻקִּים וְהַמִּשְׁפָּטִים אֲשֶׁר צִוָּה יְיָ אֱלֹהֵינוּ אֶתְכֶם וְאַף אַתָּה אֱמוֹר לוֹ כְּהִלְכוֹת הַפֶּסַח אֵין מַפְטִירִין אַחַר הַפֶּסַח אֲפִיקוֹמָן:
+      </div>
     </div>
-    <div class="el" style="
-      left: 230.1px; top: 183.4px;
-      width: 85.4px; height: 86.0px;
-      z-index: 13;
-      
-    ">
-      <img src="../../../images/Artwork 32.png" alt=""
-        style="width: 100%; height: 100%; object-fit: contain;" />
+
+    <div class="son-section" style="left: 281px; top: 100px; width: 266px; height: 90px;">
+      <div class="son-english">
+        Which is the wise child's question? "What are the 'testimonies and the statutes and the judgments' which the Lord our G-d has commanded you?" you shall answer him by telling him of the laws of Passover: "we must not eat any dessert after the Paschal meal."
+      </div>
     </div>
-    <div class="el" style="
-      left: 139.9px; top: 475.6px;
-      width: 90.4px; height: 86.2px;
-      z-index: 14;
-      
-    ">
-      <img src="../../../images/Artwork 28.png" alt=""
-        style="width: 100%; height: 100%; object-fit: contain;" />
+
+    <!-- Wise matzah character -->
+    <div class="el" style="left: 460px; top: 155px; width: 86px; height: 86px; z-index: 8;">
+      <img src="../../../images/Artwork 30.png" alt="Wise son" style="width: 100%; height: 100%; object-fit: contain;" />
     </div>
-    <div class="el" style="
-      left: 249.8px; top: 248.6px;
-      width: 307.5px; height: 151.3px;
-      z-index: 18;
-      
-    ">
-      <img src="../../../images/White Shape.png" alt=""
-        style="width: 100%; height: 100%; object-fit: contain;" />
+
+    <!-- ═══════════════════════════════════
+         WICKED SON — Top Left
+         ═══════════════════════════════════ -->
+    <div class="son-section" style="left: 5px; top: 10px; width: 255px; height: 115px;">
+      <div class="son-hebrew" style="font-size: 13px;">
+        רָשָׁע מַה הוּא אוֹמֵר מָה הָעֲבוֹדָה הַזֹּאת לָכֶם. לָכֶם וְלֹא לוֹ. וּלְפִי שֶׁהוֹצִיא אֶת עַצְמוֹ מִן הַכְּלָל כָּפַר בְּעִקָּר. וְאַף אַתָּה הַקְהֵה אֶת שִׁנָּיו וֶאֱמֹר לוֹ בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם. לִי וְלֹא לוֹ. אִלּוּ הָיָה שָׁם לֹא הָיָה נִגְאָל:
+      </div>
     </div>
-    <div class="el" style="
-      left: 229.9px; top: 376.6px;
-      width: 87.8px; height: 86.2px;
-      z-index: 19;
-      
-    ">
-      <img src="../../../images/Artwork 29.png" alt=""
-        style="width: 100%; height: 100%; object-fit: contain;" />
+
+    <div class="son-section" style="left: 2px; top: 130px; width: 255px; height: 100px;">
+      <div class="son-english">
+        Which is the wicked child's question? "What do you mean by this service?" he attributes the service to You, deliberately excluding himself, rejecting the primary principles of Judaism. Therefore you must blunt his teeth and say to him: "It is because of this that the Lord did for me when I came out of Egypt" — for ME and NOT for HIM; had he been there, he would not have been redeemed.
+      </div>
     </div>
-    <div class="el english-text" style="
-      left: 257.1px; top: 256.2px;
-      width: 282.2px; height: 131.5px;
-      z-index: 20;
-      text-align: left;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'CrimeFighter BB', serif; font-size: 12.0px">Four times</span><span style="font-family: 'CrimeFighter BB', serif; font-size: 12.0px"> does the Torah refer to the enquiring child</span><span style="font-family: 'ACME Secret Agent BB', serif; font-size: 12.0px">...</span><span style="font-family: 'CrimeFighter BB', serif; font-size: 12.0px"> &lt;br/&gt;This indicates that the Torah thought of four kinds of enquiring children - the </span><span style="font-family: 'Anime Ace 3 BB', serif; font-size: 12.0px">wise</span><span style="font-family: 'CrimeFighter BB', serif; font-size: 12.0px"> child, the </span><span style="font-family: 'Anime Ace 3 BB', serif; font-size: 12.0px">wicked</span><span style="font-family: 'CrimeFighter BB', serif; font-size: 12.0px"> child, the </span><span style="font-family: 'Anime Ace 3 BB', serif; font-size: 12.0px">simple</span><span style="font-family: 'CrimeFighter BB', serif; font-size: 12.0px"> child, and the one that is </span><span style="font-family: 'Anime Ace 3 BB', serif; font-size: 12.0px">unable</span><span style="font-family: 'CrimeFighter BB', serif; font-size: 12.0px"> to enquire by himself</span><span style="font-family: 'ACME Secret Agent BB', serif; font-size: 12.0px">...</span></div>
-    <svg class="el" style="left: 249.2px; top: 44.0px; width: 72.7px; height: 49.8px; z-index: 22;" viewBox="0 0 72.7 49.8">
-      <polygon points="71.3,49.2 70.5,49.5 70.1,49.5 68.1,49.8 66.9,49.6 64.2,49.3 63.6,49.2 62.9,49.1 62.6,49.1 59.7,48.2 58.2,47.9 56.8,47.3 55.0,46.6 51.3,45.4 50.0,44.7 49.6,44.5 44.5,42.2 39.7,39.3 33.9,35.5 30.5,33.0 28.7,31.4 26.3,29.4 23.9,27.5 22.3,26.2 19.2,23.5 19.0,23.3 19.5,24.5 20.3,26.0 22.4,29.7 23.3,31.9 25.3,36.4 25.6,37.4 25.7,37.8 26.5,40.8 26.6,41.4 25.5,39.6 25.2,39.2 25.2,39.6 25.1,39.7 24.1,38.3 23.6,37.3 23.0,36.7 22.7,36.3 23.0,36.3 23.0,36.1 22.0,34.1 21.5,33.9 21.4,34.5 22.1,36.2 22.9,37.5 23.5,38.2 24.3,39.5 24.5,40.1 24.3,40.2 24.2,40.5 24.3,40.8 25.4,43.6 25.7,44.7 25.2,44.1 23.4,41.1 21.1,36.7 16.5,28.4 14.6,25.4 10.8,19.3 9.6,17.6 7.7,14.7 4.5,10.0 1.8,5.0 1.4,4.5 0.7,3.7 1.0,2.9 1.1,2.9 0.7,2.6 0.0,1.6 0.4,1.0 1.1,0.9 1.4,0.5 2.3,0.0 2.5,0.2 3.5,0.7 4.4,0.6 5.1,0.8 6.8,1.2 9.3,1.7 11.5,2.1 13.2,2.5 14.3,2.9 15.3,3.1 17.3,3.4 20.7,4.0 22.0,4.1 23.4,4.3 26.2,4.7 27.7,5.0 27.8,5.6 28.4,6.0 27.6,6.8 28.2,7.0 28.2,7.4 28.4,8.1 28.8,8.3 30.5,8.1 31.2,8.3 31.0,8.7 26.8,9.9 22.2,9.5 19.4,9.5 16.0,9.7 13.7,10.0 12.9,9.9 13.4,10.5 16.4,13.2 20.4,17.1 23.4,19.9 26.5,22.5 26.5,22.6 31.6,26.9 36.5,30.4 39.6,32.4 41.6,33.7 43.6,34.7 46.3,35.8 46.4,35.9 48.3,36.7 50.9,37.6 51.3,37.8 51.9,38.1 52.1,38.1 57.0,39.6 59.3,40.3 60.7,40.7 67.4,41.3 70.1,41.5 70.3,41.7 68.7,41.7 68.4,41.6 66.4,41.8 66.4,42.1 66.4,42.1 65.0,41.6 64.3,42.0 63.6,42.1 63.9,41.9 62.9,41.6 62.3,41.9 61.7,42.0 59.7,41.7 57.0,40.9 56.7,40.7 56.3,40.5 56.0,40.7 53.5,40.1 53.2,40.0 50.8,39.1 49.6,38.6 49.1,38.7 51.3,39.8 53.4,40.5 54.9,41.2 55.2,41.6 53.3,41.2 52.8,41.1 52.7,41.3 52.9,41.5 53.9,42.0 54.2,42.1 55.4,42.7 56.7,43.1 57.7,43.2 59.2,43.7 60.6,43.9 61.0,43.9 62.1,44.6 60.9,44.3 60.7,44.2 57.9,43.8 56.7,43.4 55.5,43.1 54.9,43.5 53.5,42.5 52.3,42.6 51.5,42.3 51.2,41.8 50.8,41.1 48.5,40.1 48.5,40.1 48.2,40.2 48.6,40.5 48.1,40.5 47.5,40.7 47.2,40.6 46.7,40.5 47.1,40.3 47.2,40.0 46.9,39.7 46.3,39.7 46.2,39.9 46.2,40.2 44.7,39.8 44.6,39.8 43.0,38.9 44.3,38.9 43.3,38.1 41.2,37.3 38.7,35.8 37.7,35.3 35.3,33.5 34.2,33.0 34.4,33.4 37.8,35.7 38.3,36.0 38.5,36.3 41.5,37.7 42.4,38.3 42.3,38.4 41.9,38.4 42.3,38.9 43.7,39.4 45.1,40.5 43.7,40.0 44.8,40.8 48.3,42.5 52.2,44.2 54.8,45.3 57.9,46.5 58.4,46.6 60.1,47.0 60.9,47.2 62.1,47.3 62.8,47.2 63.0,47.1 65.4,47.5 65.3,48.3 65.8,48.1 66.2,47.5 67.6,47.0 69.1,47.0 70.4,47.3 71.0,47.2 70.7,47.9 72.7,47.7 71.5,48.2 70.3,48.8 70.8,49.0 71.3,49.2 69.2,48.4 69.1,48.6 69.2,48.7 69.2,48.4 69.1,48.1 68.9,48.1 62.9,48.0 63.1,47.9 62.9,47.6 62.7,47.6 62.9,48.0 61.3,47.9 62.0,48.3 63.5,48.5 66.2,48.9 66.7,48.9 66.4,48.7 64.8,48.4 50.3,40.1 49.3,39.9 59.3,47.3 58.7,47.3 58.8,47.4 33.0,32.1 33.7,32.7" fill="#000000" />
-    </svg>
-    <svg class="el" style="left: 295.0px; top: 91.3px; width: 7.1px; height: 1.5px; z-index: 23;" viewBox="0 0 7.1 1.5">
-      <polygon points="0.0,0.9 0.3,0.5 2.6,0.0 4.5,0.1 4.7,0.1 7.1,0.5 6.3,0.8 4.7,1.0 4.3,1.4 4.1,1.5 2.0,1.4 1.5,1.2 1.2,1.1" fill="#000000" />
-    </svg>
-    <svg class="el" style="left: 295.5px; top: 89.2px; width: 5.0px; height: 1.4px; z-index: 24;" viewBox="0 0 5.0 1.4">
-      <polygon points="1.8,0.0 1.7,0.3 3.4,1.0 4.2,1.1 5.0,1.1 4.6,1.4 3.7,1.3 2.8,1.4 1.6,1.3 0.2,1.1 0.0,1.1 0.2,0.8 0.7,0.3 1.0,0.1 1.8,0.0 1.7,0.8 1.1,0.6 1.0,0.7" fill="#000000" />
-    </svg>
-    <svg class="el" style="left: 291.1px; top: 91.0px; width: 2.8px; height: 1.1px; z-index: 25;" viewBox="0 0 2.8 1.1">
-      <polygon points="2.8,1.1 2.0,0.7 1.5,0.5 0.1,0.1 0.0,0.0 1.1,0.1 2.4,0.2 2.7,0.5" fill="#000000" />
-    </svg>
-    <svg class="el" style="left: 277.6px; top: 87.8px; width: 3.0px; height: 1.3px; z-index: 26;" viewBox="0 0 3.0 1.3">
-      <polygon points="0.0,0.1 1.1,0.4 2.2,0.8 3.0,1.3 2.5,1.3 0.0,0.0" fill="#000000" />
-    </svg>
-    <svg class="el" style="left: 275.3px; top: 86.8px; width: 2.3px; height: 1.1px; z-index: 27;" viewBox="0 0 2.3 1.1">
-      <polygon points="2.3,1.0 0.0,0.0 2.3,1.1" fill="#000000" />
-    </svg>
-    <svg class="el" style="left: 235.7px; top: 241.9px; width: 26.7px; height: 139.6px; z-index: 38;" viewBox="0 0 26.7 139.6">
-      <polygon points="3.3,6.7 3.2,4.2 3.4,4.4 3.7,4.6 3.6,3.9 3.2,2.1 2.9,0.0 4.0,2.1 4.2,2.6 7.7,24.7 9.5,35.4 11.9,49.5 12.2,50.8 13.2,55.6 14.7,64.6 14.7,65.1 16.5,74.3 17.6,82.3 18.3,88.6 20.5,102.6 20.7,103.2 20.9,99.4 21.5,90.8 21.9,87.6 22.2,86.5 22.3,85.9 22.9,80.1 23.0,79.3 23.3,80.7 23.7,79.2 23.8,78.6 24.1,77.0 24.4,77.1 24.5,76.3 24.6,73.6 25.0,73.0 25.5,74.8 25.6,76.4 25.1,78.7 25.0,79.2 25.1,80.5 25.4,80.7 25.7,80.9 25.7,82.5 25.6,82.0 25.4,81.5 25.2,82.0 25.2,82.8 25.4,85.1 25.7,88.9 26.0,90.8 26.2,95.2 26.2,97.1 26.3,103.4 26.5,107.3 26.7,110.4 26.7,121.0 26.7,126.6 26.6,129.3 26.6,130.8 26.6,133.5 26.4,134.8 26.1,135.7 26.4,136.7 26.5,139.1 25.5,139.6 24.6,138.6 24.2,138.7 23.8,139.1 23.1,138.1 23.0,137.4 22.4,137.4 22.1,137.6 21.1,138.2 20.4,137.3 20.2,137.1 19.2,135.4 18.2,134.3 15.0,131.2 14.5,130.7 10.8,126.7 8.9,125.0 7.9,123.5 5.4,120.2 3.9,118.4 3.7,118.0 4.4,118.1 4.1,117.3 3.8,116.8 3.7,115.6 4.1,115.1 5.5,115.9 5.9,115.9 5.6,115.4 5.3,115.0 5.4,113.2 4.9,112.6 4.3,110.9 4.2,110.1 4.9,109.4 7.1,110.0 10.1,113.0 11.9,113.2 13.0,113.3 15.5,114.1 15.7,113.8 15.3,111.3 14.2,105.2 13.8,101.8 11.8,90.3 10.9,84.1 10.1,78.6 9.9,77.0 9.1,71.7 9.0,70.7 8.7,68.5 8.2,66.0 7.2,59.9 4.5,44.9 3.8,40.3 3.5,38.2 3.0,34.8 2.5,31.8 2.4,31.1 1.7,26.8 1.5,25.2 1.2,23.4 1.2,22.4 1.4,21.9 1.6,22.2 1.6,22.6 1.8,22.9 1.9,22.4 1.1,20.0 1.0,20.6 0.6,18.3 0.4,15.5 0.3,14.9 0.1,13.8 0.0,11.8 0.0,10.3 0.5,10.6 0.6,8.2 0.8,9.0 0.9,9.3 1.0,8.8 1.0,8.5 1.2,7.9 1.4,7.5 1.8,7.8 2.1,10.1 2.2,6.3 2.6,7.2 3.1,7.5 3.3,6.6 3.7,7.0 3.5,6.0 3.3,6.0 3.3,17.1 3.4,17.0 3.3,15.2 2.7,11.7 2.3,10.7 2.4,12.2 4.9,11.9 4.2,8.3 3.9,8.2 3.9,9.8 3.8,10.5 4.1,10.3 4.3,10.6 8.8,118.0 7.5,116.3 7.2,116.6 7.3,117.2 4.4,13.2 4.8,16.5 5.0,16.8 5.1,12.9 5.8,16.6 3.4,8.4 3.3,8.7 3.4,9.2 3.5,8.8 1.2,9.8 1.0,10.0 1.1,10.6 1.3,10.4 3.8,13.2 3.8,13.4 3.9,13.8 4.0,13.6 4.1,11.7 4.1,11.9 4.2,12.4 4.2,12.2" fill="#000000" />
-    </svg>
-    <svg class="el" style="left: 186.6px; top: 388.8px; width: 137.2px; height: 167.4px; z-index: 41;" viewBox="0 0 137.2 167.4">
-      <polygon points="49.8,112.5 49.4,112.2 49.4,112.9 49.9,114.0 51.0,114.9 51.3,115.4 53.1,118.7 54.1,120.8 54.1,121.5 53.6,121.1 53.2,120.0 51.2,116.9 51.0,116.9 51.1,117.5 52.9,120.7 53.4,121.3 55.8,124.5 57.5,126.5 58.8,128.2 58.8,127.0 60.2,127.5 67.1,136.3 70.1,139.0 70.9,140.3 69.6,140.9 69.8,141.5 74.1,145.2 80.0,149.7 83.4,151.4 84.1,151.9 85.9,152.6 86.5,152.8 89.6,154.5 92.4,155.6 94.0,156.2 99.3,156.7 101.5,156.6 104.0,156.4 104.9,156.2 107.4,155.3 108.6,154.9 112.0,153.7 114.0,152.7 123.2,146.1 126.7,142.2 132.3,133.1 133.8,130.6 134.8,130.2 135.6,131.3 137.0,136.2 137.2,138.8 136.5,142.0 134.5,147.2 132.2,151.0 126.2,158.0 121.1,162.2 119.4,163.2 108.1,167.0 104.5,167.4 99.1,167.4 92.2,166.0 78.3,158.6 68.6,150.8 62.0,144.3 60.3,142.5 54.6,135.1 51.6,130.4 49.2,126.4 47.6,124.2 47.1,122.7 48.6,125.0 50.2,127.1 49.1,125.1 47.0,121.2 46.8,120.8 45.7,117.9 45.7,117.4 46.0,117.6 48.4,121.7 51.9,127.5 52.2,128.3 53.8,129.9 52.7,127.8 50.3,123.8 47.7,119.2 45.0,115.1 44.1,113.5 41.7,108.9 40.7,107.4 38.5,102.7 37.6,100.8 34.1,93.1 31.8,87.0 31.2,85.5 29.2,79.5 28.9,79.0 28.8,78.6 28.7,78.0 28.2,76.6 27.3,74.9 27.3,74.9 26.7,72.2 25.7,70.6 25.2,69.8 24.8,68.9 24.5,67.7 24.0,66.0 24.0,65.5 23.9,64.3 23.1,61.3 22.6,60.2 22.5,60.0 20.7,54.2 19.5,50.3 18.4,44.6 18.4,44.3 16.8,35.2 16.5,33.8 16.2,33.1 15.5,33.4 15.3,34.6 12.4,39.5 11.0,41.6 10.6,42.3 7.7,45.8 6.2,46.9 5.2,48.0 3.7,50.2 2.7,49.0 3.1,47.1 2.6,47.1 1.6,46.3 1.0,44.7 0.2,44.6 0.5,43.7 0.1,43.0 0.0,42.6 0.5,40.7 0.5,40.6 3.1,35.7 4.2,32.9 7.5,24.5 10.9,15.5 12.2,10.8 12.5,10.1 13.5,6.8 14.9,2.7 15.4,2.1 16.1,0.4 16.5,0.0 17.1,0.7 19.5,4.4 20.3,6.0 21.2,7.6 21.7,8.8 22.1,9.6 22.7,9.9 23.3,11.0 24.2,14.2 33.1,29.6 39.2,39.2 43.3,45.8 43.6,47.6 43.8,48.8 43.9,50.3 43.9,51.5 43.0,51.3 42.7,51.5 42.6,52.2 41.2,53.2 40.5,52.9 32.8,43.0 30.1,38.7 24.4,29.8 23.5,28.8 23.5,29.7 24.9,37.6 25.6,41.3 27.1,47.3 28.0,52.4 28.4,54.0 30.0,60.7 31.0,63.7 31.0,64.3 30.8,66.2 31.9,67.3 31.9,67.6 31.4,69.9 34.0,76.9 34.9,79.9 36.5,85.0 37.7,87.7 42.4,99.6 45.4,104.3 45.7,105.3 46.0,106.5 47.1,108.8 47.5,109.3 49.5,111.6 67.8,146.7 65.7,143.6 64.0,141.8 63.3,141.8 63.6,142.7 64.2,143.3 65.3,144.5 67.8,146.7 69.3,147.3 60.5,139.0 60.0,137.9 57.6,134.5 56.6,133.8 57.2,135.3 59.8,138.4 62.8,141.3 61.3,138.8 60.9,138.8 61.0,139.9 61.5,140.7 81.9,154.9 83.9,156.8 25.7,67.7 25.6,68.7 25.9,68.7 54.3,131.8 53.7,130.6 21.7,56.2 21.6,56.4 21.8,56.7 21.9,56.5 80.0,153.8 80.2,154.2 80.3,154.0 80.1,153.7 32.6,82.6 32.8,83.0 32.8,82.8 32.6,82.3 32.3,81.5 32.3,81.1 32.1,81.1 32.1,81.4" fill="#000000" />
-    </svg>
+
+    <!-- Wicked matzah character -->
+    <div class="el" style="left: 230px; top: 180px; width: 85px; height: 86px; z-index: 8;">
+      <img src="../../../images/Artwork 32.png" alt="Wicked son" style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- ═══════════════════════════════════
+         CENTER BOX — "Four times..."
+         ═══════════════════════════════════ -->
+    <div class="el" style="left: 250px; top: 247px; width: 290px; height: 130px; z-index: 9;">
+      <img src="../../../images/White Shape.png" alt="" style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+    <div class="center-box" style="left: 260px; top: 255px; width: 275px; height: 120px;">
+      <div class="center-text">
+        <b>Four times does the Torah refer to the enquiring child...</b> This indicates that the Torah thought of four kinds of enquiring children — the wise child, the wicked child, the simple child, and the one that is unable to enquire.
+      </div>
+    </div>
+
+    <!-- Green decorative stripes -->
+    <div class="green-stripe" style="left: 280px; top: 0; height: 250px; background: rgba(42, 140, 74, 0.5); z-index: 3;"></div>
+    <div class="green-stripe" style="left: 106px; top: 170px; height: 270px; background: rgba(42, 140, 74, 0.5); z-index: 3;"></div>
+    <div class="green-stripe" style="left: 207px; top: 283px; height: 250px; background: rgba(42, 140, 74, 0.5); z-index: 3;"></div>
+
+    <!-- ═══════════════════════════════════
+         SIMPLE SON — Bottom Right
+         ═══════════════════════════════════ -->
+    <div class="son-section" style="left: 326px; top: 395px; width: 210px; height: 65px;">
+      <div class="son-hebrew" style="font-size: 13px;">
+        תָּם מַה הוּא אוֹמֵר, מַה זֹּאת. וְאָמַרְתָּ אֵלָיו בְּחֹזֶק יָד הוֹצִיאָנוּ יְיָ מִמִּצְרַיִם מִבֵּית עֲבָדִים:
+      </div>
+    </div>
+
+    <div class="son-section" style="left: 230px; top: 465px; width: 302px; height: 68px;">
+      <div class="son-english">
+        Which is the simple child's question? "What is this?" you shall answer him by saying: "with a strong hand the Lord brought us out from Egypt, from the house of bondage."
+      </div>
+    </div>
+
+    <!-- Simple matzah character -->
+    <div class="el" style="left: 140px; top: 474px; width: 90px; height: 86px; z-index: 8;">
+      <img src="../../../images/Artwork 28.png" alt="Simple son" style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- ═══════════════════════════════════
+         SON WHO CANNOT ASK — Bottom Left
+         ═══════════════════════════════════ -->
+    <div class="son-section" style="left: 5px; top: 310px; width: 232px; height: 85px;">
+      <div class="son-hebrew" style="font-size: 13px;">
+        וְשֶׁאֵינוֹ יוֹדֵעַ לִשְׁאוֹל אַתְּ פְּתַח לוֹ שֶׁנֶּאֱמַר וְהִגַּדְתָּ לְבִנְךָ בַּיּוֹם הַהוּא לֵאמֹר בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם:
+      </div>
+    </div>
+
+    <div class="son-section" style="left: 0; top: 395px; width: 233px; height: 80px;">
+      <div class="son-english">
+        If the child cannot engage with a question, you shall open the subject to him, as it is said, "And you shall show your child on that day, saying, This is done because of that which the Lord did for me when I went forth from Egypt."
+      </div>
+    </div>
+
+    <!-- Cannot-ask matzah character -->
+    <div class="el" style="left: 230px; top: 374px; width: 88px; height: 86px; z-index: 8;">
+      <img src="../../../images/Artwork 29.png" alt="Son who cannot ask" style="width: 100%; height: 100%; object-fit: contain;" />
+    </div>
+
+    <!-- Page number -->
+    <div class="el" style="left: 1px; top: 520px; width: 28px; height: 18px; z-index: 50;
+      font-family: 'Gill Sans MT', sans-serif; font-size: 10px; color: #666; text-align: center; direction: ltr;">9</div>
 
   </div>
 </div>
