@@ -22,10 +22,17 @@ export async function renderPageToImage(html: string): Promise<Buffer> {
   const page = await b.newPage()
 
   try {
+    // Inject <base> so absolute paths (/fonts/, /images/) resolve to the local server
+    const port = process.env.PORT || '8080'
+    const baseTag = `<base href="http://localhost:${port}/">`
+    const htmlWithBase = html.includes('<head>')
+      ? html.replace('<head>', `<head>${baseTag}`)
+      : `<html><head>${baseTag}</head><body>${html}</body></html>`
+
     // 576px = 540px page + 18px bleed each side
     // deviceScaleFactor 2 = retina/2x PNG
     await page.setViewport({ width: 576, height: 576, deviceScaleFactor: 2 })
-    await page.setContent(html, { waitUntil: 'networkidle0' })
+    await page.setContent(htmlWithBase, { waitUntil: 'networkidle0' })
     await page.evaluateHandle('document.fonts.ready')
 
     const screenshot = await page.screenshot({

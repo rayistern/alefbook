@@ -22,6 +22,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+
+# Make fonts and images available as static assets via Next.js public/
+RUN mkdir -p public/fonts public/images \
+    && cp -r templates/fonts/* public/fonts/ \
+    && cp -r images/* public/images/
+
 RUN npm run build
 
 # Remove dev dependencies after build

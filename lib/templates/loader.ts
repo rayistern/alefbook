@@ -48,7 +48,7 @@ export function loadTemplateMeta(): TemplateMeta {
 
 export function loadPageHTML(pageNumber: number, projectPageState?: string): string {
   // If project has a saved state for this page, use that
-  if (projectPageState) return projectPageState
+  if (projectPageState) return rewriteAssetPaths(projectPageState)
 
   // Otherwise load the template default
   const dir = getTemplateDir()
@@ -56,18 +56,30 @@ export function loadPageHTML(pageNumber: number, projectPageState?: string): str
   const filePath = path.join(dir, `page-${paddedNum}.html`)
 
   if (fs.existsSync(filePath)) {
-    return fs.readFileSync(filePath, 'utf-8')
+    return rewriteAssetPaths(fs.readFileSync(filePath, 'utf-8'))
   }
 
   // Check for variant with 'r' suffix (right-side pages in spreads)
   const filePathR = path.join(dir, `page-${paddedNum}r.html`)
   if (fs.existsSync(filePathR)) {
-    return fs.readFileSync(filePathR, 'utf-8')
+    return rewriteAssetPaths(fs.readFileSync(filePathR, 'utf-8'))
   }
 
   // Fallback: load cover stub for page 1, back stub for last page, interior for others
   // (only relevant while using stubs)
   return loadStubFallback(pageNumber)
+}
+
+/**
+ * Rewrite relative asset paths from IDML-era conventions to paths
+ * served by Next.js public/ directory.
+ *   ../../../Document fonts/X  →  /fonts/X
+ *   ../../../images/X          →  /images/X
+ */
+function rewriteAssetPaths(html: string): string {
+  return html
+    .replace(/\.\.\/\.\.\/\.\.\/Document fonts\//g, '/fonts/')
+    .replace(/\.\.\/\.\.\/\.\.\/images\//g, '/images/')
 }
 
 function loadStubFallback(pageNumber: number): string {
