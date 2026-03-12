@@ -3,264 +3,243 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=576">
-<title>Page 4</title>
+<title>Page 4 — Kiddush</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   @font-face {
-    font-family: 'Assistant';
-    src: url('../../../Document fonts/Assistant-ExtraBold.ttf') format('truetype');
-    font-weight: 800;
-    font-style: normal;
+    font-family: 'EFT Texty';
+    src: url('../../../Document fonts/EFT_TEXTY OTP.ttf') format('truetype');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Gill Sans MT';
+    src: url('../../../Document fonts/GIL_____.TTF') format('truetype');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: 'Gill Sans MT';
+    src: url('../../../Document fonts/GILB____.TTF') format('truetype');
+    font-weight: 700;
   }
   @font-face {
     font-family: 'Assistant';
     src: url('../../../Document fonts/Assistant-ExtraLight.ttf') format('truetype');
     font-weight: 200;
-    font-style: normal;
+  }
+
+  :root {
+    --highlight-box: rgba(226, 226, 226, 0.65);  /* PANTONE P 179-2 C — light gray highlight */
+    --note-color: #0d1010;                        /* Rich Black 4 */
+    --text-dark: #1a1a1a;
   }
 
   .bleed-wrapper {
     width: 576px; height: 576px;
     overflow: hidden; position: relative;
   }
-
   .page {
     width: 540px; height: 540px;
     position: relative; margin: 18px;
     overflow: hidden;
   }
-
   .bg-bleed {
-    position: absolute;
-    left: 0; top: 0;
-    width: 576px; height: 576px;
-    z-index: 0;
+    position: absolute; left: 0; top: 0;
+    width: 576px; height: 576px; z-index: 0;
   }
   .bg-bleed img {
     width: 100%; height: 100%;
     object-fit: cover; display: block;
   }
-
   .el { position: absolute; }
   .hebrew-text { direction: rtl; unicode-bidi: embed; }
   .english-text { direction: ltr; unicode-bidi: embed; }
+
+  /* Two-column layout: Hebrew right, English left */
+  .hebrew-col {
+    font-family: 'EFT Texty', serif;
+    direction: rtl;
+    text-align: center;
+    color: var(--text-dark);
+  }
+  .english-col {
+    font-family: 'Gill Sans MT', sans-serif;
+    direction: ltr;
+    text-align: center;
+    color: var(--text-dark);
+  }
+  .instruction {
+    font-family: 'Assistant', sans-serif;
+    font-weight: 200;
+    font-size: 7.2px;
+    color: var(--note-color);
+    text-align: center;
+    direction: ltr;
+  }
+  .highlight-box {
+    background-color: var(--highlight-box);
+    border-radius: 3px;
+    padding: 4px 6px;
+  }
+  .parens {
+    font-size: 13.3px; /* slightly smaller for parenthetical Shabbat additions */
+  }
 </style>
 </head>
 <body>
 <div class="bleed-wrapper">
   <div class="bg-bleed">
-    <img src="../../../images/ORANGE1A.jpg" alt="" />
+    <img src="../../../images/ORANGE1A.jpg" alt="Parchment background" />
   </div>
 
   <div class="page" id="page-004"
        data-page-number="4"
-       data-section="interior"
-       data-is-fixed-liturgy="false">
+       data-section="kadesh"
+       data-is-fixed-liturgy="true">
 
-    <div class="el hebrew-text" style="
-      left: 255.6px; top: 493.3px;
-      width: 288.0px; height: 33.0px;
-      z-index: 3;
-      text-align: right;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">בָּרוּךְ </span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">אַתָּה</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px"> יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם שֶׁהֶחֱיָנוּ וְקִיְּמָנוּ וְהִגִּיעָנוּ ל</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">ִ</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">זְּמַן הַזֶה.</span></div>
-    <div class="el" style="
-      left: 6.5px; top: 334.9px;
-      width: 528.5px; height: 154.4px;
-      z-index: 4;
-      background-color: #888888;
-      
-    "></div>
-    <div class="el hebrew-text" style="
-      left: 275.4px; top: 344.6px;
-      width: 264.6px; height: 153.5px;
+    <!-- Top banner: Aramaic preparation text -->
+    <div class="el hebrew-col" style="
+      left: 0; top: 4px;
+      width: 540px; height: 22px;
       z-index: 5;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px; letter-spacing: -0.02em">בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ.</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">בָּרוּךְ </span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַמַּבְדִּיל בֵּין קֹדֶשׁ לְחֹל, בֵּין אוֹר לְחשֶׁךְ, בֵּין יִשְׂרָאֵל לָעַמִּים, בֵּין יוֹם הַשְּׁבִיעִי לְשֵׁשֶׁת יְמֵי הַמַּעֲשֶׂה. בֵּין קְדֻשַּׁת שַׁבָּת לִקְדֻשַּׁת יוֹם טוֹב הִבְדַּלְתָּ, וְאֶת יוֹם הַשְּׁבִיעִי מִשֵּׁשֶׁת יְמֵי הַמַּעֲשֶׂה קִדַּשְׁתָּ. הִבְדַּלְתָּ וְקִדַּשְׁתָּ אֶת עַמְּךָ יִשְׂרָאֵל בִּקְדֻשָּׁתֶךָ. בָּרוּךְ אַתָּה יְיָ הַמַּבְדִיל </span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">בֵּין קֹדֶשׁ לְקֹדֶשׁ.</span></div>
-    <div class="el english-text" style="
-      left: 1.2px; top: 336.9px;
-      width: 540.0px; height: 12.4px;
+      font-size: 14.7px;
+      line-height: 22px;
+    ">אַתְקִינוּ סְעוּדָתָא דְמַלְכָּא עִלָּאָה דָּא הִיא סְעוּדְתָא דְקוּדְשָׁא בְּרִיךְ הוּא וּשְׁכִינְתֵּהּ</div>
+
+    <!-- ═══════════════════════════════════════════════
+         SHABBAT BOX — highlighted section
+         ═══════════════════════════════════════════════ -->
+    <div class="el highlight-box" style="
+      left: 1px; top: 28px;
+      width: 538px; height: 93px;
       z-index: 6;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Assistant', serif; font-size: 7.2px; font-weight: 300; color: #888888">On Saturday night add this piece</span></div>
+    ">
+      <!-- Instruction note -->
+      <div class="instruction" style="margin-bottom: 2px;">
+        When the holiday comes out on Shabbat, we start here. Otherwise, begin below this shaded box.
+      </div>
+
+      <!-- Two columns inside the box -->
+      <div style="display: flex; gap: 8px; height: 75px;">
+        <!-- English (left) -->
+        <div class="english-col" style="flex: 1; font-size: 10.7px; line-height: 1.5; overflow: hidden;">
+          The sixth day. Thus the heavens and the earth were finished, and all the hosts of them. And on the seventh day G-d had ended His work which He had made; and He rested on the seventh day from all His work which He had made. And G-d blessed the seventh day and sanctified it; because in it He had rested from all His work which G-d created and made.
+        </div>
+        <!-- Hebrew (right) -->
+        <div class="hebrew-col" style="flex: 1; font-size: 13.3px; line-height: 1.6; overflow: hidden;">
+          יוֹם הַשִּׁשִּׁי. וַיְכֻלּוּ הַשָּׁמַיִם וְהָאָרֶץ וְכׇל צְבָאָם. וַיְכַל אֱלֹהִים בַּיּוֹם הַשְּׁבִיעִי מְלַאכְתּוֹ אֲשֶׁר עָשָׂה וַיִּשְׁבֹּת בַּיּוֹם הַשְּׁבִיעִי מִכׇּל מְלַאכְתּוֹ אֲשֶׁר עָשָׂה. וַיְבָרֶךְ אֱלֹהִים אֶת יוֹם הַשְּׁבִיעִי וַיְקַדֵּשׁ אֹתוֹ כִּי בוֹ שָׁבַת מִכׇּל מְלַאכְתּוֹ אֲשֶׁר בָּרָא אֱלֹהִים לַעֲשׂוֹת:
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         KIDDUSH — main blessings (no highlight)
+         ═══════════════════════════════════════════════ -->
+
+    <!-- "Your attention please:" / סברי מרנן -->
     <div class="el" style="
-      left: 291.6px; top: 303.1px;
-      width: 48.8px; height: 15.0px;
-      z-index: 7;
-      background-color: #888888;
-      
-    "></div>
-    <div class="el" style="
-      left: 354.6px; top: 287.7px;
-      width: 86.4px; height: 15.0px;
-      z-index: 8;
-      background-color: #888888;
-      
-    "></div>
-    <div class="el" style="
-      left: 435.1px; top: 255.1px;
-      width: 45.6px; height: 15.0px;
-      z-index: 9;
-      background-color: #888888;
-      
-    "></div>
-    <div class="el" style="
-      left: 371.8px; top: 238.7px;
-      width: 108.8px; height: 15.0px;
+      left: 0; top: 125px;
+      width: 540px; height: 16px;
       z-index: 10;
-      background-color: #888888;
-      
-    "></div>
+      display: flex;
+    ">
+      <div class="english-col" style="flex: 1; font-size: 9.3px; text-align: center; line-height: 16px;">Your attention please:</div>
+      <div class="hebrew-col" style="flex: 1; font-size: 12px; text-align: center; line-height: 16px;">סַבְרִי מָרָנָן</div>
+    </div>
+
+    <!-- Blessing over the vine -->
     <div class="el" style="
-      left: 250.8px; top: 271.7px;
-      width: 45.6px; height: 15.0px;
+      left: 0; top: 143px;
+      width: 540px; height: 22px;
       z-index: 11;
-      background-color: #888888;
-      
-    "></div>
-    <div class="el" style="
-      left: 249.9px; top: 207.7px;
-      width: 45.0px; height: 15.0px;
+      display: flex;
+    ">
+      <div class="english-col" style="flex: 1; font-size: 10.7px; text-align: center; line-height: 22px;">
+        Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.
+      </div>
+      <div class="hebrew-col" style="flex: 1; font-size: 13.3px; text-align: center; line-height: 22px;">
+        בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָפֶן.
+      </div>
+    </div>
+
+    <!-- Instruction: On Shabbat add the words in parentheses -->
+    <div class="el instruction" style="
+      left: 0; top: 167px;
+      width: 540px; height: 10px;
       z-index: 12;
-      background-color: #888888;
-      
-    "></div>
+    ">On Shabbat add the words in parentheses</div>
+
+    <!-- Main Kiddush blessing (long) -->
     <div class="el" style="
-      left: 474.5px; top: 222.4px;
-      width: 51.3px; height: 15.0px;
+      left: 0; top: 179px;
+      width: 540px; height: 155px;
       z-index: 13;
-      background-color: #888888;
-      
-    "></div>
-    <div class="el hebrew-text" style="
-      left: 231.4px; top: 170.0px;
-      width: 312.2px; height: 166.9px;
-      z-index: 14;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif; font-size: 17.3px">בָּרוּךְ</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px"> </span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר בָּחַר בָּנוּ מִכָּל עָם וְרוֹמְמָנוּ מִכָּל לָשׁוֹן וְקִדְּשָׁנוּ בְּמִצְוֹתָיו. וַתִּתֶּן לָנוּ יְיָ אֱלֹהֵינוּ בְּאַהֲבָה </span><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px">(שַׁבָּתוֹת לִמְנוּחָה וּ)</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">מוֹעֲדִים לְשִׂמְחָה. חַגִּים וּזְמַנִּים לְשָׂשׂוֹן אֶת יוֹם </span><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px">(הַשַּׁבָּת הַזֶה וְאֶת יוֹם)</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px"> חַג הַמַּצּוֹת הַזֶּה. וְאֶת יוֹם טוֹב מִקְרָא קֹדֶשׁ הַזֶּה זְמַן חֵרוּתֵנוּ</span><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px"> (בְּאַהֲבָה)</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px"> מִקְרָא קֹדֶשׁ זֵכֶר לִיצִיאַת מִצְרָיִם. כִּי בָנוּ בָחַרְתָּ וְאוֹתָנוּ קִדַּשְׁתָּ מִכָּל הָעַמִּים. </span><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px">(וְשַׁבָּת וּ) </span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">מוֹעֲדֵי קָדְשֶךָ </span><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px">(בְּאַהֲבָה וּבְרָצוֹן)</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px"> בְּשִׂמְחָה וּבְשָׂשׂוֹן הִנְחַלְתָּנוּ: בָּרוּךְ אַתָּה יְיָ מְקַדֵּשׁ </span><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px">(הַשַּׁבָּת וְ)</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px">יִשְׂרָאֵל וְהַזְּמַנִּים:</span></div>
-    <div class="el hebrew-text" style="
-      left: 250.8px; top: 140.4px;
-      width: 292.6px; height: 27.1px;
-      z-index: 15;
-      text-align: left;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px">בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָפֶן.</span></div>
-    <div class="el hebrew-text" style="
-      left: 265.2px; top: 123.2px;
-      width: 278.4px; height: 15.6px;
-      z-index: 16;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif; font-size: 12.0px">סַבְרִי מָרָנָן</span></div>
-    <div class="el hebrew-text" style="
-      left: 254.7px; top: 36.7px;
-      width: 288.0px; height: 85.5px;
-      z-index: 18;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif">יוֹם</span><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px"> </span><span style="font-family: 'EFT_Texty', serif; font-size: 13.3px">הַשִּׁשִּׁי. וַיְכֻלּוּ הַשָּׁמַיִם וְהָאָרֶץ וְכׇל צְבָאָם. וַיְכַל אֱלֹהִים בַּיּוֹם הַשְּׁבִיעִי מְלַאכְתּוֹ אֲשֶׁר עָשָׂה וַיִּשְׁבֹּת בַּיּוֹם הַשְּׁבִיעִי מִכׇּל מְלַאכְתּוֹ אֲשֶׁר עָשָׂה. וַיְבָרֶךְ אֱלֹהִים אֶת יוֹם הַשְּׁבִיעִי וַיְקַדֵּשׁ אֹתוֹ כִּי בוֹ שָׁבַת מִכׇּל מְלַאכְתּוֹ אֲשֶׁר בָּרָא אֱלֹהִים לַעֲשׂוֹת:</span></div>
+      display: flex; gap: 6px;
+    ">
+      <!-- English (left) -->
+      <div class="english-col" style="flex: 0.85; font-size: 12px; line-height: 1.55; overflow: hidden;">
+        Blessed are You, Lord our G-d, King of the Universe, who has chosen us from all peoples, exalted us above all tongues, and sanctified us with your commandments. You have, in love, ordained for us, Lord our G-d (Shabbat for rest), days of joy and festive times of gladness, and this day of (rest and of) this Holiday the festival of Matzah, a holy convocation, a memorial (in your love) of the Exodus from Egypt. You have chosen us and sanctified us above all peoples, and You have given us an inheritance of (loving favor,) joy and gladness, days of (Shabbat and) festivals.
+      </div>
+      <!-- Hebrew (right) -->
+      <div class="hebrew-col" style="flex: 1; font-size: 14.7px; line-height: 1.55; overflow: hidden;">
+        בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר בָּחַר בָּנוּ מִכָּל עָם וְרוֹמְמָנוּ מִכָּל לָשׁוֹן וְקִדְּשָׁנוּ בְּמִצְוֹתָיו. וַתִּתֶּן לָנוּ יְיָ אֱלֹהֵינוּ בְּאַהֲבָה <span class="parens">(שַׁבָּתוֹת לִמְנוּחָה וּ)</span>מוֹעֲדִים לְשִׂמְחָה. חַגִּים וּזְמַנִּים לְשָׂשׂוֹן אֶת יוֹם <span class="parens">(הַשַּׁבָּת הַזֶה וְאֶת יוֹם)</span> חַג הַמַּצּוֹת הַזֶּה. וְאֶת יוֹם טוֹב מִקְרָא קֹדֶשׁ הַזֶּה זְמַן חֵרוּתֵנוּ <span class="parens">(בְּאַהֲבָה)</span> מִקְרָא קֹדֶשׁ זֵכֶר לִיצִיאַת מִצְרָיִם. כִּי בָנוּ בָחַרְתָּ וְאוֹתָנוּ קִדַּשְׁתָּ מִכָּל הָעַמִּים. <span class="parens">(וְשַׁבָּת וּ)</span> מוֹעֲדֵי קָדְשֶךָ <span class="parens">(בְּאַהֲבָה וּבְרָצוֹן)</span> בְּשִׂמְחָה וּבְשָׂשׂוֹן הִנְחַלְתָּנוּ: בָּרוּךְ אַתָּה יְיָ מְקַדֵּשׁ <span class="parens">(הַשַּׁבָּת וְ)</span>יִשְׂרָאֵל וְהַזְּמַנִּים:
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SATURDAY NIGHT BOX — highlighted section
+         ═══════════════════════════════════════════════ -->
+    <div class="el highlight-box" style="
+      left: 1px; top: 340px;
+      width: 538px; height: 150px;
+      z-index: 20;
+    ">
+      <!-- Instruction note -->
+      <div class="instruction" style="margin-bottom: 2px;">
+        On Saturday night add this piece
+      </div>
+
+      <!-- Two columns inside -->
+      <div style="display: flex; gap: 6px; height: 135px;">
+        <!-- English (left) -->
+        <div class="english-col" style="flex: 1; font-size: 12px; line-height: 1.5; overflow: hidden;">
+          Blessed are You, Lord our G-d, King of the Universe, Creator of fire. Blessed are You, Lord our G-d, King of the Universe, who has made a distinction between sacred and profane, between light and darkness, between Israel and other peoples, between the seventh day and the six days of work. You have made a distinction between the holiness of the Shabbat and the holiness of a Festival, sanctifying the seventh day above all others. It is with Your holiness that You have distinguished and sanctified Your people Israel. Blessed are You, Lord, who has made a distinction in the degrees of holiness.
+        </div>
+        <!-- Hebrew (right) -->
+        <div class="hebrew-col" style="flex: 1; font-size: 13.3px; line-height: 1.55; overflow: hidden;">
+          בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ.<br/>
+          בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַמַּבְדִּיל בֵּין קֹדֶשׁ לְחֹל, בֵּין אוֹר לְחשֶׁךְ, בֵּין יִשְׂרָאֵל לָעַמִּים, בֵּין יוֹם הַשְּׁבִיעִי לְשֵׁשֶׁת יְמֵי הַמַּעֲשֶׂה. בֵּין קְדֻשַּׁת שַׁבָּת לִקְדֻשַּׁת יוֹם טוֹב הִבְדַּלְתָּ, וְאֶת יוֹם הַשְּׁבִיעִי מִשֵּׁשֶׁת יְמֵי הַמַּעֲשֶׂה קִדַּשְׁתָּ. הִבְדַּלְתָּ וְקִדַּשְׁתָּ אֶת עַמְּךָ יִשְׂרָאֵל בִּקְדֻשָּׁתֶךָ. בָּרוּךְ אַתָּה יְיָ הַמַּבְדִיל בֵּין קֹדֶשׁ לְקֹדֶשׁ.
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         SHEHECHEYANU — bottom blessing
+         ═══════════════════════════════════════════════ -->
+    <div class="el" style="
+      left: 0; top: 497px;
+      width: 540px; height: 35px;
+      z-index: 30;
+      display: flex; gap: 6px;
+    ">
+      <div class="english-col" style="flex: 1; font-size: 12px; line-height: 1.45; overflow: hidden;">
+        Blessed are You, Lord our G-d, King of the Universe, who has preserved us in life, sustained us, and enabled us to reach this time.
+      </div>
+      <div class="hebrew-col" style="flex: 1; font-size: 14.7px; text-align: right; line-height: 1.45; overflow: hidden;">
+        בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם שֶׁהֶחֱיָנוּ וְקִיְּמָנוּ וְהִגִּיעָנוּ לִזְּמַן הַזֶה.
+      </div>
+    </div>
+
+    <!-- Page number -->
     <div class="el english-text" style="
-      left: 1.2px; top: 29.9px;
-      width: 540.0px; height: 9.7px;
-      z-index: 19;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Assistant', serif; font-size: 7.2px; font-weight: 300; color: #888888">When the holiday comes out on Shabbat, we start here. Otherwise, begin below this shaded box.</span></div>
-    <svg class="el" style="left: 21.6px; top: 71.9px; width: 7.1px; height: 1.2px; z-index: 21;" viewBox="0 0 7.1 1.2">
-      <polygon points="0.7,1.2 4.1,0.7 7.1,0.5 7.1,0.4 4.8,0.0 3.3,0.0 0.4,0.5 0.0,0.9" fill="#888888" />
-    </svg>
-    <div class="el english-text" style="
-      left: 1.2px; top: 490.0px;
-      width: 268.8px; height: 38.0px;
-      z-index: 46;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Gill Sans MT', serif; font-size: 12.0px">Blessed are You, Lord our G-d, King of the Universe, who has preserved us in life, sustained us, and enabled us to reach this time.</span></div>
-    <div class="el english-text" style="
-      left: 1.2px; top: 351.8px;
-      width: 290.6px; height: 146.7px;
-      z-index: 47;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Gill Sans MT', serif; font-size: 12.0px">Blessed are You, Lord our G-d, King of the Universe, Creator of fire. Blessed are You, Lord our G-d, King of the Universe, who has made a distinction between sacred and profane, between light and darkness, between Israel and other peoples, between the seventh day and the six days of work. You have made a distinction between the holiness of the Shabbat and the holiness of a Festival, sanctifying the seventh day above all others. It is with Your holiness that You have distinguished and sanctified Your people Israel. Blessed are You, Lord, who has made a distinction in the degrees of holiness.</span></div>
-    <div class="el english-text" style="
-      left: 1.2px; top: 159.3px;
-      width: 236.9px; height: 181.8px;
-      z-index: 48;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Gill Sans MT', serif; font-size: 12.0px">Blessed are You, Lord our G-d, King of the Universe, who has chosen us from all peoples, exalted us above all tongues, and sanctified us with your commandments. You have, in love, ordained for us, Lord our G-d (Shabbat for rest), days of joy and festive times of gladness, and this day of (rest and of) this Holiday the festival of Matzah, a holy convocation, a memorial (in your love) of the Exodus from Egypt. You have chosen us and sanctified us above all peoples, and You have given us an inheritance of (loving favor,) joy and gladness, days of (Shabbat and) festivals.</span></div>
-    <div class="el english-text" style="
-      left: 1.2px; top: 159.9px;
-      width: 540.0px; height: 9.0px;
-      z-index: 49;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Assistant', serif; font-size: 7.2px; font-weight: 300; color: #888888">On Shabbat add the words in parentheses</span></div>
-    <div class="el english-text" style="
-      left: 1.2px; top: 138.7px;
-      width: 225.7px; height: 26.7px;
+      left: 505px; top: 520px;
+      width: 30px; height: 15px;
       z-index: 50;
+      font-family: 'Gill Sans MT', sans-serif;
+      font-size: 10px;
+      color: #666;
       text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Gill Sans MT', serif; font-size: 10.7px">Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.</span></div>
-    <div class="el english-text" style="
-      left: 1.2px; top: 121.2px;
-      width: 278.4px; height: 16.5px;
-      z-index: 51;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Gill Sans MT', serif; font-size: 9.3px">Your attention please:</span></div>
-    <div class="el english-text" style="
-      left: 1.2px; top: 42.3px;
-      width: 270.0px; height: 80.9px;
-      z-index: 52;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'Gill Sans MT', serif; font-size: 10.7px">The sixth day. Thus the heavens and the earth were finished, and all the hosts of them. And on the seventh day G-d had ended His work which He had made; and He rested on the seventh day from all His work which He had made. And G-d blessed the seventh day and sanctified it; because in it He had rested from all His work which G-d created and made.</span></div>
-    <div class="el hebrew-text" style="
-      left: 12.0px; top: 7.9px;
-      width: 520.4px; height: 21.1px;
-      z-index: 54;
-      text-align: center;
-      overflow: hidden;
-      
-      
-    "><span style="font-family: 'EFT_Texty', serif; font-size: 14.7px; letter-spacing: -0.02em">אַתְקִינוּ סְעוּדָתָא דְמַלְכָּא עִלָּאָה דָּא הִיא סְעוּדְתָא דְקוּדְשָׁא בְּרִיךְ הוּא וּשְׁכִינְתֵּהּ</span></div>
+    ">4</div>
 
   </div>
 </div>
