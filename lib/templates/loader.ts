@@ -72,14 +72,63 @@ export function loadPageHTML(pageNumber: number, projectPageState?: string): str
 
 /**
  * Rewrite relative asset paths from IDML-era conventions to paths
- * served by Next.js public/ directory.
- *   ../../../Document fonts/X  →  /fonts/X
- *   ../../../images/X          →  /images/X
+ * served by Next.js public/ directory, add font-display: swap to
+ * prevent invisible text during font loading, and inject a loading
+ * spinner that hides until all fonts are ready.
  */
 function rewriteAssetPaths(html: string): string {
-  return html
+  let result = html
+    // Fix asset paths
     .replace(/\.\.\/\.\.\/\.\.\/Document fonts\//g, '/fonts/')
     .replace(/\.\.\/\.\.\/\.\.\/images\//g, '/images/')
+    // Add font-display: swap to all @font-face blocks so text is
+    // visible immediately with a fallback font while custom fonts load
+    .replace(/@font-face\s*\{([^}]*)\}/g, (match, body) => {
+      if (body.includes('font-display')) return match
+      return `@font-face {${body}  font-display: swap;\n}`
+    })
+
+  // Inject a loading overlay that disappears when fonts are ready.
+  // Uses document.fonts.ready (supported in all modern browsers).
+  const spinner = `
+<style>
+  .font-loading-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.3s;
+  }
+  .font-loading-overlay.loaded { opacity: 0; pointer-events: none; }
+  .font-spinner {
+    width: 28px; height: 28px;
+    border: 3px solid #e5e7eb; border-top-color: #6b7280;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<div class="font-loading-overlay" id="fontOverlay">
+  <div class="font-spinner"></div>
+</div>
+<script>
+  document.fonts.ready.then(function() {
+    var el = document.getElementById('fontOverlay');
+    if (el) { el.classList.add('loaded'); setTimeout(function() { el.remove(); }, 400); }
+  });
+  // Safety timeout — remove overlay after 4s even if fonts fail
+  setTimeout(function() {
+    var el = document.getElementById('fontOverlay');
+    if (el) { el.classList.add('loaded'); setTimeout(function() { el.remove(); }, 400); }
+  }, 4000);
+</script>`
+
+  // Inject just before </body>
+  if (result.includes('</body>')) {
+    result = result.replace('</body>', `${spinner}\n</body>`)
+  } else {
+    result += spinner
+  }
+
+  return result
 }
 
 function loadStubFallback(pageNumber: number): string {
