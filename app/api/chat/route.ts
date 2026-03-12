@@ -73,6 +73,15 @@ export async function POST(req: Request) {
   }))
 
   try {
+    console.log('[Chat API] Starting designer loop:', {
+      projectId,
+      currentPage,
+      messageLength: message.length,
+      pageCount: Object.keys(pageStates).length,
+      historyLength: chatHistory.length,
+      uploadCount: uploads.length,
+    })
+
     // Run the designer loop
     const result = await runDesignerLoop({
       userMessage: message,
@@ -83,6 +92,15 @@ export async function POST(req: Request) {
       templateMeta,
       uploads,
       projectName: project.name,
+    })
+
+    console.log('[Chat API] Designer loop completed:', {
+      passCount: result.passCount,
+      reviewPassed: result.reviewPassed,
+      updatedPages: result.updatedPages,
+      renderedPages: Object.keys(result.renders),
+      unresolvedIssues: result.unresolvedIssues,
+      responseTextLength: result.responseText?.length,
     })
 
     // Save assistant response
@@ -129,7 +147,7 @@ export async function POST(req: Request) {
       unresolvedIssues: result.unresolvedIssues,
     })
   } catch (error) {
-    console.error('Designer loop failed:', error)
+    console.error('[Chat API] Designer loop failed:', error instanceof Error ? { message: error.message, stack: error.stack } : error)
     return Response.json(
       { error: 'Something went wrong while designing. Please try again.' },
       { status: 500 }

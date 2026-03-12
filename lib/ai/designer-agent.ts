@@ -56,17 +56,21 @@ async function callAI(
   model: string = PRIMARY_MODEL
 ): Promise<string> {
   try {
+    console.log(`[AI] Calling model ${model} with ${messages.length} messages`)
     const response = await getClient().chat.completions.create({
       model,
       messages,
       max_tokens: 8192,
       temperature: 0.3,
     })
-    return response.choices[0]?.message?.content ?? ''
+    const content = response.choices[0]?.message?.content ?? ''
+    console.log(`[AI] Response from ${model}: ${content.length} chars, usage:`, response.usage)
+    return content
   } catch (error) {
+    console.error(`[AI] Error from ${model}:`, error instanceof Error ? { message: error.message, stack: error.stack } : error)
     if (model === PRIMARY_MODEL) {
       // Fallback to secondary model
-      console.warn('Primary model failed, falling back:', error)
+      console.warn(`[AI] Falling back to ${FALLBACK_MODEL}`)
       return callAI(messages, FALLBACK_MODEL)
     }
     throw error
@@ -259,7 +263,9 @@ async function renderPages(params: {
 
 export async function runDesignerLoop(params: DesignerParams): Promise<DesignerResult> {
   // Step 1: determine intent — which pages to touch and what to do
+  console.log('[Designer] Step 1: Parsing intent for message:', params.userMessage.substring(0, 100))
   const { targetPages, instructions } = await parseIntent(params)
+  console.log('[Designer] Intent parsed:', { targetPages, instructions: instructions.substring(0, 200) })
 
   const currentPageStates = { ...params.pageStates }
   let passCount = 0
@@ -269,6 +275,7 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
 
   while (passCount < 5) {
     passCount++
+    console.log(`[Designer] Pass ${passCount}/5: Generating HTML edits`)
 
     // Step 2: AI edits HTML directly
     const editResult = await generateHTMLEdits({
@@ -281,6 +288,7 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
       projectName: params.projectName,
       uploads: params.uploads,
     })
+    console.log(`[Designer] Pass ${passCount}: HTML edits generated for pages:`, Object.keys(editResult.pageUpdates))
 
     // Apply updates
     for (const [pageNumStr, newHtml] of Object.entries(editResult.pageUpdates)) {
@@ -291,22 +299,27 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
     responseText = editResult.responseText
 
     // Step 3: render edited pages to PNG via Puppeteer
+    console.log(`[Designer] Pass ${passCount}: Rendering pages via Puppeteer`)
     renders = await renderPages({
       pageNumbers: targetPages,
       pageStates: currentPageStates,
     })
+    console.log(`[Designer] Pass ${passCount}: Rendered ${Object.keys(renders).length} pages, sizes:`, Object.fromEntries(Object.entries(renders).map(([k, v]) => [k, `${(v.length / 1024).toFixed(1)}KB`])))
 
     // Step 4: AI reviews its own renders (vision)
+    console.log(`[Designer] Pass ${passCount}: Running vision review`)
     reviewResult = await reviewRender({
       renders,
       instructions,
       passNumber: passCount,
     })
+    console.log(`[Designer] Pass ${passCount}: Review result:`, { passed: reviewResult.passed, issues: reviewResult.issues, feedback: reviewResult.feedback?.substring(0, 200) })
 
     if (reviewResult.passed) break
   }
 
   // Save updated page states
+  console.log('[Designer] Saving page states for project:', params.projectId)
   await savePageStates(params.projectId, currentPageStates)
 
   return {

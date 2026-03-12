@@ -42,12 +42,16 @@ export async function POST(req: Request) {
   if (!project) return Response.json({ error: 'Project not found' }, { status: 404 })
 
   try {
+    console.log('[PDF API] Starting PDF generation for project:', projectId)
+
     // Load all page states
     const projectPageStates = await getPageStates(projectId)
     const pageStates = loadAllPageStates(projectPageStates)
+    console.log('[PDF API] Loaded page states:', Object.keys(pageStates).length, 'pages')
 
     // Generate PDF
     const pdfBuffer = await compileToPDF(pageStates)
+    console.log('[PDF API] PDF generated:', (pdfBuffer.length / 1024).toFixed(1), 'KB')
 
     // Upload to Supabase Storage
     const pdfPath = `projects/${projectId}/exports/haggadah-${Date.now()}.pdf`
@@ -76,7 +80,7 @@ export async function POST(req: Request) {
       path: pdfPath,
     })
   } catch (error) {
-    console.error('PDF generation failed:', error)
+    console.error('[PDF API] Generation failed:', error instanceof Error ? { message: error.message, stack: error.stack } : error)
     return Response.json({ error: 'PDF generation failed' }, { status: 500 })
   }
 }
