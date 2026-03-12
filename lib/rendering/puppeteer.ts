@@ -32,12 +32,12 @@ export async function renderPageToImage(html: string): Promise<Buffer> {
     // 576px = 540px page + 18px bleed each side
     // deviceScaleFactor 2 = retina/2x PNG
     await page.setViewport({ width: 576, height: 576, deviceScaleFactor: 2 })
-    await page.setContent(htmlWithBase, { waitUntil: 'networkidle0', timeout: 15000 })
+    await page.setContent(htmlWithBase, { waitUntil: 'domcontentloaded', timeout: 15000 })
 
-    // Wait for fonts with timeout to prevent hangs
+    // Wait for fonts with timeout — don't let this hang the whole render
     await Promise.race([
       page.evaluateHandle('document.fonts.ready'),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Font loading timeout')), 10000)),
+      new Promise(resolve => setTimeout(resolve, 5000)),
     ])
 
     const screenshot = await page.screenshot({

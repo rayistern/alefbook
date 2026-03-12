@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/storage/supabase'
 import { getOrCreateUserId } from '@/lib/storage/user'
-import { loadPageHTML, injectFontSpinner } from '@/lib/templates/loader'
+import { loadPageHTML } from '@/lib/templates/loader'
 import { getPageStates } from '@/lib/templates/page-state'
 import { NextRequest } from 'next/server'
 
@@ -32,8 +32,10 @@ export async function GET(req: NextRequest) {
   const projectPageStates = await getPageStates(projectId)
   const html = loadPageHTML(pageNum, projectPageStates[String(pageNum)])
 
-  // Inject font spinner only for browser preview, not stored in page state
-  return new Response(injectFontSpinner(html), {
+  // No spinner — iframe has sandbox="allow-same-origin" (no allow-scripts),
+  // so the spinner script can't run and would block the page forever.
+  // font-display: swap in the CSS handles font loading gracefully.
+  return new Response(html, {
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': 'private, max-age=60',

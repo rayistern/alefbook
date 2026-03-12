@@ -189,6 +189,9 @@ ${params.reviewFeedback ? `## Feedback from previous review (pass ${params.passN
 
   // Parse page-html blocks from response
   const rawUpdates = parsePageHtmlBlocks(response)
+  if (Object.keys(rawUpdates).length === 0) {
+    console.warn('[Designer] No page-html blocks found in AI response. Full response:', response.substring(0, 500))
+  }
 
   // Validate and apply updates
   const pageUpdates: Record<number, string> = {}
