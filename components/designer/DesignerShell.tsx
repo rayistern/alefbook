@@ -96,6 +96,7 @@ export function DesignerShell({
 
   async function renderPage(pageNum: number) {
     try {
+      console.log(`[Render] Rendering page ${pageNum} for project ${projectId}`)
       const res = await fetch('/api/render', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -103,13 +104,14 @@ export function DesignerShell({
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: res.statusText }))
-        console.error(`Render failed for page ${pageNum}:`, err.error)
+        console.error(`[Render] Failed for page ${pageNum}:`, res.status, err)
         return
       }
       const data = await res.json()
+      console.log(`[Render] Page ${pageNum} rendered, URLs:`, Object.keys(data.renderUrls || {}))
       setRenderUrls(prev => ({ ...prev, ...data.renderUrls }))
     } catch (error) {
-      console.error('Failed to render page:', error)
+      console.error('[Render] Exception for page:', pageNum, error)
     }
   }
 
@@ -182,6 +184,7 @@ export function DesignerShell({
       setSaveStatus('saving')
 
       try {
+        console.log('[Chat] Sending message:', { message, projectId, currentPage })
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -194,6 +197,7 @@ export function DesignerShell({
 
         if (!res.ok) {
           const error = await res.json().catch(() => ({ error: 'Request failed' }))
+          console.error('[Chat] API error:', res.status, error)
           const errMsg: ChatMessage = {
             id: `err-${Date.now()}`,
             role: 'assistant',
@@ -205,6 +209,14 @@ export function DesignerShell({
         }
 
         const data = await res.json()
+        console.log('[Chat] Response received:', {
+          responseText: data.responseText?.substring(0, 200),
+          updatedPages: data.updatedPages,
+          passCount: data.passCount,
+          reviewPassed: data.reviewPassed,
+          unresolvedIssues: data.unresolvedIssues,
+          renderUrlKeys: data.renderUrls ? Object.keys(data.renderUrls) : [],
+        })
 
         // Build response: main text + unresolved issues as a separate note
         let fullResponse = data.responseText || ''
@@ -239,7 +251,7 @@ export function DesignerShell({
           total: 5,
         })
       } catch (error) {
-        console.error('Chat error:', error)
+        console.error('[Chat] Exception:', error)
         const errMsg: ChatMessage = {
           id: `err-${Date.now()}`,
           role: 'assistant',
@@ -315,19 +327,31 @@ export function DesignerShell({
 
   const handlePreviewPdf = useCallback(async () => {
     try {
+      console.log('[PDF Preview] Starting PDF generation for project:', projectId)
       const res = await fetch('/api/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ projectId }),
       })
-      if (res.ok) {
-        const data = await res.json()
-        window.open(data.pdfUrl, '_blank')
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({ error: res.statusText }))
+        console.error('[PDF Preview] API error:', res.status, errBody)
+        return
       }
+      const data = await res.json()
+      console.log('[PDF Preview] PDF generated, downloading from:', data.pdfUrl)
+
+      // Download as file instead of opening in new tab (avoids popup blockers)
+      const link = document.createElement('a')
+      link.href = data.pdfUrl
+      link.download = `${title || 'haggadah'}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
     } catch (error) {
-      console.error('PDF preview failed:', error)
+      console.error('[PDF Preview] Failed:', error)
     }
-  }, [projectId])
+  }, [projectId, title])
 
   const handleOrderPrint = useCallback(async () => {
     if (!shopifyStoreUrl || !shopifyVariantId) return
