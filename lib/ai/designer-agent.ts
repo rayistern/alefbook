@@ -8,8 +8,8 @@ import { applyPageUpdate, parsePageHtmlBlocks } from './html-editor'
 import { renderPageToImage } from '@/lib/rendering/puppeteer'
 import { savePageStates } from '@/lib/templates/page-state'
 
-const PRIMARY_MODEL = 'openai/gpt-5-mini'
-const FALLBACK_MODEL = 'openai/gpt-4o-mini'
+const PRIMARY_MODEL = 'openai/gpt-5.1'
+const FALLBACK_MODEL = 'openai/gpt-5-mini'
 
 let _client: OpenAI | null = null
 function getClient() {
@@ -273,9 +273,9 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
   let responseText = ''
   let renders: Record<number, Buffer> = {}
 
-  while (passCount < 5) {
+  while (passCount < 3) {
     passCount++
-    console.log(`[Designer] Pass ${passCount}/5: Generating HTML edits`)
+    console.log(`[Designer] Pass ${passCount}/3: Generating HTML edits`)
 
     // Step 2: AI edits HTML directly
     const editResult = await generateHTMLEdits({

@@ -11,8 +11,8 @@ export function validatePageHTML(html: string): { valid: boolean; errors: string
     errors.push('Script tags are not allowed in page HTML')
   }
 
-  // No external resource URLs (only /templates/, /uploads/, data: URIs allowed)
-  const urlPattern = /(?:src|href)=["'](?!\/templates\/|\/uploads\/|\/api\/|data:|#|\.\/)/gi
+  // No external resource URLs (only local paths and data: URIs allowed)
+  const urlPattern = /(?:src|href)=["'](?!\/templates\/|\/uploads\/|\/api\/|\/fonts\/|\/images\/|\/thumbnails\/|data:|#|\.\/)/gi
   if (urlPattern.test(html)) {
     errors.push('External resource URLs are not allowed — use only /templates/, /uploads/, or data: URIs')
   }
