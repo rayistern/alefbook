@@ -31,15 +31,13 @@ export function ChatPanel({ messages, onSend, onEditMessage, isWorking, passInfo
   const [input, setInput] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const editTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
-  }, [messages])
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, isWorking])
 
   // Auto-resize textarea
   useEffect(() => {
@@ -130,7 +128,7 @@ export function ChatPanel({ messages, onSend, onEditMessage, isWorking, passInfo
       </div>
 
       <ScrollArea className="flex-1">
-        <div ref={scrollRef} className="flex flex-col gap-6 px-4 py-4">
+        <div className="flex flex-col gap-6 px-4 py-4">
           {showStarters && (
             <div className="flex flex-1 flex-col justify-end gap-2 pt-4">
               <p className="mb-2 text-sm text-muted-foreground">
@@ -221,6 +219,8 @@ export function ChatPanel({ messages, onSend, onEditMessage, isWorking, passInfo
               </span>
             </div>
           )}
+
+          <div ref={bottomRef} />
         </div>
       </ScrollArea>
 

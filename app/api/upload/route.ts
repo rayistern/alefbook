@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@/lib/storage/supabase'
 import { getOrCreateUserId } from '@/lib/storage/user'
-import { processAndUploadImage } from '@/lib/storage/uploads'
+import { processAndUploadImage, getUploadDisplayUrl } from '@/lib/storage/uploads'
 import { checkLimit } from '@/lib/rate-limit/upstash'
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
@@ -63,7 +63,8 @@ export async function POST(req: Request) {
 
   try {
     const upload = await processAndUploadImage(projectId, file)
-    return Response.json(upload, { status: 201 })
+    const displayUrl = await getUploadDisplayUrl(upload.storage_path_display)
+    return Response.json({ ...upload, displayUrl }, { status: 201 })
   } catch (error) {
     console.error('Upload failed:', error)
     return Response.json({ error: 'Upload processing failed' }, { status: 500 })

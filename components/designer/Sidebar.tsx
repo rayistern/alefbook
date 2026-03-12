@@ -4,7 +4,7 @@ import { useRef, useCallback } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
-import { Upload, ImageIcon } from 'lucide-react'
+import { Upload } from 'lucide-react'
 import { PageThumbnail } from './PageThumbnail'
 
 interface UploadedImage {
@@ -76,7 +76,7 @@ export function Sidebar({
           variant="outline"
           className="w-full"
           onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
+          disabled={uploading || isWorking}
         >
           <Upload className="mr-2 h-4 w-4" />
           {uploading ? 'Uploading...' : 'Upload Photo'}
@@ -85,10 +85,9 @@ export function Sidebar({
         {uploads.length > 0 ? (
           <div className="mt-3 grid grid-cols-3 gap-2">
             {uploads.map(upload => (
-              <button
+              <div
                 key={upload.id}
-                onClick={() => onPhotoClick(upload.filename)}
-                className="group relative aspect-square overflow-hidden rounded border transition-colors hover:ring-2 hover:ring-primary"
+                className="group relative aspect-square overflow-hidden rounded border"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -96,10 +95,18 @@ export function Sidebar({
                   alt={upload.filename}
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/20">
-                  <ImageIcon className="h-5 w-5 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/50">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="opacity-0 transition-opacity group-hover:opacity-100"
+                    disabled={isWorking}
+                    onClick={() => onPhotoClick(upload.filename)}
+                  >
+                    Insert
+                  </Button>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         ) : (

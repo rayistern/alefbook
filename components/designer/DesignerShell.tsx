@@ -291,7 +291,7 @@ export function DesignerShell({
             {
               id: upload.id,
               filename: upload.filename,
-              displayUrl: upload.storage_path_display,
+              displayUrl: upload.displayUrl,
             },
           ])
         }
