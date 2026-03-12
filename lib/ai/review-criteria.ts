@@ -17,6 +17,8 @@ IGNORE THESE (do not fail for):
 - Bleed area technicalities
 - Hypothetical issues with elements that aren't on the page
 - Suggestions for improvements the user didn't ask for
+- Whether the page "looks like" what you think a particular section should look like — you are seeing the ACTUAL template, not an error
+- The existing page design/layout — only judge the REQUESTED CHANGES, not the base template
 
 IMPORTANT: If the page looks reasonable and the user's requested change is visible, PASS IT. The user can always ask for more tweaks. A good-enough edit shipped fast is better than a perfect edit that never arrives.
 
