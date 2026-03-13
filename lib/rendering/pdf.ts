@@ -73,16 +73,18 @@ function buildPrintDocument(pageStates: Record<number, string>): string {
   return `<!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <base href="http://localhost:${port}/">
 ${allStyles.join('\n')}
 <style>
   @page { size: 152.4mm 152.4mm; margin: 0; }
-  body { margin: 0; }
+  html, body { margin: 0; background: #fff; color-scheme: light; }
   .page-wrapper {
     width: 152.4mm;
     height: 152.4mm;
     page-break-after: always;
     overflow: hidden;
+    background: #fff;
   }
 </style>
 </head>

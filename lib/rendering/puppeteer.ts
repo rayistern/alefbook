@@ -35,9 +35,11 @@ export async function renderPageToImage(html: string): Promise<Buffer> {
       .replace(/<script>[\s\S]*?fontOverlay[\s\S]*?<\/script>/gi, '')
       .replace(/<style>[^<]*\.font-loading-overlay[\s\S]*?<\/style>/gi, '')
 
+    // Inject base tag and ensure white background (Chromium headless can default to dark canvas)
+    const bgFix = `<style>html,body{background:#fff;color-scheme:light;}</style>`
     const htmlWithBase = cleanHtml.includes('<head>')
-      ? cleanHtml.replace('<head>', `<head>${baseTag}`)
-      : `<html><head>${baseTag}</head><body>${cleanHtml}</body></html>`
+      ? cleanHtml.replace('<head>', `<head>${baseTag}${bgFix}`)
+      : `<html><head>${baseTag}${bgFix}</head><body>${cleanHtml}</body></html>`
 
     // Log failed resource loads for debugging
     page.on('requestfailed', (req) => {
