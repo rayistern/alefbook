@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
-import { ArrowUp, Pencil, X, Check } from 'lucide-react'
+import { ArrowUp, Pencil, X, Check, Paperclip, Loader2 } from 'lucide-react'
 
 export interface ChatMessage {
   id: string
@@ -18,6 +18,8 @@ interface ChatPanelProps {
   onEditMessage?: (messageId: string, newContent: string) => void
   isWorking: boolean
   passInfo?: { current: number; total: number } | null
+  onUpload?: (file: File) => Promise<void>
+  uploading?: boolean
 }
 
 const CONVERSATION_STARTERS = [
@@ -27,13 +29,14 @@ const CONVERSATION_STARTERS = [
   'Add a family photo placeholder',
 ]
 
-export function ChatPanel({ messages, onSend, onEditMessage, isWorking, passInfo }: ChatPanelProps) {
+export function ChatPanel({ messages, onSend, onEditMessage, isWorking, passInfo, onUpload, uploading }: ChatPanelProps) {
   const [input, setInput] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const editTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -111,6 +114,18 @@ export function ChatPanel({ messages, onSend, onEditMessage, isWorking, passInfo
       }
     },
     [handleConfirmEdit, handleCancelEdit]
+  )
+
+  const handleFileSelect = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file || !onUpload) return
+      await onUpload(file)
+      onSend(`Please place ${file.name} on the current page in the most appropriate image slot`)
+      // Reset file input
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    },
+    [onUpload, onSend]
   )
 
   const designingLabel = passInfo
@@ -236,7 +251,32 @@ export function ChatPanel({ messages, onSend, onEditMessage, isWorking, passInfo
             className="max-h-[160px] min-h-[44px] flex-1 resize-none bg-transparent px-4 py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
             rows={1}
           />
-          <div className="p-2">
+          <div className="flex items-center gap-1 p-2">
+            {onUpload && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/heic,image/heif"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 rounded-full"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isWorking || uploading}
+                  title="Attach image"
+                >
+                  {uploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Paperclip className="h-4 w-4" />
+                  )}
+                </Button>
+              </>
+            )}
             <Button
               size="icon"
               className="h-8 w-8 rounded-full"
