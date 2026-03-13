@@ -46,6 +46,7 @@ interface DesignerShellProps {
   initialUploads: UploadedImage[]
   initialRenderUrls: Record<number, string>
   initialEditedPages: number[]
+  projectFormat?: 'html' | 'latex'
   shopifyVariantId?: string
   shopifyStoreUrl?: string
 }
@@ -59,6 +60,7 @@ export function DesignerShell({
   initialUploads,
   initialRenderUrls,
   initialEditedPages,
+  projectFormat = 'html',
   shopifyVariantId,
   shopifyStoreUrl,
 }: DesignerShellProps) {
@@ -451,6 +453,7 @@ export function DesignerShell({
           renderUrl={renderUrls[currentPage] ?? null}
           isWorking={isWorking}
           passInfo={passInfo}
+          projectFormat={projectFormat}
           onPageChange={handlePageChange}
           onPreviewPdf={handlePreviewPdf}
         />

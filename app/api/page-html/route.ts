@@ -22,12 +22,24 @@ export async function GET(req: NextRequest) {
 
   const { data: project } = await supabase
     .from('projects')
-    .select('user_id')
+    .select('user_id, format')
     .eq('id', projectId)
     .eq('user_id', dbUserId)
     .single()
 
   if (!project) return Response.json({ error: 'Project not found' }, { status: 404 })
+
+  // LaTeX projects don't serve HTML pages — redirect to render endpoint
+  if (project.format === 'latex') {
+    // Return a simple HTML page that shows a message to use renders instead
+    const placeholderHtml = `<!DOCTYPE html><html><body style="display:flex;align-items:center;justify-content:center;height:100vh;margin:0;font-family:sans-serif;color:#666;"><p>LaTeX project — use rendered preview</p></body></html>`
+    return new Response(placeholderHtml, {
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'private, max-age=60',
+      },
+    })
+  }
 
   const projectPageStates = await getPageStates(projectId)
   const html = loadPageHTML(pageNum, projectPageStates[String(pageNum)])

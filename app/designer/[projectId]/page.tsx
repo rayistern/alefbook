@@ -33,7 +33,8 @@ export default async function DesignerPage({ params }: DesignerPageProps) {
   if (!project) redirect('/dashboard')
 
   // Load template metadata
-  const templateMeta = loadTemplateMeta()
+  const projectFormat = (project.format as 'html' | 'latex') || 'html'
+  const templateMeta = loadTemplateMeta(project.template_id)
 
   // Load chat messages
   const { data: messages } = await supabase
@@ -89,6 +90,7 @@ export default async function DesignerPage({ params }: DesignerPageProps) {
       initialUploads={uploadImages}
       initialRenderUrls={renderUrls}
       initialEditedPages={editedPages}
+      projectFormat={projectFormat}
       shopifyVariantId={process.env.SHOPIFY_HAGGADAH_VARIANT_ID}
       shopifyStoreUrl={process.env.SHOPIFY_STORE_URL}
     />

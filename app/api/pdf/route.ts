@@ -3,8 +3,9 @@ import { createClient } from '@/lib/storage/supabase'
 import { getOrCreateUserId } from '@/lib/storage/user'
 import { checkLimit } from '@/lib/rate-limit/upstash'
 import { compileToPDF } from '@/lib/rendering/pdf'
-import { loadAllPageStates } from '@/lib/templates/loader'
-import { getPageStates } from '@/lib/templates/page-state'
+import { compileLatexToPdf } from '@/lib/rendering/latex'
+import { loadAllPageStates, loadLatexTemplateSource } from '@/lib/templates/loader'
+import { getPageStates, getLatexSource } from '@/lib/templates/page-state'
 
 export async function POST(req: Request) {
   const { userId: clerkId } = await auth()
@@ -42,16 +43,24 @@ export async function POST(req: Request) {
   if (!project) return Response.json({ error: 'Project not found' }, { status: 404 })
 
   try {
-    console.log('[PDF API] Starting PDF generation for project:', projectId)
+    const projectFormat = (project.format as 'html' | 'latex') || 'html'
+    console.log('[PDF API] Starting PDF generation for project:', projectId, 'format:', projectFormat)
 
-    // Load all page states
-    const projectPageStates = await getPageStates(projectId)
-    const pageStates = loadAllPageStates(projectPageStates)
-    console.log('[PDF API] Loaded page states:', Object.keys(pageStates).length, 'pages')
+    let pdfBuffer: Buffer
 
-    // Generate PDF
-    const pdfBuffer = await compileToPDF(pageStates)
-    console.log('[PDF API] PDF generated:', (pdfBuffer.length / 1024).toFixed(1), 'KB')
+    if (projectFormat === 'latex') {
+      // LaTeX projects: XeLaTeX produces a PDF directly
+      const latexSource = (await getLatexSource(projectId)) ?? loadLatexTemplateSource(project.template_id)
+      pdfBuffer = await compileLatexToPdf(latexSource)
+      console.log('[PDF API] LaTeX PDF generated:', (pdfBuffer.length / 1024).toFixed(1), 'KB')
+    } else {
+      // HTML projects: Puppeteer renders to PDF
+      const projectPageStates = await getPageStates(projectId)
+      const pageStates = loadAllPageStates(projectPageStates)
+      console.log('[PDF API] Loaded page states:', Object.keys(pageStates).length, 'pages')
+      pdfBuffer = await compileToPDF(pageStates)
+      console.log('[PDF API] HTML PDF generated:', (pdfBuffer.length / 1024).toFixed(1), 'KB')
+    }
 
     // Upload to Supabase Storage
     const pdfPath = `projects/${projectId}/exports/haggadah-${Date.now()}.pdf`

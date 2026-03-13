@@ -3,8 +3,8 @@ import { createClient } from '@/lib/storage/supabase'
 import { getOrCreateUserId } from '@/lib/storage/user'
 import { checkLimit } from '@/lib/rate-limit/upstash'
 import { runDesignerLoop } from '@/lib/ai/designer-agent'
-import { loadTemplateMeta } from '@/lib/templates/loader'
-import { getPageStates } from '@/lib/templates/page-state'
+import { loadTemplateMeta, loadLatexTemplateSource } from '@/lib/templates/loader'
+import { getPageStates, getLatexSource } from '@/lib/templates/page-state'
 import { getProjectUploads } from '@/lib/storage/uploads'
 import { loadAllPageStates } from '@/lib/templates/loader'
 
@@ -53,11 +53,22 @@ export async function POST(req: Request) {
     page_context: currentPage,
   })
 
+  // Determine project format
+  const projectFormat = (project.format as 'html' | 'latex') || 'html'
+
   // Load context
-  const templateMeta = loadTemplateMeta()
-  const projectPageStates = await getPageStates(projectId)
-  const pageStates = loadAllPageStates(projectPageStates)
+  const templateMeta = loadTemplateMeta(project.template_id)
   const uploads = await getProjectUploads(projectId)
+
+  // Load format-specific content
+  let pageStates: Record<number, string> = {}
+  let latexSource: string | undefined
+  if (projectFormat === 'latex') {
+    latexSource = (await getLatexSource(projectId)) ?? loadLatexTemplateSource(project.template_id)
+  } else {
+    const projectPageStates = await getPageStates(projectId)
+    pageStates = loadAllPageStates(projectPageStates)
+  }
 
   // Load chat history
   const { data: messages } = await supabase
@@ -76,8 +87,9 @@ export async function POST(req: Request) {
     console.log('[Chat API] Starting designer loop:', {
       projectId,
       currentPage,
+      format: projectFormat,
       messageLength: message.length,
-      pageCount: Object.keys(pageStates).length,
+      pageCount: projectFormat === 'latex' ? 'N/A (whole book)' : Object.keys(pageStates).length,
       historyLength: chatHistory.length,
       uploadCount: uploads.length,
     })
@@ -92,6 +104,8 @@ export async function POST(req: Request) {
       templateMeta,
       uploads,
       projectName: project.name,
+      format: projectFormat,
+      latexSource,
     })
 
     console.log('[Chat API] Designer loop completed:', {

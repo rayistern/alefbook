@@ -6,8 +6,10 @@ import type { ReviewResult } from './review-criteria'
 import { REVIEW_CRITERIA } from './review-criteria'
 import { buildSystemPrompt, type UploadWithUrl } from './system-prompt'
 import { applyPageUpdate, parsePageHtmlBlocks } from './html-editor'
+import { applyLatexUpdate, parseLatexBlock } from './latex-editor'
 import { renderPageToImage } from '@/lib/rendering/puppeteer'
-import { savePageStates } from '@/lib/templates/page-state'
+import { renderLatexToPageImages } from '@/lib/rendering/latex'
+import { savePageStates, saveLatexSource } from '@/lib/templates/page-state'
 
 // Testing: GPT-5.4 primary, GPT-5.1-codex fallback
 // Production: GPT-5.1-codex primary, GPT-5.4 fallback
@@ -55,6 +57,8 @@ interface DesignerParams {
   templateMeta: TemplateMeta
   uploads: Upload[]
   projectName: string
+  format?: 'html' | 'latex'
+  latexSource?: string
 }
 
 async function callAI(
@@ -92,6 +96,7 @@ async function parseIntent(params: DesignerParams & { uploads: UploadWithUrl[] }
     projectName: params.projectName,
     uploads: params.uploads,
     templateMeta: params.templateMeta,
+    format: params.format,
   })
 
   const messages: OpenAI.ChatCompletionMessageParam[] = [
@@ -212,6 +217,67 @@ ${params.reviewFeedback ? `## Feedback from previous review (pass ${params.passN
   return { pageUpdates, responseText }
 }
 
+async function generateLatexEdits(params: {
+  instructions: string
+  currentLatexSource: string
+  templateMeta: TemplateMeta
+  reviewFeedback: string | null
+  passNumber: number
+  projectName: string
+  uploads: UploadWithUrl[]
+}): Promise<{
+  updatedSource: string | null
+  responseText: string
+}> {
+  const systemPrompt = buildSystemPrompt({
+    currentPage: 1,
+    projectName: params.projectName,
+    uploads: params.uploads,
+    templateMeta: params.templateMeta,
+    format: 'latex',
+  })
+
+  const editSystemPrompt = `${systemPrompt}
+
+## Output instructions
+- Return the COMPLETE updated .tex source in a single \`\`\`latex code block.
+- Also include a SINGLE brief message (1-3 sentences) to the user explaining what you changed.
+- Do NOT include multiple conflicting statements. Give one clear, confident response.
+- Do NOT echo back the instructions or say "I understand". Just describe what you changed.
+- The user's request always takes priority over design guidelines — if they ask for something specific, do it.
+
+## Current LaTeX source
+\`\`\`latex
+${params.currentLatexSource}
+\`\`\`
+
+${params.reviewFeedback ? `## Feedback from previous review (pass ${params.passNumber}/5)\n${params.reviewFeedback}` : ''}`
+
+  const messages: OpenAI.ChatCompletionMessageParam[] = [
+    { role: 'system', content: editSystemPrompt },
+    { role: 'user', content: params.instructions },
+  ]
+
+  const response = await callAI(messages)
+
+  // Parse latex block from response
+  const rawLatex = parseLatexBlock(response)
+  if (!rawLatex) {
+    console.warn('[Designer] No latex block found in AI response. Full response:', response.substring(0, 500))
+  }
+
+  const updatedSource = rawLatex
+    ? applyLatexUpdate(params.currentLatexSource, rawLatex)
+    : null
+
+  // Extract response text (everything outside the code blocks)
+  const responseText = response
+    .replace(/```latex\n[\s\S]*?```/g, '')
+    .trim()
+
+  return { updatedSource, responseText }
+}
+
 async function reviewRender(params: {
   renders: Record<number, Buffer>
   instructions: string
@@ -283,9 +349,97 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
   // Override uploads with URL-enriched versions for the rest of the loop
   const paramsWithUrls = { ...params, uploads: uploadsWithUrls }
 
+  // Branch based on project format
+  if (params.format === 'latex') {
+    return runLatexDesignerLoop(paramsWithUrls)
+  }
+  return runHtmlDesignerLoop(paramsWithUrls)
+}
+
+async function runLatexDesignerLoop(params: DesignerParams & { uploads: UploadWithUrl[] }): Promise<DesignerResult> {
+  // Step 1: determine intent
+  console.log('[Designer/LaTeX] Step 1: Parsing intent for message:', params.userMessage.substring(0, 100))
+  const { targetPages, instructions } = await parseIntent(params)
+  console.log('[Designer/LaTeX] Intent parsed:', { targetPages, instructions: instructions.substring(0, 200) })
+
+  let currentLatexSource = params.latexSource ?? ''
+  let passCount = 0
+  let reviewResult: ReviewResult | null = null
+  let responseText = ''
+  let renders: Record<number, Buffer> = {}
+
+  while (passCount < 3) {
+    passCount++
+    console.log(`[Designer/LaTeX] Pass ${passCount}/3: Generating LaTeX edits`)
+
+    // Step 2: AI edits LaTeX source
+    const editResult = await generateLatexEdits({
+      instructions,
+      currentLatexSource,
+      templateMeta: params.templateMeta,
+      reviewFeedback: reviewResult?.feedback ?? null,
+      passNumber: passCount,
+      projectName: params.projectName,
+      uploads: params.uploads,
+    })
+
+    if (editResult.updatedSource) {
+      currentLatexSource = editResult.updatedSource
+    }
+    responseText = editResult.responseText
+
+    // Step 3: compile LaTeX → PDF → per-page PNGs
+    console.log(`[Designer/LaTeX] Pass ${passCount}: Compiling LaTeX`)
+    try {
+      const allPages = await renderLatexToPageImages(currentLatexSource)
+      // Only include the target pages (or all if target includes all)
+      renders = {}
+      for (const pageNum of targetPages) {
+        const png = allPages.get(pageNum)
+        if (png) renders[pageNum] = png
+      }
+      console.log(`[Designer/LaTeX] Pass ${passCount}: Rendered ${allPages.size} total pages, returning ${Object.keys(renders).length} target pages`)
+    } catch (err) {
+      console.error(`[Designer/LaTeX] Pass ${passCount}: LaTeX compilation failed:`, err)
+      // If compilation fails, skip review and loop with feedback
+      reviewResult = {
+        passed: false,
+        issues: ['LaTeX compilation failed'],
+        feedback: `LaTeX compilation error: ${err instanceof Error ? err.message : String(err)}. Fix the LaTeX source so it compiles without errors.`,
+      }
+      continue
+    }
+
+    // Step 4: AI reviews rendered PNGs (vision)
+    console.log(`[Designer/LaTeX] Pass ${passCount}: Running vision review`)
+    reviewResult = await reviewRender({
+      renders,
+      instructions,
+      passNumber: passCount,
+    })
+    console.log(`[Designer/LaTeX] Pass ${passCount}: Review result:`, { passed: reviewResult.passed, issues: reviewResult.issues })
+
+    if (reviewResult.passed) break
+  }
+
+  // Save updated LaTeX source
+  console.log('[Designer/LaTeX] Saving LaTeX source for project:', params.projectId)
+  await saveLatexSource(params.projectId, currentLatexSource)
+
+  return {
+    responseText,
+    updatedPages: targetPages,
+    renders,
+    passCount,
+    reviewPassed: reviewResult?.passed ?? false,
+    unresolvedIssues: reviewResult?.passed === false ? (reviewResult.issues ?? []) : [],
+  }
+}
+
+async function runHtmlDesignerLoop(params: DesignerParams & { uploads: UploadWithUrl[] }): Promise<DesignerResult> {
   // Step 1: determine intent — which pages to touch and what to do
   console.log('[Designer] Step 1: Parsing intent for message:', params.userMessage.substring(0, 100))
-  const { targetPages, instructions } = await parseIntent(paramsWithUrls)
+  const { targetPages, instructions } = await parseIntent(params)
   console.log('[Designer] Intent parsed:', { targetPages, instructions: instructions.substring(0, 200) })
 
   const currentPageStates = { ...params.pageStates }
@@ -303,11 +457,11 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
       instructions,
       targetPages,
       currentPageStates,
-      templateMeta: paramsWithUrls.templateMeta,
+      templateMeta: params.templateMeta,
       reviewFeedback: reviewResult?.feedback ?? null,
       passNumber: passCount,
-      projectName: paramsWithUrls.projectName,
-      uploads: paramsWithUrls.uploads,
+      projectName: params.projectName,
+      uploads: params.uploads,
     })
     console.log(`[Designer] Pass ${passCount}: HTML edits generated for pages:`, Object.keys(editResult.pageUpdates))
 

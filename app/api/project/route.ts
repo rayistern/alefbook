@@ -54,6 +54,7 @@ export async function POST(req: Request) {
   const body = await req.json()
   const name = body.name || 'My Haggadah'
   const templateId = body.template_id || 'haggadah-he-en-v1'
+  const format = templateId.includes('latex') ? 'latex' : 'html'
 
   const { data, error } = await supabase
     .from('projects')
@@ -61,6 +62,7 @@ export async function POST(req: Request) {
       user_id: dbUserId,
       name,
       template_id: templateId,
+      format,
       status: 'draft',
       page_states: {},
       variant_options: body.variant_options || {},

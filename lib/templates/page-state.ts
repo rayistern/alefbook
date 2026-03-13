@@ -1,5 +1,48 @@
 import { createClient } from '@/lib/storage/supabase'
 
+export type ProjectFormat = 'html' | 'latex'
+
+export async function getProjectFormat(projectId: string): Promise<ProjectFormat> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('projects')
+    .select('format')
+    .eq('id', projectId)
+    .single()
+
+  if (error) throw new Error(`Failed to load project format: ${error.message}`)
+  return (data?.format as ProjectFormat) ?? 'html'
+}
+
+export async function getLatexSource(projectId: string): Promise<string | null> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('projects')
+    .select('latex_source')
+    .eq('id', projectId)
+    .single()
+
+  if (error) throw new Error(`Failed to load LaTeX source: ${error.message}`)
+  return (data?.latex_source as string) ?? null
+}
+
+export async function saveLatexSource(
+  projectId: string,
+  latexSource: string
+): Promise<void> {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('projects')
+    .update({
+      latex_source: latexSource,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', projectId)
+
+  if (error) throw new Error(`Failed to save LaTeX source: ${error.message}`)
+}
+
 export async function getPageStates(projectId: string): Promise<Record<string, string>> {
   const supabase = createClient()
   const { data, error } = await supabase

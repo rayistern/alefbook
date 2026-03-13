@@ -1,0 +1,341 @@
+% AlefBook Haggadah — XeLaTeX Template
+% Compile with: xelatex --no-shell-escape book.tex
+\documentclass[10pt, twoside]{book}
+
+%%% Page geometry: 152.4mm square (= 540px at 90dpi) with 5mm bleed
+\usepackage[
+  paperwidth=152.4mm,
+  paperheight=152.4mm,
+  top=15mm,
+  bottom=15mm,
+  inner=18mm,
+  outer=14mm,
+  includehead,
+  includefoot,
+]{geometry}
+
+%%% Languages: Hebrew primary, English secondary
+\usepackage{polyglossia}
+\setdefaultlanguage{hebrew}
+\setotherlanguage{english}
+
+%%% Fonts via fontspec (XeLaTeX)
+\usepackage{fontspec}
+\setmainfont{Yiddishkeit 2.0 AAA Regular}[
+  BoldFont = {Yiddishkeit 2.0 AAA Bold},
+  Path = /usr/local/share/fonts/,
+  Extension = .otf,
+]
+\newfontfamily\hebrewfont{Yiddishkeit 2.0 AAA Regular}[
+  BoldFont = {Yiddishkeit 2.0 AAA Bold},
+  Path = /usr/local/share/fonts/,
+  Extension = .otf,
+]
+\newfontfamily\englishfont{Assistant-ExtraBold}[
+  Path = /usr/local/share/fonts/,
+  Extension = .ttf,
+]
+
+%%% Colors
+\usepackage{xcolor}
+\definecolor{mainHebrew}{HTML}{095354}
+\definecolor{mainEnglish}{HTML}{5B7A6A}
+\definecolor{accent}{HTML}{C4A35A}
+\definecolor{pageBackground}{HTML}{FDF8F0}
+
+%%% Graphics & positioning
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{eso-pic}  % for full-bleed backgrounds
+
+%%% Headers/footers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+%%% Paragraph & spacing
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+%%% Table of contents & sections
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\centering\Huge\bfseries\color{mainHebrew}}
+  {}
+  {0pt}
+  {}
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+
+%%% Prevent widows/orphans
+\widowpenalty=10000
+\clubpenalty=10000
+
+%%% Helpful macros
+\newcommand{\hebrewtext}[1]{{\color{mainHebrew}\large #1}}
+\newcommand{\englishtext}[1]{{\begin{english}\color{mainEnglish}\englishfont\small #1\end{english}}}
+\newcommand{\sederinstruction}[1]{{\color{accent}\itshape #1}}
+\newcommand{\pagebreak}{\newpage}
+
+\begin{document}
+
+% ============================================================
+% Page 1: Front Cover
+% ============================================================
+\thispagestyle{empty}
+\begin{center}
+\vspace*{40mm}
+
+{\fontsize{36pt}{42pt}\selectfont\bfseries\color{mainHebrew}
+הגדה של פסח
+}
+
+\vspace{10mm}
+
+{\englishfont\Large\color{mainEnglish}
+\begin{english}
+Passover Haggadah
+\end{english}
+}
+
+\vspace{20mm}
+
+{\color{accent}\rule{40mm}{0.5pt}}
+
+\end{center}
+\newpage
+
+% ============================================================
+% Page 2: Inside Front Cover (blank)
+% ============================================================
+\thispagestyle{empty}
+\mbox{}
+\newpage
+
+% ============================================================
+% Page 3: Title Page
+% ============================================================
+\thispagestyle{empty}
+\begin{center}
+\vspace*{30mm}
+
+{\fontsize{28pt}{34pt}\selectfont\bfseries\color{mainHebrew}
+הגדה של פסח
+}
+
+\vspace{8mm}
+
+{\englishfont\large\color{mainEnglish}
+\begin{english}
+A Passover Haggadah\\
+with Hebrew Text and English Translation
+\end{english}
+}
+
+\vspace{20mm}
+
+{\color{accent}\rule{30mm}{0.4pt}}
+
+\vspace{10mm}
+
+{\small\color{mainEnglish}
+\begin{english}
+Prepared with love for family and friends
+\end{english}
+}
+
+\end{center}
+\newpage
+
+% ============================================================
+% Page 4: Copyright / Dedication
+% ============================================================
+\thispagestyle{empty}
+\vspace*{60mm}
+\begin{center}
+{\small\color{mainEnglish}
+\begin{english}
+This Haggadah was personalized using AlefBook.\\
+\end{english}
+}
+\end{center}
+\newpage
+
+% ============================================================
+% Page 5: Order of the Seder (Kadesh)
+% ============================================================
+% Page 5: Kadesh — Sanctification
+\hebrewtext{קדש}
+
+\vspace{4mm}
+
+\sederinstruction{ממלאים את הכוס הראשונה ואומרים את הקידוש.}
+
+\vspace{4mm}
+
+\englishtext{Fill the first cup of wine and recite the Kiddush.}
+
+\vspace{6mm}
+
+\hebrewtext{%
+ברוך אתה ה' אלהינו מלך העולם, בורא פרי הגפן.
+
+ברוך אתה ה' אלהינו מלך העולם, אשר בחר בנו מכל עם, ורוממנו מכל לשון, וקדשנו במצוותיו. ותתן לנו ה' אלהינו באהבה מועדים לשמחה, חגים וזמנים לששון, את יום חג המצות הזה, זמן חירותנו, מקרא קודש, זכר ליציאת מצרים.
+}
+
+\vspace{4mm}
+
+\englishtext{%
+Blessed are You, Lord our God, King of the universe, who creates the fruit of the vine.
+
+Blessed are You, Lord our God, King of the universe, who has chosen us from among all peoples and sanctified us with His commandments. You have lovingly given us festivals for joy, holidays and seasons for gladness, this Festival of Matzot, the season of our freedom, a holy convocation in remembrance of the Exodus from Egypt.
+}
+
+\newpage
+
+% ============================================================
+% Pages 6-80: Remaining Seder content
+% ============================================================
+% (The AI designer will populate these pages based on the
+%  complete haggadah liturgy and user customization requests)
+
+% Page 6: Urchatz — Washing
+\hebrewtext{ורחץ}
+
+\vspace{4mm}
+
+\sederinstruction{נוטלים ידיים ללא ברכה.}
+
+\vspace{4mm}
+
+\englishtext{Wash hands without a blessing.}
+
+\newpage
+
+% Page 7: Karpas — Vegetable
+\hebrewtext{כרפס}
+
+\vspace{4mm}
+
+\sederinstruction{טובלים ירק במי מלח ומברכים.}
+
+\vspace{4mm}
+
+\hebrewtext{%
+ברוך אתה ה' אלהינו מלך העולם, בורא פרי האדמה.
+}
+
+\vspace{4mm}
+
+\englishtext{%
+Dip a vegetable in salt water and recite the blessing:
+
+Blessed are You, Lord our God, King of the universe, who creates the fruit of the earth.
+}
+
+\newpage
+
+% Page 8: Yachatz — Breaking the Matzah
+\hebrewtext{יחץ}
+
+\vspace{4mm}
+
+\sederinstruction{שוברים את המצה האמצעית לשתיים. החלק הגדול נשמר לאפיקומן.}
+
+\vspace{4mm}
+
+\englishtext{Break the middle matzah in two. The larger piece is set aside for the Afikoman.}
+
+\newpage
+
+% Page 9-10: Maggid — The Story (beginning)
+\hebrewtext{מגיד}
+
+\vspace{4mm}
+
+\sederinstruction{מגביהים את הקערה ואומרים:}
+
+\vspace{4mm}
+
+\hebrewtext{%
+הא לחמא עניא די אכלו אבהתנא בארעא דמצרים.
+כל דכפין ייתי ויכול, כל דצריך ייתי ויפסח.
+השתא הכא, לשנה הבאה בארעא דישראל.
+השתא עבדי, לשנה הבאה בני חורין.
+}
+
+\vspace{4mm}
+
+\englishtext{%
+This is the bread of affliction that our ancestors ate in the land of Egypt.
+Let all who are hungry come and eat; let all who are in need come and celebrate Passover.
+Now we are here; next year may we be in the Land of Israel.
+Now we are slaves; next year may we be free.
+}
+
+\newpage
+
+% Placeholder pages for remaining content
+% The AI will fill these in when the user starts editing their project
+
+\hebrewtext{מה נשתנה}
+
+\vspace{4mm}
+
+\hebrewtext{%
+מה נשתנה הלילה הזה מכל הלילות?
+
+שבכל הלילות אנו אוכלין חמץ ומצה, הלילה הזה כולו מצה.
+
+שבכל הלילות אנו אוכלין שאר ירקות, הלילה הזה מרור.
+
+שבכל הלילות אין אנו מטבילין אפילו פעם אחת, הלילה הזה שתי פעמים.
+
+שבכל הלילות אנו אוכלין בין יושבין ובין מסבין, הלילה הזה כולנו מסבין.
+}
+
+\vspace{4mm}
+
+\englishtext{%
+Why is this night different from all other nights?
+
+On all other nights we eat leavened bread or matzah; on this night, only matzah.
+
+On all other nights we eat all kinds of vegetables; on this night, bitter herbs.
+
+On all other nights we do not dip even once; on this night, we dip twice.
+
+On all other nights we eat sitting or reclining; on this night, we all recline.
+}
+
+\newpage
+
+% ============================================================
+% Page 81: Back Inside Cover (blank)
+% ============================================================
+\thispagestyle{empty}
+\mbox{}
+\newpage
+
+% ============================================================
+% Page 82: Back Cover
+% ============================================================
+\thispagestyle{empty}
+\begin{center}
+\vspace*{50mm}
+
+{\color{accent}\rule{40mm}{0.5pt}}
+
+\vspace{10mm}
+
+{\englishfont\small\color{mainEnglish}
+\begin{english}
+Made with AlefBook
+\end{english}
+}
+
+\end{center}
+
+\end{document}

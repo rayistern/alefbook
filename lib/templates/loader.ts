@@ -14,19 +14,30 @@ export interface TemplateMeta {
   template_id: string
   name: string
   description: string
+  format: 'html' | 'latex'
   page_count: number
-  page_width_px: number
-  page_height_px: number
-  bleed_px: number
+  page_width_px?: number
+  page_height_px?: number
+  page_width_mm?: number
+  page_height_mm?: number
+  bleed_px?: number
+  bleed_mm?: number
   binding: string
   languages: string[]
   version: string
   pages: PageMeta[]
 }
 
-const PAGES_DIR = path.join(process.cwd(), 'templates/haggadah/pages')
-const STUBS_DIR = path.join(process.cwd(), 'templates/stubs')
-const METADATA_DIR = path.join(process.cwd(), 'templates/metadata')
+const TEMPLATES_DIR = path.join(process.cwd(), 'templates')
+const PAGES_DIR = path.join(TEMPLATES_DIR, 'haggadah/pages')
+const STUBS_DIR = path.join(TEMPLATES_DIR, 'stubs')
+const METADATA_DIR = path.join(TEMPLATES_DIR, 'metadata')
+
+/** Map of template IDs to their directory names */
+const TEMPLATE_DIRS: Record<string, string> = {
+  'haggadah-he-en-v1': 'haggadah',
+  'haggadah-he-en-latex-v1': 'haggadah-latex',
+}
 
 export function getTemplateDir(): string {
   // Prefer real pages from Phase 1 if they exist
@@ -36,14 +47,47 @@ export function getTemplateDir(): string {
   return STUBS_DIR
 }
 
-export function loadTemplateMeta(): TemplateMeta {
+export function loadTemplateMeta(templateId?: string): TemplateMeta {
+  // If a LaTeX template, load from its own directory
+  if (templateId && TEMPLATE_DIRS[templateId]) {
+    const templateDir = path.join(TEMPLATES_DIR, TEMPLATE_DIRS[templateId])
+    const templateJsonPath = path.join(templateDir, 'template.json')
+    if (fs.existsSync(templateJsonPath)) {
+      const template = JSON.parse(fs.readFileSync(templateJsonPath, 'utf-8'))
+      // LaTeX templates may share pages.json with the HTML template
+      const pagesPath = path.join(templateDir, 'pages.json')
+      const fallbackPagesPath = path.join(METADATA_DIR, 'pages.json')
+      const pages = JSON.parse(
+        fs.readFileSync(
+          fs.existsSync(pagesPath) ? pagesPath : fallbackPagesPath,
+          'utf-8'
+        )
+      )
+      return { format: 'html', ...template, pages }
+    }
+  }
+
   const templatePath = path.join(METADATA_DIR, 'template.json')
   const pagesPath = path.join(METADATA_DIR, 'pages.json')
 
   const template = JSON.parse(fs.readFileSync(templatePath, 'utf-8'))
   const pages = JSON.parse(fs.readFileSync(pagesPath, 'utf-8'))
 
-  return { ...template, pages }
+  return { format: 'html', ...template, pages }
+}
+
+/**
+ * Load the default LaTeX source for a LaTeX template.
+ */
+export function loadLatexTemplateSource(templateId: string): string {
+  const dirName = TEMPLATE_DIRS[templateId]
+  if (!dirName) throw new Error(`Unknown template: ${templateId}`)
+
+  const sourcePath = path.join(TEMPLATES_DIR, dirName, 'source.tex')
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`LaTeX source not found: ${sourcePath}`)
+  }
+  return fs.readFileSync(sourcePath, 'utf-8')
 }
 
 export function loadPageHTML(pageNumber: number, projectPageState?: string): string {

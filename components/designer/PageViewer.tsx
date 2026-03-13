@@ -11,6 +11,7 @@ interface PageViewerProps {
   renderUrl: string | null
   isWorking: boolean
   passInfo?: { current: number; total: number } | null
+  projectFormat?: 'html' | 'latex'
   onPageChange: (page: number) => void
   onPreviewPdf: () => Promise<void> | void
 }
@@ -22,6 +23,7 @@ export function PageViewer({
   renderUrl,
   isWorking,
   passInfo,
+  projectFormat = 'html',
   onPageChange,
   onPreviewPdf,
 }: PageViewerProps) {
@@ -74,6 +76,13 @@ export function PageViewer({
                 </div>
               )}
             </>
+          ) : projectFormat === 'latex' ? (
+            <div className="flex h-full w-full items-center justify-center bg-gray-50">
+              <div className="text-center text-sm text-muted-foreground">
+                <Loader2 className="mx-auto mb-2 h-6 w-6 animate-spin" />
+                Rendering page...
+              </div>
+            </div>
           ) : (
             <iframe
               key={`page-${currentPage}`}

@@ -1,7 +1,7 @@
 FROM node:20-slim
 
-# Install Puppeteer dependencies + Chromium
-RUN apt-get update && apt-get install -y \
+# Install Puppeteer dependencies + Chromium + XeLaTeX for LaTeX book rendering
+RUN apt-get update && apt-get install -y --no-install-recommends \
   chromium \
   fonts-liberation \
   libatk-bridge2.0-0 \
@@ -9,6 +9,11 @@ RUN apt-get update && apt-get install -y \
   libnss3 \
   libxss1 \
   ca-certificates \
+  texlive-xetex \
+  texlive-latex-extra \
+  texlive-fonts-recommended \
+  texlive-lang-hebrew \
+  poppler-utils \
   && rm -rf /var/lib/apt/lists/*
 
 # Install custom fonts so Puppeteer renders them correctly

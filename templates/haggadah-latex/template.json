@@ -1,0 +1,13 @@
+{
+  "template_id": "haggadah-he-en-latex-v1",
+  "name": "Hebrew-English Haggadah (LaTeX)",
+  "description": "A traditional Passover Haggadah typeset with XeLaTeX for professional print quality",
+  "format": "latex",
+  "page_count": 82,
+  "page_width_mm": 152.4,
+  "page_height_mm": 152.4,
+  "bleed_mm": 5,
+  "binding": "perfect",
+  "languages": ["he", "en"],
+  "version": "1.0.0"
+}
