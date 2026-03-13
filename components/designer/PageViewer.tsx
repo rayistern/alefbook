@@ -13,6 +13,7 @@ interface PageViewerProps {
   passInfo?: { current: number; total: number } | null
   onPageChange: (page: number) => void
   onPreviewPdf: () => Promise<void> | void
+  compact?: boolean
 }
 
 export function PageViewer({
@@ -24,6 +25,7 @@ export function PageViewer({
   passInfo,
   onPageChange,
   onPreviewPdf,
+  compact,
 }: PageViewerProps) {
   const [pdfLoading, setPdfLoading] = useState(false)
   const iframeSrc = `/api/page-html?projectId=${projectId}&page=${currentPage}`
@@ -44,12 +46,14 @@ export function PageViewer({
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
+    <div className={`flex flex-1 flex-col items-center justify-center ${compact ? 'gap-2 p-2' : 'gap-4 p-4'}`}>
       <div className="relative">
         {/* Page render display */}
         <div
-          className="relative overflow-hidden rounded-lg border bg-white shadow-md"
-          style={{ width: 540, height: 540, minWidth: 320, minHeight: 320 }}
+          className={`relative overflow-hidden rounded-lg border bg-white shadow-md ${
+            compact ? 'aspect-square w-full max-w-[280px]' : ''
+          }`}
+          style={compact ? undefined : { width: 540, height: 540, minWidth: 320, minHeight: 320 }}
         >
           {renderUrl ? (
             <>
@@ -60,9 +64,7 @@ export function PageViewer({
                 className={`h-full w-full object-contain transition-opacity duration-300 ${
                   isWorking ? 'opacity-50' : 'opacity-100'
                 }`}
-                width={540}
-                height={540}
-                style={{ minWidth: 320, minHeight: 320 }}
+                {...(compact ? {} : { width: 540, height: 540, style: { minWidth: 320, minHeight: 320 } })}
               />
               {isWorking && (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -119,15 +121,17 @@ export function PageViewer({
         </Button>
       </div>
 
-      {/* PDF Preview button */}
-      <Button variant="outline" onClick={handlePreviewPdf} disabled={pdfLoading}>
-        {pdfLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <FileDown className="mr-2 h-4 w-4" />
-        )}
-        {pdfLoading ? 'Generating PDF...' : 'Preview PDF'}
-      </Button>
+      {/* PDF Preview button - hidden in compact mode */}
+      {!compact && (
+        <Button variant="outline" onClick={handlePreviewPdf} disabled={pdfLoading}>
+          {pdfLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <FileDown className="mr-2 h-4 w-4" />
+          )}
+          {pdfLoading ? 'Generating PDF...' : 'Preview PDF'}
+        </Button>
+      )}
     </div>
   )
 }

@@ -8,15 +8,6 @@ import { PageViewer } from './PageViewer'
 import { Sidebar } from './Sidebar'
 import { Button } from '@/components/ui/button'
 import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
-import {
-  MessageSquare,
-  BookOpen,
-  ImageIcon,
   ArrowLeft,
   ShoppingCart,
   Check,
@@ -71,7 +62,7 @@ export function DesignerShell({
   const [isWorking, setIsWorking] = useState(false)
   const [passInfo, setPassInfo] = useState<{ current: number; total: number } | null>(null)
   const [uploading, setUploading] = useState(false)
-  const [mobileView, setMobileView] = useState<'chat' | 'page' | 'photos'>('chat')
+  // mobileView state removed — mobile now shows book + chat in a single pane
   const [title, setTitle] = useState(projectName)
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved')
@@ -469,86 +460,34 @@ export function DesignerShell({
         />
       </div>
 
-      {/* Mobile layout */}
-      <div className="flex flex-1 flex-col overflow-hidden md:hidden">
-        {mobileView === 'chat' && (
-          <div className="flex-1 overflow-hidden">
-            <ChatPanel
-              messages={messages}
-              onSend={handleSendMessage}
-              isWorking={isWorking}
-              passInfo={passInfo}
-            />
-          </div>
-        )}
-        {mobileView === 'page' && (
-          <div className="flex-1 overflow-auto">
-            <PageViewer
-              projectId={projectId}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              renderUrl={renderUrls[currentPage] ?? null}
-              isWorking={isWorking}
-              passInfo={passInfo}
-              onPageChange={handlePageChange}
-              onPreviewPdf={handlePreviewPdf}
-            />
-          </div>
-        )}
-        {mobileView === 'photos' && (
-          <Sheet>
-            <SheetTrigger asChild>
-              <div />
-            </SheetTrigger>
-            <SheetContent>
-              <SheetTitle>Photos & Pages</SheetTitle>
-              <Sidebar
-                projectId={projectId}
-                uploads={uploads}
-                pages={pages}
-                currentPage={currentPage}
-                editedPages={editedPages}
-                renderUrls={renderUrls}
-                onUpload={handleUpload}
-                onPhotoClick={handlePhotoClick}
-                onPageSelect={handlePageChange}
-                uploading={uploading}
-                isWorking={isWorking}
-              />
-            </SheetContent>
-          </Sheet>
-        )}
-
-        {/* Mobile bottom navigation */}
-        <nav className="flex border-t">
-          <button
-            onClick={() => setMobileView('chat')}
-            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs ${
-              mobileView === 'chat' ? 'text-primary' : 'text-muted-foreground'
-            }`}
-          >
-            <MessageSquare className="h-5 w-5" />
-            Chat
-          </button>
-          <button
-            onClick={() => setMobileView('page')}
-            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs ${
-              mobileView === 'page' ? 'text-primary' : 'text-muted-foreground'
-            }`}
-          >
-            <BookOpen className="h-5 w-5" />
-            Page
-          </button>
-          <button
-            onClick={() => setMobileView('photos')}
-            className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs ${
-              mobileView === 'photos' ? 'text-primary' : 'text-muted-foreground'
-            }`}
-          >
-            <ImageIcon className="h-5 w-5" />
-            Photos
-          </button>
-        </nav>
+      {/* Mobile layout: portrait = top/bottom, landscape = side-by-side */}
+      <div className="flex flex-1 flex-col landscape:flex-row overflow-hidden md:hidden">
+        {/* Book page viewer */}
+        <div className="h-[40%] min-h-0 shrink-0 overflow-auto border-b landscape:h-full landscape:w-1/2 landscape:border-b-0 landscape:border-r">
+          <PageViewer
+            projectId={projectId}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            renderUrl={renderUrls[currentPage] ?? null}
+            isWorking={isWorking}
+            passInfo={passInfo}
+            onPageChange={handlePageChange}
+            onPreviewPdf={handlePreviewPdf}
+            compact
+          />
+        </div>
+        {/* Chat panel */}
+        <div className="flex-1 min-h-0 overflow-hidden landscape:w-1/2">
+          <ChatPanel
+            messages={messages}
+            onSend={handleSendMessage}
+            onEditMessage={handleEditMessage}
+            isWorking={isWorking}
+            passInfo={passInfo}
+            onUpload={handleUpload}
+            uploading={uploading}
+          />
+        </div>
       </div>
     </div>
   )
