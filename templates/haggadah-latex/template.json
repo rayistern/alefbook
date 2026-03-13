@@ -1,12 +1,12 @@
 {
   "template_id": "haggadah-he-en-latex-v1",
   "name": "Hebrew-English Haggadah (LaTeX)",
-  "description": "A traditional Passover Haggadah typeset with XeLaTeX for professional print quality",
+  "description": "A traditional Passover Haggadah typeset with XeLaTeX for professional print quality. 7x10 inch trim, bilingual Hebrew/English with nikkud.",
   "format": "latex",
   "page_count": 82,
-  "page_width_mm": 152.4,
-  "page_height_mm": 152.4,
-  "bleed_mm": 5,
+  "page_width_in": 7,
+  "page_height_in": 10,
+  "bleed_in": 0.125,
   "binding": "perfect",
   "languages": ["he", "en"],
   "version": "1.0.0"

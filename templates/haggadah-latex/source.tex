@@ -1,341 +1,653 @@
-% AlefBook Haggadah — XeLaTeX Template
-% Compile with: xelatex --no-shell-escape book.tex
-\documentclass[10pt, twoside]{book}
+%%% ==========================================================
+%%% HAGGADAH SHEL PESACH
+%%% Compiled with XeLaTeX
+%%% ==========================================================
+\documentclass[11pt, openany]{book}
 
-%%% Page geometry: 152.4mm square (= 540px at 90dpi) with 5mm bleed
+%%% ---- Page geometry: 7x10 inch trim, classic Haggadah proportions ----
 \usepackage[
-  paperwidth=152.4mm,
-  paperheight=152.4mm,
-  top=15mm,
-  bottom=15mm,
-  inner=18mm,
-  outer=14mm,
-  includehead,
-  includefoot,
+  paperwidth=7in,
+  paperheight=10in,
+  inner=0.9in,
+  outer=0.75in,
+  top=0.8in,
+  bottom=0.85in,
+  headsep=0.3in,
+  footskip=0.4in,
+  headheight=14pt
 ]{geometry}
 
-%%% Languages: Hebrew primary, English secondary
-\usepackage{polyglossia}
-\setdefaultlanguage{hebrew}
-\setotherlanguage{english}
-
-%%% Fonts via fontspec (XeLaTeX)
+%%% ---- Fonts ----
 \usepackage{fontspec}
-\setmainfont{Yiddishkeit 2.0 AAA Regular}[
-  BoldFont = {Yiddishkeit 2.0 AAA Bold},
-  Path = /usr/local/share/fonts/,
-  Extension = .otf,
+\setmainfont{FreeSerif}[
+  Ligatures=TeX
 ]
-\newfontfamily\hebrewfont{Yiddishkeit 2.0 AAA Regular}[
-  BoldFont = {Yiddishkeit 2.0 AAA Bold},
-  Path = /usr/local/share/fonts/,
-  Extension = .otf,
-]
-\newfontfamily\englishfont{Assistant-ExtraBold}[
-  Path = /usr/local/share/fonts/,
-  Extension = .ttf,
-]
+\setsansfont{FreeSans}
+\newfontfamily\hebrewfont[Script=Hebrew, Scale=1.15]{FreeSerif}
+\newfontfamily\hebrewfontsans[Script=Hebrew, Scale=1.1]{FreeSans}
+\newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5]{FreeSerif}
+\newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0]{FreeSerif}
 
-%%% Colors
-\usepackage{xcolor}
-\definecolor{mainHebrew}{HTML}{095354}
-\definecolor{mainEnglish}{HTML}{5B7A6A}
-\definecolor{accent}{HTML}{C4A35A}
-\definecolor{pageBackground}{HTML}{FDF8F0}
+%%% ---- Hebrew / RTL support (polyglossia + bidi) ----
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguage{hebrew}
+%% polyglossia uses \hebrewfont (defined above) automatically for Hebrew text
+%% provides \begin{hebrew}...\end{hebrew} and \texthebrew{} with proper RTL
 
-%%% Graphics & positioning
+%%% ---- Colours ----
+\usepackage[dvipsnames]{xcolor}
+\definecolor{sederblue}{HTML}{1B3A5C}
+\definecolor{sedergold}{HTML}{C5962A}
+\definecolor{sederwine}{HTML}{722F37}
+\definecolor{sederlight}{HTML}{F5F0E6}
+\definecolor{sederborder}{HTML}{D4C5A0}
+
+%%% ---- Graphics & Decorations ----
 \usepackage{graphicx}
 \usepackage{tikz}
-\usepackage{eso-pic}  % for full-bleed backgrounds
+\usetikzlibrary{calc, decorations.pathmorphing}
+\usepackage{pgfornament}
 
-%%% Headers/footers
+%%% ---- Layout utilities ----
 \usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{needspace}
+\usepackage{changepage}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=false,
+  pdfborder={0 0 0},
+  pdftitle={Haggadah Shel Pesach},
+  pdfauthor={Your Chabad House},
+}
+
+%%% ---- Spacing ----
+\setlength{\parskip}{4pt plus 2pt minus 1pt}
+\setlength{\parindent}{0pt}
+
+%%% ---- Headers & Footers ----
 \pagestyle{fancy}
 \fancyhf{}
-\fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
 
-%%% Paragraph & spacing
-\usepackage{parskip}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt}
+%% Running heads: section name on odd, book title on even
+\fancyhead[RO]{\small\textcolor{sederblue}{\textsc{\leftmark}}}
+\fancyhead[LE]{\small\textcolor{sederblue}{\textsc{Haggadah Shel Pesach}}}
 
-%%% Table of contents & sections
-\usepackage{titlesec}
+%% Page number with flanking dots
+\fancyfoot[C]{%
+  \small\textcolor{sederblue}{%
+    \textcolor{sedergold}{$\cdot$}%
+    \enspace\thepage\enspace%
+    \textcolor{sedergold}{$\cdot$}%
+  }%
+}
+
+%% Decorative page elements via TikZ overlay (drawn every content page)
+\usepackage{eso-pic}
+\newif\ifshowpageornaments
+\showpageornamentstrue
+\AddToShipoutPictureBG{%
+  \ifshowpageornaments
+  \begin{tikzpicture}[remember picture, overlay]
+    %% Gold header rule
+    \draw[sedergold, line width=0.4pt]
+      ([shift={(0.65in,-0.72in)}]current page.north west) --
+      ([shift={(-0.65in,-0.72in)}]current page.north east);
+    %% Gold footer rule
+    \draw[sedergold, line width=0.3pt]
+      ([shift={(0.65in,0.7in)}]current page.south west) --
+      ([shift={(-0.65in,0.7in)}]current page.south east);
+    %% Corner ornaments (subtle, 18% opacity)
+    \node[anchor=north west, opacity=0.18] at
+      ([shift={(0.2in,-0.15in)}]current page.north west)
+      {\pgfornament[width=0.7cm, color=sedergold]{63}};
+    \node[anchor=north east, opacity=0.18] at
+      ([shift={(-0.2in,-0.15in)}]current page.north east)
+      {\pgfornament[width=0.7cm, color=sedergold, symmetry=v]{63}};
+    \node[anchor=south west, opacity=0.18] at
+      ([shift={(0.2in,0.15in)}]current page.south west)
+      {\pgfornament[width=0.7cm, color=sedergold, symmetry=h]{63}};
+    \node[anchor=south east, opacity=0.18] at
+      ([shift={(-0.2in,0.15in)}]current page.south east)
+      {\pgfornament[width=0.7cm, color=sedergold, symmetry=c]{63}};
+  \end{tikzpicture}%
+  \fi
+}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyfoot[C]{%
+    \small\textcolor{sederblue}{%
+      \textcolor{sedergold}{$\cdot$}%
+      \enspace\thepage\enspace%
+      \textcolor{sedergold}{$\cdot$}%
+    }%
+  }
+}
+
+%% Suppress decorative overlay on truly empty pages
+\fancypagestyle{empty}{%
+  \fancyhf{}
+}
+
+%%% ---- Chapter / Section formatting ----
 \titleformat{\chapter}[display]
-  {\centering\Huge\bfseries\color{mainHebrew}}
+  {}
   {}
   {0pt}
-  {}
+  {\sederchapterformat}
 \titlespacing*{\chapter}{0pt}{-20pt}{20pt}
 
-%%% Prevent widows/orphans
-\widowpenalty=10000
-\clubpenalty=10000
+%%% ---- Custom Seder-step command ----
+%%% \sedersection{Hebrew Name}{Transliteration}{English Subtitle}{step number}
+\newcommand{\sedersection}[4]{%
+  \clearpage
+  \thispagestyle{plain}%
+  \markboth{#2\enspace---\enspace#3}{}%
+  %% decorative top rule
+  \begin{center}
+    \begin{tikzpicture}
+      \node[inner sep=0pt] (TL) at (-2.8,0) {\pgfornament[width=1.2cm,color=sedergold]{15}};
+      \draw[sedergold, line width=0.6pt] (-2.0,0) -- (-0.4,0);
+      \node[inner sep=4pt, fill=white] (NUM) at (0,0) {%
+        \textcolor{sedergold}{\sffamily\bfseries\small Step~#4}%
+      };
+      \draw[sedergold, line width=0.6pt] (0.4,0) -- (2.0,0);
+      \node[inner sep=0pt] (TR) at (2.8,0) {\pgfornament[width=1.2cm,color=sedergold,symmetry=v]{15}};
+    \end{tikzpicture}
+  \end{center}
+  \vspace{4pt}
+  %% Hebrew title
+  \begin{center}
+    {\hebrewfonttitle\texthebrew{\textcolor{sederblue}{#1}}}\\[6pt]
+    {\Large\scshape\textcolor{sederblue}{#2}}\\[2pt]
+    {\normalsize\textcolor{sederwine}{\itshape #3}}
+  \end{center}
+  \vspace{2pt}
+  %% decorative bottom rule
+  \begin{center}
+    \begin{tikzpicture}
+      \draw[sedergold, line width=0.6pt] (-2.5,0) -- (2.5,0);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{6pt}
+}
 
-%%% Helpful macros
-\newcommand{\hebrewtext}[1]{{\color{mainHebrew}\large #1}}
-\newcommand{\englishtext}[1]{{\begin{english}\color{mainEnglish}\englishfont\small #1\end{english}}}
-\newcommand{\sederinstruction}[1]{{\color{accent}\itshape #1}}
-\newcommand{\pagebreak}{\newpage}
+%%% ---- Seder-step chapter (for the TOC page) ----
+\newcommand{\sederchapterformat}{}
 
+%%% ---- Image placeholder command ----
+\newcommand{\haggadahimagefixed}[3]{%
+  \par\vspace{10pt}
+  \begin{center}
+    \begin{tikzpicture}
+      \draw[sederborder, line width=1pt, rounded corners=4pt]
+        (0,0) rectangle (#1, #2);
+      \node[text=sederborder, font=\sffamily\small, text width=0.7*#1, align=center]
+        at (0.5*#1, 0.5*#2)
+        {\textcolor{sedergold}{\Large$\diamondsuit$}\\[4pt]
+         IMAGE PLACEHOLDER\\[2pt]
+         \footnotesize\itshape #3};
+    \end{tikzpicture}
+  \end{center}
+  \par\vspace{10pt}
+}
+
+%%% ---- Instruction / rubric text (tinted box with vertical accent rule) ----
+\newcommand{\instruction}[1]{%
+  \par\vspace{6pt}
+  \begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=sederlight,
+    colframe=sederlight,
+    boxrule=0pt,
+    left=12pt,
+    right=8pt,
+    top=6pt,
+    bottom=6pt,
+    borderline west={2pt}{0pt}{sederwine!60},
+    arc=0pt,
+    outer arc=0pt,
+  ]
+    {\small\itshape\textcolor{sederwine}{#1}}
+  \end{tcolorbox}
+  \par\vspace{4pt}
+}
+
+%%% ---- Hebrew block (for main Hebrew paragraphs) ----
+%%% Subtle gold left-border accent marks liturgical text
+\newenvironment{hebrewblock}{%
+  \par\vspace{6pt}
+  \begin{adjustwidth}{0.2in}{0.15in}
+  \begin{hebrew}
+  \hebrewfont
+  \large
+  \setstretch{1.7}
+  \parindent=0pt\relax
+}{%
+  \end{hebrew}
+  \end{adjustwidth}
+  \par\vspace{4pt}
+}
+
+%%% ---- English block (for main English paragraphs) ----
+\newenvironment{englishblock}{%
+  \par\vspace{4pt}
+  \begin{adjustwidth}{0.15in}{0.15in}
+  \setstretch{1.25}
+  \normalsize
+}{%
+  \end{adjustwidth}
+  \par\vspace{6pt}
+}
+
+%%% ---- Decorative divider ----
+\newcommand{\sederdivider}{%
+  \par\vspace{8pt}
+  \begin{center}
+    \textcolor{sedergold}{\pgfornament[width=1.5cm]{11}}
+  \end{center}
+  \par\vspace{8pt}
+}
+
+%%% ---- Thin separator between Hebrew and English blocks ----
+\newcommand{\hebrewenglishsep}{%
+  \par\vspace{2pt}
+  \begin{center}
+    \begin{tikzpicture}
+      \draw[sedergold, line width=0.3pt] (-1.8,0) -- (-0.3,0);
+      \node[inner sep=0pt] at (0,0) {\textcolor{sedergold}{\tiny$\diamond$}};
+      \draw[sedergold, line width=0.3pt] (0.3,0) -- (1.8,0);
+    \end{tikzpicture}
+  \end{center}
+  \par\vspace{2pt}
+}
+
+%%% ---- Small fleuron paragraph separator ----
+\newcommand{\parasep}{%
+  \par\vspace{4pt}
+  \begin{center}
+    \textcolor{sedergold!50}{\tiny$\diamond\;\diamond\;\diamond$}
+  \end{center}
+  \par\vspace{4pt}
+}
+
+%%% ---- Small sub-section heading within a seder step ----
+\newcommand{\subsedertitle}[2]{%
+  \par\vspace{10pt}
+  \begin{center}
+    {\hebrewfontlarge\texthebrew{\textcolor{sederblue}{#1}}}\\[3pt]
+    {\normalsize\scshape\textcolor{sederblue}{#2}}
+  \end{center}
+  \par\vspace{4pt}
+}
+
+%%% ==========================================================
 \begin{document}
 
-% ============================================================
-% Page 1: Front Cover
-% ============================================================
+%%% ---- COVER PAGE ----
+\showpageornamentsfalse  % no corner ornaments on front matter
 \thispagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+  %% background colour
+  \fill[sederblue] (current page.south west) rectangle (current page.north east);
+  %% decorative border
+  \draw[sedergold, line width=2pt]
+    ([shift={(0.4in, 0.4in)}]current page.south west) rectangle
+    ([shift={(-0.4in,-0.4in)}]current page.north east);
+  \draw[sedergold, line width=0.5pt]
+    ([shift={(0.5in, 0.5in)}]current page.south west) rectangle
+    ([shift={(-0.5in,-0.5in)}]current page.north east);
+  %% corner ornaments
+  \node[anchor=north west] at ([shift={(0.55in,-0.55in)}]current page.north west)
+    {\pgfornament[width=1.6cm, color=sedergold]{63}};
+  \node[anchor=north east] at ([shift={(-0.55in,-0.55in)}]current page.north east)
+    {\pgfornament[width=1.6cm, color=sedergold, symmetry=v]{63}};
+  \node[anchor=south west] at ([shift={(0.55in,0.55in)}]current page.south west)
+    {\pgfornament[width=1.6cm, color=sedergold, symmetry=h]{63}};
+  \node[anchor=south east] at ([shift={(-0.55in,0.55in)}]current page.south east)
+    {\pgfornament[width=1.6cm, color=sedergold, symmetry=c]{63}};
+\end{tikzpicture}
+
+\vspace*{0.7in}
+
 \begin{center}
-\vspace*{40mm}
+  {\hebrewfonttitle\texthebrew{\textcolor{sedergold}{הַגָּדָה שֶׁל פֶּסַח}}}
 
-{\fontsize{36pt}{42pt}\selectfont\bfseries\color{mainHebrew}
-הגדה של פסח
-}
+  \vspace{0.4in}
 
-\vspace{10mm}
+  \textcolor{sedergold}{\pgfornament[width=3cm]{75}}
 
-{\englishfont\Large\color{mainEnglish}
-\begin{english}
-Passover Haggadah
-\end{english}
-}
+  \vspace{0.4in}
 
-\vspace{20mm}
+  {\Huge\scshape\textcolor{white}{Haggadah}}\\[8pt]
+  {\Large\textcolor{sedergold}{Shel Pesach}}\\[20pt]
+  {\large\textcolor{white}{The Passover Haggadah}}
 
-{\color{accent}\rule{40mm}{0.5pt}}
+  \vspace{0.35in}
 
+  \textcolor{sedergold}{\pgfornament[width=3cm, symmetry=h]{75}}
+
+  \vspace{0.3in}
+
+  \haggadahimagefixed{3.2in}{1.8in}{Cover illustration --- Seder table scene}
+
+  \vspace*{\fill}
+
+  {\small\textcolor{sedergold}{Your Chabad House}}
 \end{center}
-\newpage
 
-% ============================================================
-% Page 2: Inside Front Cover (blank)
-% ============================================================
+\clearpage
+
+%%% ---- BLANK PAGE (inside front cover) ----
 \thispagestyle{empty}
 \mbox{}
-\newpage
+\clearpage
 
-% ============================================================
-% Page 3: Title Page
-% ============================================================
+%%% ---- TITLE PAGE ----
 \thispagestyle{empty}
+
+\vspace*{1.5in}
+
 \begin{center}
-\vspace*{30mm}
+  {\hebrewfontlarge\texthebrew{\textcolor{sederblue}{הַגָּדָה שֶׁל פֶּסַח}}}
 
-{\fontsize{28pt}{34pt}\selectfont\bfseries\color{mainHebrew}
-הגדה של פסח
-}
+  \vspace{0.4in}
 
-\vspace{8mm}
+  {\LARGE\scshape\textcolor{sederblue}{The Passover Haggadah}}\\[12pt]
+  {\large\textcolor{sederwine}{\itshape With Instructional Guide}}
 
-{\englishfont\large\color{mainEnglish}
-\begin{english}
-A Passover Haggadah\\
-with Hebrew Text and English Translation
-\end{english}
-}
+  \vspace{0.5in}
 
-\vspace{20mm}
+  \textcolor{sedergold}{\pgfornament[width=2cm]{11}}
 
-{\color{accent}\rule{30mm}{0.4pt}}
+  \vspace{0.5in}
 
-\vspace{10mm}
-
-{\small\color{mainEnglish}
-\begin{english}
-Prepared with love for family and friends
-\end{english}
-}
-
+  {\normalsize Presented by\\[4pt]
+  {\Large\scshape Your Chabad House}\\[8pt]
+  \textcolor{sedergold}{\pgfornament[width=1.2cm]{75}}}
 \end{center}
-\newpage
 
-% ============================================================
-% Page 4: Copyright / Dedication
-% ============================================================
+\vspace*{\fill}
+
+\clearpage
+
+%%% ---- TABLE OF CONTENTS: The 15 Steps of the Seder ----
+\showpageornamentstrue  % enable decorative elements from here on
 \thispagestyle{empty}
-\vspace*{60mm}
+
+\vspace*{0.3in}
+
 \begin{center}
-{\small\color{mainEnglish}
-\begin{english}
-This Haggadah was personalized using AlefBook.\\
-\end{english}
-}
+  \textcolor{sedergold}{\pgfornament[width=1.2cm]{15}}
+  \hspace{0.3in}
+  {\Large\scshape\textcolor{sederblue}{The Fifteen Steps of the Seder}}
+  \hspace{0.3in}
+  \textcolor{sedergold}{\pgfornament[width=1.2cm, symmetry=v]{15}}
 \end{center}
-\newpage
 
-% ============================================================
-% Page 5: Order of the Seder (Kadesh)
-% ============================================================
-% Page 5: Kadesh — Sanctification
-\hebrewtext{קדש}
+\vspace{0.3in}
 
-\vspace{4mm}
+\begin{center}
+\renewcommand{\arraystretch}{1.8}
+\begin{tabular}{r@{\quad}l@{\qquad}l}
+  \textcolor{sedergold}{\sffamily\bfseries 1.} &
+    \texthebrew{קַדֵּשׁ} &
+    \textsc{Kadesh} --- Kiddush \\
+  \textcolor{sedergold}{\sffamily\bfseries 2.} &
+    \texthebrew{וּרְחַץ} &
+    \textsc{Urchatz} --- Washing Hands for the Vegetable \\
+  \textcolor{sedergold}{\sffamily\bfseries 3.} &
+    \texthebrew{כַּרְפַּס} &
+    \textsc{Karpas} --- Vegetable \\
+  \textcolor{sedergold}{\sffamily\bfseries 4.} &
+    \texthebrew{יַחַץ} &
+    \textsc{Yachatz} --- Breaking the Middle Matzah \\
+  \textcolor{sedergold}{\sffamily\bfseries 5.} &
+    \texthebrew{מַגִּיד} &
+    \textsc{Maggid} --- Retelling the Passover Story \\
+  \textcolor{sedergold}{\sffamily\bfseries 6.} &
+    \texthebrew{רָחְצָה} &
+    \textsc{Rachtzah} --- Washing for Bread \\
+  \textcolor{sedergold}{\sffamily\bfseries 7.} &
+    \texthebrew{מוֹצִיא} &
+    \textsc{Motzi} --- The Blessing Over Bread \\
+  \textcolor{sedergold}{\sffamily\bfseries 8.} &
+    \texthebrew{מַצָּה} &
+    \textsc{Matzah} \\
+  \textcolor{sedergold}{\sffamily\bfseries 9.} &
+    \texthebrew{מָרוֹר} &
+    \textsc{Maror} --- Bitter Herbs \\
+  \textcolor{sedergold}{\sffamily\bfseries 10.} &
+    \texthebrew{כּוֹרֵךְ} &
+    \textsc{Korech} --- The ``Hillel Sandwich'' \\
+  \textcolor{sedergold}{\sffamily\bfseries 11.} &
+    \texthebrew{שֻׁלְחָן עוֹרֵךְ} &
+    \textsc{Shulchan Orech} --- Feast \\
+  \textcolor{sedergold}{\sffamily\bfseries 12.} &
+    \texthebrew{צָפוּן} &
+    \textsc{Tzafun} --- Eating the Afikoman \\
+  \textcolor{sedergold}{\sffamily\bfseries 13.} &
+    \texthebrew{בָּרֵךְ} &
+    \textsc{Berach} --- Grace After Meals \\
+  \textcolor{sedergold}{\sffamily\bfseries 14.} &
+    \texthebrew{הַלֵּל} &
+    \textsc{Hallel} --- Psalms of Praise \\
+  \textcolor{sedergold}{\sffamily\bfseries 15.} &
+    \texthebrew{נִרְצָה} &
+    \textsc{Nirtzah} --- Conclusion \\
+\end{tabular}
+\end{center}
 
-\sederinstruction{ממלאים את הכוס הראשונה ואומרים את הקידוש.}
+\vspace{\fill}
 
-\vspace{4mm}
+\begin{center}
+  \textcolor{sedergold}{\pgfornament[width=2.5cm]{75}}
+\end{center}
 
-\englishtext{Fill the first cup of wine and recite the Kiddush.}
+\clearpage
 
-\vspace{6mm}
-
-\hebrewtext{%
-ברוך אתה ה' אלהינו מלך העולם, בורא פרי הגפן.
-
-ברוך אתה ה' אלהינו מלך העולם, אשר בחר בנו מכל עם, ורוממנו מכל לשון, וקדשנו במצוותיו. ותתן לנו ה' אלהינו באהבה מועדים לשמחה, חגים וזמנים לששון, את יום חג המצות הזה, זמן חירותנו, מקרא קודש, זכר ליציאת מצרים.
-}
-
-\vspace{4mm}
-
-\englishtext{%
-Blessed are You, Lord our God, King of the universe, who creates the fruit of the vine.
-
-Blessed are You, Lord our God, King of the universe, who has chosen us from among all peoples and sanctified us with His commandments. You have lovingly given us festivals for joy, holidays and seasons for gladness, this Festival of Matzot, the season of our freedom, a holy convocation in remembrance of the Exodus from Egypt.
-}
-
-\newpage
-
-% ============================================================
-% Pages 6-80: Remaining Seder content
-% ============================================================
-% (The AI designer will populate these pages based on the
-%  complete haggadah liturgy and user customization requests)
-
-% Page 6: Urchatz — Washing
-\hebrewtext{ורחץ}
-
-\vspace{4mm}
-
-\sederinstruction{נוטלים ידיים ללא ברכה.}
-
-\vspace{4mm}
-
-\englishtext{Wash hands without a blessing.}
-
-\newpage
-
-% Page 7: Karpas — Vegetable
-\hebrewtext{כרפס}
-
-\vspace{4mm}
-
-\sederinstruction{טובלים ירק במי מלח ומברכים.}
-
-\vspace{4mm}
-
-\hebrewtext{%
-ברוך אתה ה' אלהינו מלך העולם, בורא פרי האדמה.
-}
-
-\vspace{4mm}
-
-\englishtext{%
-Dip a vegetable in salt water and recite the blessing:
-
-Blessed are You, Lord our God, King of the universe, who creates the fruit of the earth.
-}
-
-\newpage
-
-% Page 8: Yachatz — Breaking the Matzah
-\hebrewtext{יחץ}
-
-\vspace{4mm}
-
-\sederinstruction{שוברים את המצה האמצעית לשתיים. החלק הגדול נשמר לאפיקומן.}
-
-\vspace{4mm}
-
-\englishtext{Break the middle matzah in two. The larger piece is set aside for the Afikoman.}
-
-\newpage
-
-% Page 9-10: Maggid — The Story (beginning)
-\hebrewtext{מגיד}
-
-\vspace{4mm}
-
-\sederinstruction{מגביהים את הקערה ואומרים:}
-
-\vspace{4mm}
-
-\hebrewtext{%
-הא לחמא עניא די אכלו אבהתנא בארעא דמצרים.
-כל דכפין ייתי ויכול, כל דצריך ייתי ויפסח.
-השתא הכא, לשנה הבאה בארעא דישראל.
-השתא עבדי, לשנה הבאה בני חורין.
-}
-
-\vspace{4mm}
-
-\englishtext{%
-This is the bread of affliction that our ancestors ate in the land of Egypt.
-Let all who are hungry come and eat; let all who are in need come and celebrate Passover.
-Now we are here; next year may we be in the Land of Israel.
-Now we are slaves; next year may we be free.
-}
-
-\newpage
-
-% Placeholder pages for remaining content
-% The AI will fill these in when the user starts editing their project
-
-\hebrewtext{מה נשתנה}
-
-\vspace{4mm}
-
-\hebrewtext{%
-מה נשתנה הלילה הזה מכל הלילות?
-
-שבכל הלילות אנו אוכלין חמץ ומצה, הלילה הזה כולו מצה.
-
-שבכל הלילות אנו אוכלין שאר ירקות, הלילה הזה מרור.
-
-שבכל הלילות אין אנו מטבילין אפילו פעם אחת, הלילה הזה שתי פעמים.
-
-שבכל הלילות אנו אוכלין בין יושבין ובין מסבין, הלילה הזה כולנו מסבין.
-}
-
-\vspace{4mm}
-
-\englishtext{%
-Why is this night different from all other nights?
-
-On all other nights we eat leavened bread or matzah; on this night, only matzah.
-
-On all other nights we eat all kinds of vegetables; on this night, bitter herbs.
-
-On all other nights we do not dip even once; on this night, we dip twice.
-
-On all other nights we eat sitting or reclining; on this night, we all recline.
-}
-
-\newpage
-
-% ============================================================
-% Page 81: Back Inside Cover (blank)
-% ============================================================
+%%% ---- BLANK before content ----
 \thispagestyle{empty}
 \mbox{}
-\newpage
+\clearpage
 
-% ============================================================
-% Page 82: Back Cover
-% ============================================================
+%%% ===========================================================
+%%% SEDER CONTENT --- PLACEHOLDER SECTIONS
+%%% Text will be filled in from the uploaded files.
+%%% ===========================================================
+
+%% ---- 1. KADESH ----
+\sedersection{קַדֵּשׁ}{Kadesh}{Kiddush}{1}
+
+\instruction{First we make kiddush and drink the first cup, leaning to the left.}
+
+\instruction{When the holiday comes out on Shabbat, we start here. Otherwise, begin below this shaded box.}
+
+\begin{hebrewblock}
+יוֹם הַשִּׁשִּׁי. וַיְכֻלּוּ הַשָּׁמַיִם וְהָאָרֶץ וְכׇל צְבָאָם. וַיְכַל אֱלֹהִים בַּיּוֹם הַשְּׁבִיעִי מְלַאכְתּוֹ אֲשֶׁר עָשָׂה וַיִּשְׁבֹּת בַּיּוֹם הַשְּׁבִיעִי מִכׇּל מְלַאכְתּוֹ אֲשֶׁר עָשָׂה. וַיְבָרֶךְ אֱלֹהִים אֶת יוֹם הַשְּׁבִיעִי וַיְקַדֵּשׁ אֹתוֹ כִּי בוֹ שָׁבַת מִכׇּל מְלַאכְתּוֹ אֲשֶׁר בָּרָא אֱלֹהִים לַעֲשׂוֹת:
+\end{hebrewblock}
+
+\hebrewenglishsep
+
+\begin{englishblock}
+The sixth day. Thus the heavens and the earth were finished, and all the hosts of them. And on the seventh day G-d had ended His work which He had made; and He rested on the seventh day from all His work which He had made. And G-d blessed the seventh day and sanctified it; because in it He had rested from all His work which G-d created and made.
+\end{englishblock}
+
+\sederdivider
+
+\instruction{Your attention please:}
+
+\begin{hebrewblock}
+סַבְרִי מָרָנָן
+\end{hebrewblock}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָפֶן.
+\end{hebrewblock}
+
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.
+\end{englishblock}
+
+\parasep
+
+\instruction{On Shabbat add the words in parentheses.}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר בָּחַר בָּנוּ מִכָּל עָם וְרוֹמְמָנוּ מִכָּל לָשׁוֹן וְקִדְּשָׁנוּ בְּמִצְוֹתָיו. וַתִּתֶּן לָנוּ יְיָ אֱלֹהֵינוּ בְּאַהֲבָה (שַׁבָּתוֹת לִמְנוּחָה וּ)מוֹעֲדִים לְשִׂמְחָה. חַגִּים וּזְמַנִּים לְשָׂשׂוֹן אֶת יוֹם (הַשַּׁבָּת הַזֶה וְאֶת יוֹם) חַג הַמַּצּוֹת הַזֶּה. וְאֶת יוֹם טוֹב מִקְרָא קֹדֶשׁ הַזֶּה זְמַן חֵרוּתֵנוּ (בְּאַהֲבָה) מִקְרָא קֹדֶשׁ זֵכֶר לִיצִיאַת מִצְרָיִם. כִּי בָנוּ בָחַרְתָּ וְאוֹתָנוּ קִדַּשְׁתָּ מִכָּל הָעַמִּים. (וְשַׁבָּת וּ) מוֹעֲדֵי קָדְשֶךָ (בְּאַהֲבָה וּבְרָצוֹן) בְּשִׂמְחָה וּבְשָׂשׂוֹן הִנְחַלְתָּנוּ: בָּרוּךְ אַתָּה יְיָ מְקַדֵּשׁ (הַשַּׁבָּת וְ)יִשְׂרָאֵל וְהַזְּמַנִּים:
+\end{hebrewblock}
+
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, who has chosen us from all peoples, exalted us above all tongues, and sanctified us with your commandments. You have, in love, ordained for us, Lord our G-d (Shabbat for rest), days of joy and festive times of gladness, and this day of (rest and of) this Holiday the festival of Matzah, a holy convocation, a memorial (in your love) of the Exodus from Egypt. You have chosen us and sanctified us above all peoples, and You have given us an inheritance of (loving favor,) joy and gladness, days of (Shabbat and) festivals.
+\end{englishblock}
+
+\sederdivider
+
+\instruction{On Saturday night add this piece:}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ. בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַמַּבְדִּיל בֵּין קֹדֶשׁ לְחֹל, בֵּין אוֹר לְחשֶׁךְ, בֵּין יִשְׂרָאֵל לָעַמִּים, בֵּין יוֹם הַשְּׁבִיעִי לְשֵׁשֶׁת יְמֵי הַמַּעֲשֶׂה. בֵּין קְדֻשַּׁת שַׁבָּת לִקְדֻשַּׁת יוֹם טוֹב הִבְדַּלְתָּ, וְאֶת יוֹם הַשְּׁבִיעִי מִשֵּׁשֶׁת יְמֵי הַמַּעֲשֶׂה קִדַּשְׁתָּ. הִבְדַּלְתָּ וְקִדַּשְׁתָּ אֶת עַמְּךָ יִשְׂרָאֵל בִּקְדֻשָּׁתֶךָ. בָּרוּךְ אַתָּה יְיָ הַמַּבְדִיל בֵּין קֹדֶשׁ לְקֹדֶשׁ.
+\end{hebrewblock}
+
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, Creator of fire. Blessed are You, Lord our G-d, King of the Universe, who has made a distinction between sacred and profane, between light and darkness, between Israel and other peoples, between the seventh day and the six days of work. You have made a distinction between the holiness of the Shabbat and the holiness of a Festival, sanctifying the seventh day above all others. It is with Your holiness that You have distinguished and sanctified Your people Israel. Blessed are You, Lord, who has made a distinction in the degrees of holiness.
+\end{englishblock}
+
+\sederdivider
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם שֶׁהֶחֱיָנוּ וְקִיְּמָנוּ וְהִגִּיעָנוּ לִזְּמַן הַזֶה.
+\end{hebrewblock}
+
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, who has preserved us in life, sustained us, and enabled us to reach this time.
+\end{englishblock}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Kiddush cup and wine}
+
+%% ---- 2. URCHATZ ----
+\sedersection{וּרְחַץ}{Urchatz}{Washing Hands for the Vegetable}{2}
+
+\instruction{We wash our hands, without saying a blessing.}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Washing hands}
+
+%% ---- 3. KARPAS ----
+\sedersection{כַּרְפַּס}{Karpas}{Vegetable}{3}
+
+\instruction{We eat just a little bit of the Karpas, dipped in salt water. Recite the blessing (also having in mind that this is the blessing for when we eat the maror too):}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הָאֲדָמָה:
+\end{hebrewblock}
+
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the earth.
+\end{englishblock}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Dipping the vegetable}
+
+%% ---- 4. YACHATZ ----
+\sedersection{יַחַץ}{Yachatz}{Breaking the Middle Matzah}{4}
+
+\instruction{We break the middle matzah, and we put away the bigger piece for the Afikoman.}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Breaking the matzah}
+
+%% ---- 5. MAGGID ----
+\sedersection{מַגִּיד}{Maggid}{Retelling the Passover Story}{5}
+
+\instruction{[Content will be placed here in Part~3 --- this is the longest section]}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Telling the story}
+
+%% ---- 6. RACHTZAH ----
+\sedersection{רָחְצָה}{Rachtzah}{Washing for Bread}{6}
+
+\instruction{[Content will be placed here in Part~4]}
+
+%% ---- 7. MOTZI ----
+\sedersection{מוֹצִיא}{Motzi}{The Blessing Over Bread}{7}
+
+\instruction{[Content will be placed here in Part~4]}
+
+%% ---- 8. MATZAH ----
+\sedersection{מַצָּה}{Matzah}{Eating the Matzah}{8}
+
+\instruction{[Content will be placed here in Part~4]}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Matzah}
+
+%% ---- 9. MAROR ----
+\sedersection{מָרוֹר}{Maror}{Bitter Herbs}{9}
+
+\instruction{[Content will be placed here in Part~4]}
+
+%% ---- 10. KORECH ----
+\sedersection{כּוֹרֵךְ}{Korech}{The ``Hillel Sandwich''}{10}
+
+\instruction{[Content will be placed here in Part~4]}
+
+%% ---- 11. SHULCHAN ORECH ----
+\sedersection{שֻׁלְחָן עוֹרֵךְ}{Shulchan Orech}{Feast}{11}
+
+\instruction{[Content will be placed here in Part~4]}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- The festive meal}
+
+%% ---- 12. TZAFUN ----
+\sedersection{צָפוּן}{Tzafun}{Eating the Afikoman}{12}
+
+\instruction{[Content will be placed here in Part~4]}
+
+%% ---- 13. BERACH ----
+\sedersection{בָּרֵךְ}{Berach}{Grace After Meals}{13}
+
+\instruction{[Content will be placed here in Part~4]}
+
+%% ---- 14. HALLEL ----
+\sedersection{הַלֵּל}{Hallel}{Psalms of Praise}{14}
+
+\instruction{[Content will be placed here in Part~4]}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Songs of praise}
+
+%% ---- 15. NIRTZAH ----
+\sedersection{נִרְצָה}{Nirtzah}{Conclusion}{15}
+
+\instruction{[Content will be placed here in Part~4]}
+
+\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Next year in Jerusalem}
+
+%%% ---- BACK MATTER ----
+\clearpage
 \thispagestyle{empty}
+\vspace*{\fill}
 \begin{center}
-\vspace*{50mm}
-
-{\color{accent}\rule{40mm}{0.5pt}}
-
-\vspace{10mm}
-
-{\englishfont\small\color{mainEnglish}
-\begin{english}
-Made with AlefBook
-\end{english}
-}
-
+  \textcolor{sedergold}{\pgfornament[width=2cm]{11}}\\[20pt]
+  {\Large\scshape\textcolor{sederblue}{Next Year in Jerusalem!}}\\[12pt]
+  {\hebrewfontlarge\texthebrew{\textcolor{sederblue}{לְשָׁנָה הַבָּאָה בִּירוּשָׁלָיִם!}}}
 \end{center}
+\vspace*{\fill}
 
 \end{document}
