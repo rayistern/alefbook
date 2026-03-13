@@ -90,17 +90,36 @@ The cover page and blank pages suppress these via `\showpageornamentsfalse`.
 ```
 Opens a new page with full decorative header: ornamental rule with "Step N" label, Hebrew title in display size, transliterated name in small caps, English subtitle in wine-colored italic, closing gold rule. Also sets the running header text.
 
-### Content Blocks
+### Bilingual Blocks (Preferred — side-by-side columns)
+
+```latex
+\begin{bilingual}
+\begin{hebrewcol}
+Hebrew liturgical text here (RTL, large, 1.6× line spacing)
+\end{hebrewcol}
+\begin{englishcol}
+English translation here (LTR, normal size, 1.2× line spacing)
+\end{englishcol}
+\end{bilingual}
+```
+
+Uses `paracol` to render Hebrew (right column, 54% width) and English (left column, 46% width) side-by-side with a thin gold separator rule. This keeps translation next to source text and avoids pages of Hebrew followed by pages of English.
+
+**Always use `bilingual` + `hebrewcol` + `englishcol` for paired Hebrew/English content.** The old stacked `hebrewblock` + `\hebrewenglishsep` + `englishblock` pattern is only used inside `shabbatadd`/`motzeishabbatadd` tcolorbox environments (where nesting paracol would break) and in Birkat Hamazon (where instructions are interspersed within the Hebrew/English).
+
+### Standalone Blocks (for non-bilingual content)
 
 ```latex
 \begin{hebrewblock}
-  Hebrew liturgical text here (RTL, large, 1.7× line spacing)
+  Hebrew-only text (RTL, large, 1.6× line spacing, with adjustwidth margins)
 \end{hebrewblock}
 
 \begin{englishblock}
-  English translation here (LTR, normal size, 1.25× line spacing)
+  English-only text (LTR, normal size, 1.2× line spacing, with adjustwidth margins)
 \end{englishblock}
 ```
+
+Use standalone `hebrewblock`/`englishblock` only when there is no corresponding translation, or inside tcolorbox environments where paracol cannot nest.
 
 ### Inline Hebrew
 
@@ -118,10 +137,12 @@ Renders as a warm-tinted box with wine-colored left border — visually distinct
 ### Separators
 
 ```latex
-\hebrewenglishsep    % thin gold rule with diamond — between Hebrew and English
 \sederdivider         % larger ornamental divider — between major sub-sections
 \parasep              % three tiny diamonds — light paragraph break
+\hebrewenglishsep    % thin gold rule with diamond — LEGACY, only inside shabbatadd/motzeishabbatadd
 ```
+
+**Note:** `\hebrewenglishsep` is largely replaced by the `bilingual` environment's built-in column separator rule. It is only needed inside `shabbatadd`/`motzeishabbatadd` boxes where paracol cannot be used.
 
 ### Sub-Section Titles (within a Seder step)
 
@@ -154,20 +175,21 @@ Each step gets a `\sedersection` call. The standard pattern within each section 
 
 \instruction{Ritual instruction text}
 
-\begin{hebrewblock}
+\begin{bilingual}
+\begin{hebrewcol}
 Hebrew liturgical text
-\end{hebrewblock}
-
-\hebrewenglishsep
-
-\begin{englishblock}
+\end{hebrewcol}
+\begin{englishcol}
 English translation
-\end{englishblock}
+\end{englishcol}
+\end{bilingual}
 
 \instruction{Next instruction}
 
 ... repeat ...
 ```
+
+Full-width elements (`\instruction`, `\sederdivider`, `\parasep`, `\subsedertitle`, `\haggadahimagefixed`) go OUTSIDE the `bilingual` environment. Only Hebrew/English text pairs go inside.
 
 **Section lengths vary dramatically:**
 - Steps 2, 6, 7, 8, 10, 11, 12 are very short (a paragraph or two)
@@ -204,7 +226,7 @@ Maggid should be broken into recognizable sub-sections using `\subsedertitle`:
 
 ### Formatting Conventions
 
-- Blessings (brachot) that begin with "Blessed are You..." should have the Hebrew in a `hebrewblock` immediately followed by `\hebrewenglishsep` and the English in an `englishblock`.
+- Blessings (brachot) that begin with "Blessed are You..." should use the `bilingual` environment: Hebrew in `hebrewcol`, English in `englishcol`.
 - Stage directions / ritual instructions use `\instruction{}`.
 - When the text says to do something physical (drink wine, eat matzah, wash hands), always wrap it in `\instruction{}`.
 - Use `\sederdivider` between major thematic transitions within a section.
@@ -319,7 +341,17 @@ An agent script should:
 
 ### Bidi (Bidirectional Text) Implementation
 
-We use XeTeX's native `\TeXXeTstate=1` with `\beginR`/`\endR` for RTL text. This avoids the `bidi.sty` package dependency (which requires `texlive-lang-other`). The tradeoff is that we handle directionality manually via our custom environments (`hebrewblock`, `\texthebrew`), but this gives us full control and zero external dependencies.
+We use XeTeX's native `\TeXXeTstate=1` with `\beginR`/`\endR` for RTL text. This avoids the `bidi.sty` package dependency (which requires `texlive-lang-other`). The tradeoff is that we handle directionality manually via our custom environments (`hebrewcol`, `hebrewblock`, `\texthebrew`), but this gives us full control and zero external dependencies.
+
+### Bilingual Layout (paracol)
+
+The `paracol` package provides side-by-side Hebrew/English columns. Configuration:
+- **Column ratio:** 46% left (English) / 54% right (Hebrew) via `\columnratio{0.46}`
+- **Column gap:** 0.25" with a 0.3pt gold separator rule (`\columnseprulecolor` set to `sedergold`)
+- **Hebrew column** (right, column 1): uses `\hebrewfont`, `\beginR`, `\large`, `\setstretch{1.6}`
+- **English column** (left, column 0): uses `\normalsize`, `\setstretch{1.2}`
+
+**Nesting restriction:** `paracol` cannot be nested inside `tcolorbox` (used by `shabbatadd`/`motzeishabbatadd`). Those environments retain the stacked `hebrewblock` + `\hebrewenglishsep` + `englishblock` pattern.
 
 ### Page Ornaments
 

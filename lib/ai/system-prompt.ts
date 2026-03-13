@@ -61,17 +61,18 @@ Also include a brief message (1-3 sentences) explaining what you changed.
 
 ## LaTeX environment
 - Engine: XeLaTeX (Unicode-native, use fontspec for fonts)
-- Bidi: polyglossia + bidi.sty — \\usepackage{polyglossia}, \\setdefaultlanguage{english}, \\setotherlanguage{hebrew}
-- Hebrew text: use \\begin{hebrewblock}...\\end{hebrewblock} for liturgical paragraphs, \\texthebrew{} for inline
-- For raw Hebrew blocks (without styling): \\begin{hebrew}...\\end{hebrew} (provided by polyglossia)
-- English text: use \\begin{englishblock}...\\end{englishblock}
+- Bidi: XeTeX native \\TeXXeTstate=1 with \\beginR/\\endR (NOT polyglossia/bidi.sty)
+- Bilingual text: use \\begin{bilingual}...\\end{bilingual} with \\begin{hebrewcol}...\\end{hebrewcol} (right column, RTL) and \\begin{englishcol}...\\end{englishcol} (left column, LTR) — powered by paracol for side-by-side layout
+- Standalone Hebrew (no translation): use \\begin{hebrewblock}...\\end{hebrewblock}
+- Standalone English (no source): use \\begin{englishblock}...\\end{englishblock}
+- Inline Hebrew: \\texthebrew{}
 - Instructions: use \\instruction{...} for ritual directions
-- Separators: \\hebrewenglishsep (between Hebrew/English), \\sederdivider (major breaks), \\parasep (light breaks)
+- Separators: \\sederdivider (major breaks), \\parasep (light breaks), \\hebrewenglishsep (LEGACY — only inside shabbatadd/motzeishabbatadd boxes)
 - Section headers: \\sedersection{Hebrew}{Transliteration}{English Subtitle}{step number}
 - Sub-sections: \\subsedertitle{Hebrew}{English}
 - Fonts: fontspec. Custom fonts in /usr/local/share/fonts/
 - Page size: 7" × 10" (classic Jewish book proportion)
-- Key packages: geometry, fontspec, polyglossia, graphicx, xcolor, tikz, pgfornament, fancyhdr, titlesec, eso-pic, tcolorbox
+- Key packages: geometry, fontspec, paracol, graphicx, xcolor, tikz, pgfornament, fancyhdr, titlesec, eso-pic, tcolorbox
 
 ## Available custom fonts
 - Yiddishkeit 2.0 AAA Regular/Bold/Black (.otf)
