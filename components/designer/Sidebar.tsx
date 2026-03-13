@@ -16,6 +16,7 @@ interface UploadedImage {
 interface PageInfo {
   page_number: number
   label: string
+  editable?: boolean
 }
 
 interface SidebarProps {
@@ -133,6 +134,7 @@ export function Sidebar({
               thumbnailUrl={renderUrls[page.page_number] ?? null}
               isActive={page.page_number === currentPage}
               isEdited={editedPages.has(page.page_number)}
+              isEditable={page.editable !== false}
               onClick={() => onPageSelect(page.page_number)}
               disabled={isWorking}
             />

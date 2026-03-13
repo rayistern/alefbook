@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, FileDown, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileDown, Loader2, Lock } from 'lucide-react'
 
 interface PageViewerProps {
   projectId: string
@@ -10,10 +10,13 @@ interface PageViewerProps {
   totalPages: number
   renderUrl: string | null
   isWorking: boolean
+  isEditable: boolean
+  pageLabel: string
   passInfo?: { current: number; total: number } | null
   projectFormat?: 'html' | 'latex'
   onPageChange: (page: number) => void
   onPreviewPdf: () => Promise<void> | void
+  compact?: boolean
 }
 
 export function PageViewer({
@@ -22,10 +25,13 @@ export function PageViewer({
   totalPages,
   renderUrl,
   isWorking,
+  isEditable,
+  pageLabel,
   passInfo,
   projectFormat = 'html',
   onPageChange,
   onPreviewPdf,
+  compact,
 }: PageViewerProps) {
   const [pdfLoading, setPdfLoading] = useState(false)
   const iframeSrc = `/api/page-html?projectId=${projectId}&page=${currentPage}`
@@ -46,12 +52,24 @@ export function PageViewer({
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
+    <div className={`flex flex-1 flex-col items-center justify-center ${compact ? 'gap-2 p-2' : 'gap-4 p-4'}`}>
+      {/* Non-editable page warning */}
+      {!isEditable && (
+        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+          <Lock className="h-4 w-4 flex-shrink-0" />
+          <span>
+            <strong>{pageLabel}</strong> is not editable. This page is locked and cannot be modified.
+          </span>
+        </div>
+      )}
+
       <div className="relative">
         {/* Page render display */}
         <div
-          className="relative overflow-hidden rounded-lg border bg-white shadow-md"
-          style={{ width: 540, height: 540, minWidth: 320, minHeight: 320 }}
+          className={`relative overflow-hidden rounded-lg border bg-white shadow-md ${
+            compact ? 'aspect-square w-full max-w-[280px]' : ''
+          }`}
+          style={compact ? undefined : { width: 540, height: 540, minWidth: 320, minHeight: 320 }}
         >
           {renderUrl ? (
             <>
@@ -62,9 +80,7 @@ export function PageViewer({
                 className={`h-full w-full object-contain transition-opacity duration-300 ${
                   isWorking ? 'opacity-50' : 'opacity-100'
                 }`}
-                width={540}
-                height={540}
-                style={{ minWidth: 320, minHeight: 320 }}
+                {...(compact ? {} : { width: 540, height: 540, style: { minWidth: 320, minHeight: 320 } })}
               />
               {isWorking && (
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -102,6 +118,15 @@ export function PageViewer({
               </div>
             </div>
           )}
+
+          {/* Lock overlay for non-editable pages */}
+          {!isEditable && !isWorking && (
+            <div className="absolute bottom-2 right-2">
+              <div className="rounded-full bg-amber-100 p-1.5 shadow-sm">
+                <Lock className="h-4 w-4 text-amber-700" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -128,15 +153,17 @@ export function PageViewer({
         </Button>
       </div>
 
-      {/* PDF Preview button */}
-      <Button variant="outline" onClick={handlePreviewPdf} disabled={pdfLoading}>
-        {pdfLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <FileDown className="mr-2 h-4 w-4" />
-        )}
-        {pdfLoading ? 'Generating PDF...' : 'Preview PDF'}
-      </Button>
+      {/* PDF Preview button - hidden in compact mode */}
+      {!compact && (
+        <Button variant="outline" onClick={handlePreviewPdf} disabled={pdfLoading}>
+          {pdfLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <FileDown className="mr-2 h-4 w-4" />
+          )}
+          {pdfLoading ? 'Generating PDF...' : 'Preview PDF'}
+        </Button>
+      )}
     </div>
   )
 }

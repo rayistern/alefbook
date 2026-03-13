@@ -32,7 +32,7 @@ xelatex haggadah.tex   # always run twice (for cross-references, headers)
 
 **Engine:** XeLaTeX only. Do not use pdfLaTeX (no Unicode/OpenType support) or LuaLaTeX (missing `luatexbase.sty` in our environment).
 
-**Why XeLaTeX:** Native Unicode support for Hebrew with nikkud (vowel points), OpenType font features via `fontspec`, and proper RTL support via `polyglossia` + `bidi.sty` for automatic paragraph-level bidirectional text handling.
+**Why XeLaTeX:** Native Unicode support for Hebrew with nikkud (vowel points), OpenType font features via `fontspec`, and built-in `\TeXXeTstate` bidi (right-to-left) support without requiring the `bidi.sty` package.
 
 ---
 
@@ -287,7 +287,7 @@ An agent script should:
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | Hebrew shows as boxes | Font missing Hebrew glyphs | Install font with Hebrew support |
-| `bidi.sty not found` | Missing `texlive-lang-other` package | Install `texlive-lang-other` in Dockerfile |
+| `bidi.sty not found` | Using polyglossia Hebrew | We don't use polyglossia; use native `\TeXXeTstate` |
 | Content falls off page bottom | Too much content + `\vspace` | Reduce spacing or let LaTeX break the page naturally |
 | Corner ornaments on cover | `\showpageornamentsfalse` not set | Ensure it's set before `\begin{document}` content |
 | Blurry PDF | Compiled with wrong engine | Must use `xelatex`, not `pdflatex` |
@@ -319,7 +319,7 @@ An agent script should:
 
 ### Bidi (Bidirectional Text) Implementation
 
-We use `polyglossia` with `\setotherlanguage{hebrew}`, which loads `bidi.sty` automatically. This provides proper paragraph-level RTL alignment (flush-right, ragged-left for short lines) and supports inline mixed bidi text. The `texlive-lang-other` package must be installed in the Docker image to provide `bidi.sty`. Custom environments (`hebrewblock`, `\texthebrew`) wrap polyglossia's `hebrew` environment with additional styling.
+We use XeTeX's native `\TeXXeTstate=1` with `\beginR`/`\endR` for RTL text. This avoids the `bidi.sty` package dependency (which requires `texlive-lang-other`). The tradeoff is that we handle directionality manually via our custom environments (`hebrewblock`, `\texthebrew`), but this gives us full control and zero external dependencies.
 
 ### Page Ornaments
 
