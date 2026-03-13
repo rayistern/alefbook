@@ -196,10 +196,15 @@ ${params.reviewFeedback ? `## Feedback from previous review (pass ${params.passN
     console.warn('[Designer] No page-html blocks found in AI response. Full response:', response.substring(0, 500))
   }
 
-  // Validate and apply updates
+  // Validate and apply updates (skip non-editable pages)
   const pageUpdates: Record<number, string> = {}
   for (const [pageNumStr, newHtml] of Object.entries(rawUpdates)) {
     const pageNum = Number(pageNumStr)
+    const pageMeta = params.templateMeta.pages.find(p => p.page_number === pageNum)
+    if (pageMeta?.editable === false) {
+      console.warn(`[Designer] Skipping AI edit for non-editable page ${pageNum}`)
+      continue
+    }
     const originalHtml = params.currentPageStates[pageNum] ?? ''
     pageUpdates[pageNum] = applyPageUpdate(originalHtml, newHtml)
   }
@@ -285,8 +290,42 @@ export async function runDesignerLoop(params: DesignerParams): Promise<DesignerR
 
   // Step 1: determine intent — which pages to touch and what to do
   console.log('[Designer] Step 1: Parsing intent for message:', params.userMessage.substring(0, 100))
-  const { targetPages, instructions } = await parseIntent(paramsWithUrls)
-  console.log('[Designer] Intent parsed:', { targetPages, instructions: instructions.substring(0, 200) })
+  const intentResult = await parseIntent(paramsWithUrls)
+  console.log('[Designer] Intent parsed:', { targetPages: intentResult.targetPages, instructions: intentResult.instructions.substring(0, 200) })
+
+  // Filter out non-editable pages
+  const nonEditablePages = intentResult.targetPages.filter(pn => {
+    const pageMeta = params.templateMeta.pages.find(p => p.page_number === pn)
+    return pageMeta?.editable === false
+  })
+  const targetPages = intentResult.targetPages.filter(pn => {
+    const pageMeta = params.templateMeta.pages.find(p => p.page_number === pn)
+    return pageMeta?.editable !== false
+  })
+  let instructions = intentResult.instructions
+
+  if (nonEditablePages.length > 0) {
+    const lockedLabels = nonEditablePages.map(pn => {
+      const meta = params.templateMeta.pages.find(p => p.page_number === pn)
+      return `page ${pn} (${meta?.label ?? 'Unknown'})`
+    }).join(', ')
+    console.log('[Designer] Filtered out non-editable pages:', nonEditablePages)
+
+    if (targetPages.length === 0) {
+      // All requested pages are non-editable — return early with an explanation
+      return {
+        responseText: `I can't edit ${lockedLabels} because ${nonEditablePages.length === 1 ? 'it is' : 'they are'} locked and not editable. Please select an editable page and try again.`,
+        updatedPages: [],
+        renders: {},
+        passCount: 0,
+        reviewPassed: true,
+        unresolvedIssues: [],
+      }
+    }
+
+    // Some pages are non-editable — append a note to the instructions
+    instructions += `\n\nNote: ${lockedLabels} cannot be edited (locked). Only edit the remaining pages.`
+  }
 
   const currentPageStates = { ...params.pageStates }
   let passCount = 0

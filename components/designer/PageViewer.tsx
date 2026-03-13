@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, FileDown, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileDown, Loader2, Lock } from 'lucide-react'
 
 interface PageViewerProps {
   projectId: string
@@ -10,6 +10,8 @@ interface PageViewerProps {
   totalPages: number
   renderUrl: string | null
   isWorking: boolean
+  isEditable: boolean
+  pageLabel: string
   passInfo?: { current: number; total: number } | null
   onPageChange: (page: number) => void
   onPreviewPdf: () => Promise<void> | void
@@ -21,6 +23,8 @@ export function PageViewer({
   totalPages,
   renderUrl,
   isWorking,
+  isEditable,
+  pageLabel,
   passInfo,
   onPageChange,
   onPreviewPdf,
@@ -45,6 +49,16 @@ export function PageViewer({
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
+      {/* Non-editable page warning */}
+      {!isEditable && (
+        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
+          <Lock className="h-4 w-4 flex-shrink-0" />
+          <span>
+            <strong>{pageLabel}</strong> is not editable. This page is locked and cannot be modified.
+          </span>
+        </div>
+      )}
+
       <div className="relative">
         {/* Page render display */}
         <div
@@ -90,6 +104,15 @@ export function PageViewer({
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="rounded-lg bg-black/60 px-4 py-2 text-sm text-white">
                 {designingLabel}
+              </div>
+            </div>
+          )}
+
+          {/* Lock overlay for non-editable pages */}
+          {!isEditable && !isWorking && (
+            <div className="absolute bottom-2 right-2">
+              <div className="rounded-full bg-amber-100 p-1.5 shadow-sm">
+                <Lock className="h-4 w-4 text-amber-700" />
               </div>
             </div>
           )}

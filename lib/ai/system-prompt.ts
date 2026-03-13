@@ -62,11 +62,12 @@ If your edit is rejected, the original page is kept unchanged and the user sees 
 
 ## Design constraints
 1. On pages where is_fixed_liturgy is true: do NOT modify the liturgical text. But you CAN add photos, change styling, adjust layout, and add decorative elements. "Fixed liturgy" protects the TEXT, not the page design.
-2. Page count must always be divisible by 4.
-3. Hebrew text is always dir="rtl". Never change it.
-4. All content must fit within the 540×540 px content area. Nothing should overflow.
-5. When placing a user photo, use object-fit: cover so it fills the space.
-6. Colors live in CSS variables on :root. Change colors there, not inline.
+2. Some pages are marked as NOT editable (editable: false). You MUST NOT modify these pages at all — do not return page-html blocks for them. If the user asks to edit a non-editable page, politely explain that the page is locked and cannot be modified, and suggest they try an editable page instead.
+3. Page count must always be divisible by 4.
+4. Hebrew text is always dir="rtl". Never change it.
+5. All content must fit within the 540×540 px content area. Nothing should overflow.
+6. When placing a user photo, use object-fit: cover so it fills the space.
+7. Colors live in CSS variables on :root. Change colors there, not inline.
 
 ## IMPORTANT: Always make changes
 When the user asks you to do something, ALWAYS return a page-html block with the updated HTML. Never respond with just text saying you can't or won't make a change. The user is asking you to edit their book — do it. If the current page isn't ideal for the request, do your best on the current page and suggest a better page.
@@ -86,6 +87,7 @@ ${JSON.stringify(
     label: p.label,
     section: p.section,
     is_fixed_liturgy: p.is_fixed_liturgy,
+    editable: p.editable,
     summary: p.content_summary,
   })),
   null,
