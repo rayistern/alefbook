@@ -10,6 +10,7 @@ async function getBrowser(): Promise<Browser> {
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
+        '--force-color-profile=srgb',
       ],
       headless: true,
     })
@@ -106,6 +107,12 @@ export async function compileToPDF(
     page.on('console', (msg) => {
       if (msg.type() === 'error') console.error('[PDF Browser]', msg.text())
     })
+
+    // Force screen media type and light color scheme for correct rendering
+    await page.emulateMediaType('screen')
+    await page.emulateMediaFeatures([
+      { name: 'prefers-color-scheme', value: 'light' },
+    ])
 
     // Set a timeout to prevent infinite hangs
     await page.setContent(allPagesHtml, {

@@ -10,6 +10,7 @@ async function getBrowser(): Promise<Browser> {
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
+        '--force-color-profile=srgb',
       ],
       headless: true,
     })
@@ -42,6 +43,11 @@ export async function renderPageToImage(html: string): Promise<Buffer> {
     page.on('requestfailed', (req) => {
       console.warn('[Render] Resource failed:', req.url(), req.failure()?.errorText)
     })
+
+    // Force light color scheme so backgrounds render correctly
+    await page.emulateMediaFeatures([
+      { name: 'prefers-color-scheme', value: 'light' },
+    ])
 
     // 576px = 540px page + 18px bleed each side
     // deviceScaleFactor 2 = retina/2x PNG
