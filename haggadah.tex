@@ -69,7 +69,7 @@
 }
 
 %%% ---- Spacing ----
-\setlength{\parskip}{4pt plus 2pt minus 1pt}
+\setlength{\parskip}{2pt plus 1pt minus 1pt}
 \setlength{\parindent}{0pt}
 
 %%% ---- Headers & Footers ----
@@ -82,12 +82,12 @@
 \fancyhead[RO]{\small\textcolor{sederblue}{\textsc{\leftmark}}}
 \fancyhead[LE]{\small\textcolor{sederblue}{\textsc{Haggadah Shel Pesach}}}
 
-%% Page number with flanking dots
+%% Page number with decorative flanking elements
 \fancyfoot[C]{%
   \small\textcolor{sederblue}{%
-    \textcolor{sedergold}{$\cdot$}%
-    \enspace\thepage\enspace%
-    \textcolor{sedergold}{$\cdot$}%
+    \textcolor{sedergold}{$\sim$}%
+    \enspace{\fontsize{10pt}{10pt}\selectfont\thepage}\enspace%
+    \textcolor{sedergold}{$\sim$}%
   }%
 }
 
@@ -127,9 +127,9 @@
   \fancyhf{}
   \fancyfoot[C]{%
     \small\textcolor{sederblue}{%
-      \textcolor{sedergold}{$\cdot$}%
-      \enspace\thepage\enspace%
-      \textcolor{sedergold}{$\cdot$}%
+      \textcolor{sedergold}{$\sim$}%
+      \enspace{\fontsize{10pt}{10pt}\selectfont\thepage}\enspace%
+      \textcolor{sedergold}{$\sim$}%
     }%
   }
 }
@@ -149,37 +149,51 @@
 
 %%% ---- Custom Seder-step command ----
 %%% \sedersection{Hebrew Name}{Transliteration}{English Subtitle}{step number}
+\newif\ifsectionpage
 \newcommand{\sedersection}[4]{%
-  \clearpage
+  \needspace{3.5in}%
+  \sectionpagetrue
   \thispagestyle{plain}%
   \markboth{#2\enspace---\enspace#3}{}%
-  %% decorative top rule
+  %% Suppress top gold rule if we're at top of page
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[white] ([shift={(0in,-0.65in)}]current page.north west) rectangle
+      ([shift={(0in,-0.8in)}]current page.north east);
+  \end{tikzpicture}%
+  \par\vspace{12pt}
+  %% decorative header with step number
   \begin{center}
     \begin{tikzpicture}
-      \node[inner sep=0pt] (TL) at (-2.8,0) {\pgfornament[width=1.2cm,color=sedergold]{15}};
-      \draw[sedergold, line width=0.6pt] (-2.0,0) -- (-0.4,0);
-      \node[inner sep=4pt, fill=white] (NUM) at (0,0) {%
+      \node[inner sep=0pt] (TL) at (-3.0,0) {\pgfornament[width=1.2cm,color=sedergold]{15}};
+      \draw[sedergold, line width=0.6pt] (-2.2,0) -- (-0.7,0);
+      \node[inner sep=5pt, fill=white] (NUM) at (0,0) {%
         \textcolor{sedergold}{\sffamily\bfseries\small Step~#4}%
       };
-      \draw[sedergold, line width=0.6pt] (0.4,0) -- (2.0,0);
-      \node[inner sep=0pt] (TR) at (2.8,0) {\pgfornament[width=1.2cm,color=sedergold,symmetry=v]{15}};
+      \draw[sedergold, line width=0.6pt] (0.7,0) -- (2.2,0);
+      \node[inner sep=0pt] (TR) at (3.0,0) {\pgfornament[width=1.2cm,color=sedergold,symmetry=v]{15}};
     \end{tikzpicture}
   \end{center}
-  \vspace{4pt}
+  \vspace{2pt}
   %% Hebrew title
   \begin{center}
-    {\hebrewfonttitle\TeXXeTstate=1\beginR\textcolor{sederblue}{#1}\endR}\\[6pt]
+    {\hebrewfonttitle\TeXXeTstate=1\beginR\textcolor{sederblue}{#1}\endR}\\[4pt]
     {\Large\scshape\textcolor{sederblue}{#2}}\\[2pt]
     {\normalsize\textcolor{sederwine}{\itshape #3}}
   \end{center}
-  \vspace{2pt}
+  \vspace{1pt}
   %% decorative bottom rule
   \begin{center}
     \begin{tikzpicture}
       \draw[sedergold, line width=0.6pt] (-2.5,0) -- (2.5,0);
     \end{tikzpicture}
   \end{center}
-  \vspace{6pt}
+  \vspace{4pt}
+}
+
+%%% ---- Major section break (forces new page) ----
+\newcommand{\sedersectionbreak}[4]{%
+  \clearpage
+  \sedersection{#1}{#2}{#3}{#4}%
 }
 
 %%% ---- Seder-step chapter (for the TOC page) ----
@@ -204,65 +218,69 @@
 
 %%% ---- Instruction / rubric text (tinted box with vertical accent rule) ----
 \newcommand{\instruction}[1]{%
-  \par\vspace{6pt}
+  \par\vspace{3pt}
   \begin{tcolorbox}[
     enhanced,
     breakable,
     colback=sederlight,
     colframe=sederlight,
     boxrule=0pt,
-    left=12pt,
-    right=8pt,
-    top=6pt,
-    bottom=6pt,
+    left=10pt,
+    right=6pt,
+    top=4pt,
+    bottom=4pt,
     borderline west={2pt}{0pt}{sederwine!60},
     arc=0pt,
     outer arc=0pt,
   ]
     {\small\itshape\textcolor{sederwine}{#1}}
   \end{tcolorbox}
-  \par\vspace{4pt}
+  \par\vspace{2pt}
 }
 
 %%% ---- Hebrew block (for main Hebrew paragraphs) ----
-%%% Subtle gold left-border accent marks liturgical text
+%%% RTL: flush-right, ragged-left for short lines; justified for full lines
 \newenvironment{hebrewblock}{%
-  \par\vspace{6pt}
-  \begin{adjustwidth}{0.2in}{0.15in}
+  \par\vspace{4pt}
+  \begin{adjustwidth}{0.15in}{0.2in}
   \begingroup
   \hebrewfont\TeXXeTstate=1\beginR
   \large
-  \setstretch{1.7}
+  \setstretch{1.6}
+  \emergencystretch=1em
   \parindent=0pt\relax
+  \leftskip=0pt plus 1fill
+  \parfillskip=0pt\relax
 }{%
   \endR\endgroup
   \end{adjustwidth}
-  \par\vspace{4pt}
+  \par\vspace{2pt}
 }
 
 %%% ---- English block (for main English paragraphs) ----
 \newenvironment{englishblock}{%
-  \par\vspace{4pt}
+  \par\vspace{2pt}
   \begin{adjustwidth}{0.15in}{0.15in}
-  \setstretch{1.25}
+  \setstretch{1.2}
+  \emergencystretch=0.5em
   \normalsize
 }{%
   \end{adjustwidth}
-  \par\vspace{6pt}
+  \par\vspace{3pt}
 }
 
 %%% ---- Decorative divider ----
 \newcommand{\sederdivider}{%
-  \par\vspace{8pt}
+  \par\vspace{6pt}
   \begin{center}
     \textcolor{sedergold}{\pgfornament[width=1.5cm]{11}}
   \end{center}
-  \par\vspace{8pt}
+  \par\vspace{6pt}
 }
 
 %%% ---- Thin separator between Hebrew and English blocks ----
 \newcommand{\hebrewenglishsep}{%
-  \par\vspace{2pt}
+  \par\vspace{1pt}
   \begin{center}
     \begin{tikzpicture}
       \draw[sedergold, line width=0.3pt] (-1.8,0) -- (-0.3,0);
@@ -270,26 +288,74 @@
       \draw[sedergold, line width=0.3pt] (0.3,0) -- (1.8,0);
     \end{tikzpicture}
   \end{center}
-  \par\vspace{2pt}
+  \par\vspace{1pt}
 }
 
 %%% ---- Small fleuron paragraph separator ----
 \newcommand{\parasep}{%
-  \par\vspace{4pt}
+  \par\vspace{3pt}
   \begin{center}
     \textcolor{sedergold!50}{\tiny$\diamond\;\diamond\;\diamond$}
   \end{center}
-  \par\vspace{4pt}
+  \par\vspace{3pt}
 }
 
 %%% ---- Small sub-section heading within a seder step ----
 \newcommand{\subsedertitle}[2]{%
-  \par\vspace{10pt}
+  \par\vspace{8pt}
   \begin{center}
     {\hebrewfontlarge\TeXXeTstate=1\beginR\textcolor{sederblue}{#1}\endR}\\[3pt]
     {\normalsize\scshape\textcolor{sederblue}{#2}}
   \end{center}
-  \par\vspace{4pt}
+  \par\vspace{3pt}
+}
+
+%%% ---- Shabbat addition (shaded box) ----
+\newenvironment{shabbatadd}{%
+  \par\vspace{3pt}
+  \begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=sederblue!6,
+    colframe=sederblue!6,
+    boxrule=0pt,
+    left=10pt,
+    right=10pt,
+    top=6pt,
+    bottom=6pt,
+    borderline north={0.5pt}{0pt}{sederblue!25},
+    borderline south={0.5pt}{0pt}{sederblue!25},
+    arc=0pt,
+    outer arc=0pt,
+    before upper={\small\textcolor{sederblue}{\textit{On Shabbat add:}}\par\vspace{2pt}},
+  ]
+}{%
+  \end{tcolorbox}
+  \par\vspace{3pt}
+}
+
+%%% ---- Saturday night addition (shaded box) ----
+\newenvironment{motzeishabbatadd}{%
+  \par\vspace{3pt}
+  \begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=sederwine!5,
+    colframe=sederwine!5,
+    boxrule=0pt,
+    left=10pt,
+    right=10pt,
+    top=6pt,
+    bottom=6pt,
+    borderline north={0.5pt}{0pt}{sederwine!25},
+    borderline south={0.5pt}{0pt}{sederwine!25},
+    arc=0pt,
+    outer arc=0pt,
+    before upper={\small\textcolor{sederwine}{\textit{On Saturday night add:}}\par\vspace{2pt}},
+  ]
+}{%
+  \end{tcolorbox}
+  \par\vspace{3pt}
 }
 
 %%% ==========================================================
@@ -319,24 +385,24 @@
     {\pgfornament[width=1.6cm, color=sedergold, symmetry=c]{63}};
 \end{tikzpicture}
 
-\vspace*{0.7in}
+\vspace*{0.5in}
 
 \begin{center}
-  {\hebrewfonttitle\TeXXeTstate=1\beginR\textcolor{sedergold}{הַגָּדָה שֶׁל פֶּסַח}\endR}
+  \textcolor{sedergold}{\hebrewfonttitle\TeXXeTstate=1\beginR\fontsize{36pt}{42pt}\selectfont הַגָּדָה שֶׁל פֶּסַח\endR}
+
+  \vspace{0.5in}
+
+  \textcolor{sedergold}{\pgfornament[width=3.5cm]{75}}
+
+  \vspace{0.5in}
+
+  \textcolor{white}{\fontsize{36pt}{42pt}\selectfont\scshape Haggadah}\\[12pt]
+  \textcolor{sedergold}{\LARGE Shel Pesach}\\[24pt]
+  \textcolor{white}{\Large The Passover Haggadah}
 
   \vspace{0.4in}
 
-  \textcolor{sedergold}{\pgfornament[width=3cm]{75}}
-
-  \vspace{0.4in}
-
-  {\Huge\scshape\textcolor{white}{Haggadah}}\\[8pt]
-  {\Large\textcolor{sedergold}{Shel Pesach}}\\[20pt]
-  {\large\textcolor{white}{The Passover Haggadah}}
-
-  \vspace{0.35in}
-
-  \textcolor{sedergold}{\pgfornament[width=3cm, symmetry=h]{75}}
+  \textcolor{sedergold}{\pgfornament[width=3.5cm, symmetry=h]{75}}
 
   \vspace{0.3in}
 
@@ -344,7 +410,7 @@
 
   \vspace*{\fill}
 
-  {\small\textcolor{sedergold}{Your Chabad House}}
+  {\large\textcolor{sedergold}{Your Chabad House}}
 \end{center}
 
 \clearpage
@@ -441,11 +507,8 @@
     \texthebrew{בָּרֵךְ} &
     \textsc{Berach} --- Grace After Meals \\
   \textcolor{sedergold}{\sffamily\bfseries 14.} &
-    \texthebrew{הַלֵּל} &
-    \textsc{Hallel} --- Psalms of Praise \\
-  \textcolor{sedergold}{\sffamily\bfseries 15.} &
-    \texthebrew{נִרְצָה} &
-    \textsc{Nirtzah} --- Conclusion \\
+    \texthebrew{הַלֵּל נִרְצָה} &
+    \textsc{Hallel Nirtzah} --- Psalms of Praise \& Conclusion \\
 \end{tabular}
 \end{center}
 
@@ -468,11 +531,11 @@
 %%% ===========================================================
 
 %% ---- 1. KADESH ----
-\sedersection{קַדֵּשׁ}{Kadesh}{Kiddush}{1}
+\sedersectionbreak{קַדֵּשׁ}{Kadesh}{Kiddush}{1}
 
 \instruction{First we make kiddush and drink the first cup, leaning to the left.}
 
-\instruction{When the holiday comes out on Shabbat, we start here. Otherwise, begin below this shaded box.}
+\begin{shabbatadd}
 
 \begin{hebrewblock}
 יוֹם הַשִּׁשִּׁי. וַיְכֻלּוּ הַשָּׁמַיִם וְהָאָרֶץ וְכׇל צְבָאָם. וַיְכַל אֱלֹהִים בַּיּוֹם הַשְּׁבִיעִי מְלַאכְתּוֹ אֲשֶׁר עָשָׂה וַיִּשְׁבֹּת בַּיּוֹם הַשְּׁבִיעִי מִכׇּל מְלַאכְתּוֹ אֲשֶׁר עָשָׂה. וַיְבָרֶךְ אֱלֹהִים אֶת יוֹם הַשְּׁבִיעִי וַיְקַדֵּשׁ אֹתוֹ כִּי בוֹ שָׁבַת מִכׇּל מְלַאכְתּוֹ אֲשֶׁר בָּרָא אֱלֹהִים לַעֲשׂוֹת:
@@ -484,7 +547,7 @@
 The sixth day. Thus the heavens and the earth were finished, and all the hosts of them. And on the seventh day G-d had ended His work which He had made; and He rested on the seventh day from all His work which He had made. And G-d blessed the seventh day and sanctified it; because in it He had rested from all His work which G-d created and made.
 \end{englishblock}
 
-\sederdivider
+\end{shabbatadd}
 
 \instruction{Your attention please:}
 
@@ -518,7 +581,7 @@ Blessed are You, Lord our G-d, King of the Universe, who has chosen us from all 
 
 \sederdivider
 
-\instruction{On Saturday night add this piece:}
+\begin{motzeishabbatadd}
 
 \begin{hebrewblock}
 בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם, בּוֹרֵא מְאוֹרֵי הָאֵשׁ. בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַמַּבְדִּיל בֵּין קֹדֶשׁ לְחֹל, בֵּין אוֹר לְחשֶׁךְ, בֵּין יִשְׂרָאֵל לָעַמִּים, בֵּין יוֹם הַשְּׁבִיעִי לְשֵׁשֶׁת יְמֵי הַמַּעֲשֶׂה. בֵּין קְדֻשַּׁת שַׁבָּת לִקְדֻשַּׁת יוֹם טוֹב הִבְדַּלְתָּ, וְאֶת יוֹם הַשְּׁבִיעִי מִשֵּׁשֶׁת יְמֵי הַמַּעֲשֶׂה קִדַּשְׁתָּ. הִבְדַּלְתָּ וְקִדַּשְׁתָּ אֶת עַמְּךָ יִשְׂרָאֵל בִּקְדֻשָּׁתֶךָ. בָּרוּךְ אַתָּה יְיָ הַמַּבְדִיל בֵּין קֹדֶשׁ לְקֹדֶשׁ.
@@ -530,7 +593,7 @@ Blessed are You, Lord our G-d, King of the Universe, who has chosen us from all 
 Blessed are You, Lord our G-d, King of the Universe, Creator of fire. Blessed are You, Lord our G-d, King of the Universe, who has made a distinction between sacred and profane, between light and darkness, between Israel and other peoples, between the seventh day and the six days of work. You have made a distinction between the holiness of the Shabbat and the holiness of a Festival, sanctifying the seventh day above all others. It is with Your holiness that You have distinguished and sanctified Your people Israel. Blessed are You, Lord, who has made a distinction in the degrees of holiness.
 \end{englishblock}
 
-\sederdivider
+\end{motzeishabbatadd}
 
 \begin{hebrewblock}
 בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם שֶׁהֶחֱיָנוּ וְקִיְּמָנוּ וְהִגִּיעָנוּ לִזְּמַן הַזֶה.
@@ -542,14 +605,14 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of fire. Blessed ar
 Blessed are You, Lord our G-d, King of the Universe, who has preserved us in life, sustained us, and enabled us to reach this time.
 \end{englishblock}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Kiddush cup and wine}
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Kiddush cup and wine}
 
 %% ---- 2. URCHATZ ----
 \sedersection{וּרְחַץ}{Urchatz}{Washing Hands for the Vegetable}{2}
 
 \instruction{We wash our hands, without saying a blessing.}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Washing hands}
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Washing hands}
 
 %% ---- 3. KARPAS ----
 \sedersection{כַּרְפַּס}{Karpas}{Vegetable}{3}
@@ -566,89 +629,1188 @@ Blessed are You, Lord our G-d, King of the Universe, who has preserved us in lif
 Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the earth.
 \end{englishblock}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Dipping the vegetable}
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Dipping the vegetable}
 
 %% ---- 4. YACHATZ ----
 \sedersection{יַחַץ}{Yachatz}{Breaking the Middle Matzah}{4}
 
 \instruction{We break the middle matzah, and we put away the bigger piece for the Afikoman.}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Breaking the matzah}
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Breaking the matzah}
 
 %% ---- 5. MAGGID ----
-\sedersection{מַגִּיד}{Maggid}{Retelling the Passover Story}{5}
+\sedersectionbreak{מַגִּיד}{Maggid}{Retelling the Passover Story}{5}
 
-\instruction{[Content will be placed here in Part~3 --- this is the longest section]}
+\instruction{We fill the second cup. Uncover the Matzah, as we begin telling the story of our exodus...}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Telling the story}
+\subsedertitle{הֵא לַחְמָא עַנְיָא}{Hei Lachma Anya}
+
+\begin{hebrewblock}
+הֵא לַחְמָא עַנְיָא דִּי אֲכָלוּ אַבְהָתָנָא בְּאַרְעָא דְמִצְרָיִם כֹּל דִּכְפִין יֵיתֵי וְיֵיכוֹל. כֹּל דִּצְרִיךְ יֵיתֵי וְיִפְסָח. הַשַּׁתָּא הָכָא. לְשָׁנָה הַבָּאָה בְּאַרְעָא דְיִשְׂרָאֵל. הַשַּׁתָּא עַבְדִּין לְשָׁנָה הַבָּאָה בְּנֵי חוֹרִין:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+This is the bread of affliction which our fathers did eat in the land of Egypt. Let all who are hungry come in and eat; let all who need come in and celebrate Passover. This year we celebrate it here, may we celebrate it next year in the land of Israel. This year we are in exile, next year may we be free.
+\end{englishblock}
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Hei Lachma Anya}
+
+\subsedertitle{מַה נִּשְׁתַּנָּה}{Mah Nishtanah --- The Four Questions}
+
+\instruction{The children now ask the four questions...}
+
+\begin{hebrewblock}
+מַה נִּשְׁתַּנָּה הַלַּיְלָה הַזֶּה מִכָּל הַלֵּילוֹת.
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Why is this night different from all other nights?
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+שֶׁבְּכָל הַלֵּילוֹת אָנוּ אוֹכְלִין חָמֵץ אוֹ מַצָּה הַלַּיְלָה הַזֶּה כֻּלּוֹ מַצָּה:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+On all other nights we eat either leavened or unleavened bread --- Matzah, but on this night exclusively Matzah.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+שֶׁבְּכָל הַלֵּילוֹת אָנוּ אוֹכְלִין שְׁאָר יְרָקוֹת הַלַּיְלָה הַזֶּה מָרוֹר:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+On all other nights we eat all kinds of vegetables, but on this night, bitter herbs.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+שֶׁבְּכָל הַלֵּילוֹת אֵין אָנוּ מַטְבִּילִין אֲפִילוּ פַּעַם אֶחָת. הַלַּיְלָה הַזֶּה שְׁתֵּי פְעָמִים:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+On all other nights we do not dip even once, but on this night we do so twice.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+שֶׁבְּכָל הַלֵּילוֹת אָנוּ אוֹכְלִין בֵּין יוֹשְׁבִין וּבֵין מְסֻבִּין הַלַּיְלָה הַזֶּה כֻּלָּנוּ מְסֻבִּין:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+On all other nights we eat either sitting or reclining, but on this night we all lean.
+\end{englishblock}
+\parasep
+
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The Four Questions}
+
+\subsedertitle{עֲבָדִים הָיִינוּ}{Avadim Hayinu}
+
+\begin{hebrewblock}
+עֲבָדִים הָיִינוּ לְפַרְעֹה בְּמִצְרָיִם וַיּוֹצִיאֵנוּ יְיָ אֱלֹהֵינוּ מִשָּׁם בְּיָד חֲזָקָה וּבִזְרֹעַ נְטוּיָה. וְאִלּוּ לֹא הוֹצִיא הַקָּדוֹשׁ בָּרוּךְ הוּא אֶת אֲבוֹתֵינוּ מִמִּצְרַיִם הֲרֵי אָנוּ וּבָנֵינוּ וּבְנֵי בָנֵינוּ מְשֻׁעְבָּדִים הָיִינוּ לְפַרְעֹה בְּמִצְרָיִם. וַאֲפִילוּ כֻּלָּנוּ חֲכָמִים כֻּלָּנוּ נְבוֹנִים כֻּלָּנוּ יוֹדְעִים אֶת הַתּוֹרָה מִצְוָה עָלֵינוּ לְסַפֵּר בִּיצִיאַת מִצְרָיִם. וְכָל הַמַּרְבֶּה לְסַפֵּר בִּיצִיאַת מִצְרַיִם הֲרֵי זֶה מְשֻׁבָּח:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+We were slaves to Pharaoh in Egypt, and the Lord our G-d brought us out from there with a strong hand and outstretched arm. If the most holy, blessed be He, had not brought out our fathers from Egypt, then we, our children, and our children's children would all be slaves to Pharaoh in Egypt. Now, even would all of us be wise, all of us of great understanding, all of us elders, all of us familiar with the Scripture, it would still be our duty to tell the story of the Exodus from Egypt, and the more we find to say of the Exodus from Egypt, the better.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+מַעֲשֶׂה בְּרַבִּי אֱלִיעֶזֶר וְרַבִּי יְהוֹשֻׁעַ וְרַבִּי אֶלְעָזָר בֶּן עֲזַרְיָה וְרַבִּי עֲקִיבָא וְרַבִּי טַרְפוֹן שֶׁהָיוּ מְסֻבִּים בִּבְנֵי בְרַק. וְהָיוּ מְסַפְּרִים בִּיצִיאַת מִצְרַיִם כָּל אוֹתוֹ הַלַּיְלָה עַד שֶׁבָּאוּ תַלְמִידֵיהֶם וְאָמְרוּ לָהֶם רַבּוֹתֵינוּ הִגִּיעַ זְמַן קְרִיאַת שְׁמַע שֶׁל שַׁחֲרִית:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+It happened with Rabbi Eliezer, Rabbi Joshua, Rabbi Elazar ben Azariah, Rabbi Akivah, and Rabbi Tarfon: they were once dining in Bnei Brak, and were speaking about the Exodus from Egypt all that night until their disciples came and said to them, ``Our teachers, the time has come to recite the morning Shema!''
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+אָמַר רַבִּי אֶלְעָזָר בֶּן עֲזַרְיָה הֲרֵי אֲנִי כְּבֶן שִׁבְעִים שָׁנָה וְלֹא זָכִיתִי שֶׁתֵּאָמַר יְצִיאַת מִצְרַיִם בַּלֵּילוֹת עַד שֶׁדְּרָשָׁהּ בֶּן זוֹמָא. שֶׁנֶּאֱמַר לְמַעַן תִּזְכֹּר אֶת יוֹם צֵאתְךָ מֵאֶרֶץ מִצְרַיִם כֹּל יְמֵי חַיֶּיךָ. יְמֵי חַיֶּיךָ הַיָּמִים. כֹּל יְמֵי חַיֶּיךָ לְהָבִיא הַלֵּילוֹת. וַחֲכָמִים אוֹמְרִים יְמֵי חַיֶּיךָ הָעוֹלָם הַזֶּה. כֹּל יְמֵי חַיֶּיךָ לְהָבִיא לִימוֹת הַמָּשִׁיחַ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Rabbi Elazar ben Azariah said, ``I am like a man of seventy, and I did not appreciate why the story of the exodus from Egypt should be told at night until Ben Zoma explained it thus: ``The Torah says, `That you may remember the day when you came out of the land of Egypt all the days of your life.' Had it said `The days of your life,' it would have referred only to the daytime. But as it says, `All the days of your life,' it intends to include the nights. The Sages, however, say, had it said only `the days of your life,' it would have referred only to this world, but as it says, `All the days of your life,' it means to include also the days of Moshiach.
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{אַרְבָּעָה בָנִים}{The Four Sons}
+
+\begin{hebrewblock}
+בָּרוּךְ הַמָּקוֹם. בָּרוּךְ הוּא. בָּרוּךְ שֶׁנָּתַן תּוֹרָה לְעַמּוֹ יִשְׂרָאֵל. בָּרוּךְ הוּא. כְּנֶגֶד אַרְבָּעָה בָנִים דִּבְּרָה תוֹרָה. אֶחָד חָכָם. וְאֶחָד רָשָׁע. וְאֶחָד תָּם. וְאֶחָד שֶׁאֵינוֹ יוֹדֵעַ לִשְׁאוֹל:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed is the Omnipotent! Blessed be He! Blessed is He who gave the Torah to His people Israel! Blessed be He! Four times does the Torah refer to the enquiring child... This indicates that the Torah thought of four kinds of enquiring children --- the wise child, the wicked child, the simple child, and the one that is unable to enquire by himself...
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+חָכָם מַה הוּא אוֹמֵר מָה הָעֵדֹת וְהַחֻקִּים וְהַמִּשְׁפָּטִים אֲשֶׁר צִוָּה יְיָ אֱלֹהֵינוּ אֶתְכֶם וְאַף אַתָּה אֱמוֹר לוֹ כְּהִלְכוֹת הַפֶּסַח אֵין מַפְטִירִין אַחַר הַפֶּסַח אֲפִיקוֹמָן:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Which is the wise child's question? ``What are the `testimonies and the statutes and the judgments' which the Lord our G-d has commanded you?'' you shall answer him by telling him of the laws of Passover, down to the law that no `afikoman' may follow the Paschal lamb.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+רָשָׁע מַה הוּא אוֹמֵר מָה הָעֲבוֹדָה הַזֹּאת לָכֶם. לָכֶם וְלֹא לוֹ. וּלְפִי שֶׁהוֹצִיא אֶת עַצְמוֹ מִן הַכְּלָל כָּפַר בְּעִקָּר. וְאַף אַתָּה הַקְהֵה אֶת שִׁנָּיו וֶאֱמֹר לוֹ בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם. לִי וְלֹא לוֹ אִלּוּ הָיָה שָׁם לֹא הָיָה נִגְאָל:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Which is the wicked child's question? ``What do you mean by this service?'' he attributes the service to You, deliberately excluding himself, rejecting the primary principles of Judaism. Therefore you must retort upon him quoting, ``This is done because of that which the Lord did for me when I came out of Egypt.'' For me, and not for him; if he had been there he would not have been redeemed.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+תָּם מַה הוּא אוֹמֵר, מַה זֹּאת. וְאָמַרְתָּ אֵלָיו בְּחֹזֶק יָד הוֹצִיאָנוּ יְיָ מִמִּצְרַיִם מִבֵּית עֲבָדִים:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Which is the simple child's question? ``What is this?'' you shall answer him by saying: ``with a strong hand the Lord brought us out from Egypt, from the house of bondage.''
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+וְשֶׁאֵינוֹ יוֹדֵעַ לִשְׁאוֹל אַתְּ פְּתַח לוֹ שֶׁנֶּאֱמַר וְהִגַּדְתָּ לְבִנְךָ בַּיּוֹם הַהוּא לֵאמֹר בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+If the child cannot engage with a question, you shall open the subject to him, as it is said, ``And you shall show your child on that day, saying, This is done because of that which the Lord did for me when I came out of Egypt.''
+\end{englishblock}
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The Four Sons}
+
+\sederdivider
+
+\subsedertitle{מִתְּחִלָה עוֹבְדֵי עֲבוֹדָה זָרָה}{In the Beginning}
+
+\begin{hebrewblock}
+יָכוֹל מֵרֹאשׁ חֹדֶשׁ תַּלְמוּד לוֹמַר בַּיּוֹם הַהוּא אִי בַּיּוֹם הַהוּא יָכוֹל מִבְּעוֹד יוֹם תַּלְמוּד לוֹמַר בַּעֲבוּר זֶה. בַּעֲבוּר זֶה לֹא אָמַרְתִּי אֶלָּא בְּשָׁעָה שֶׁיֵּשׁ מַצָּה וּמָרוֹר מֻנָּחִים לְפָנֶיךָ:
+מִתְּחִלָה עוֹבְדֵי עֲבוֹדָה זָרָה הָיוּ אֲבוֹתֵינוּ וְעַכְשָׁו קֵרְבָנוּ הַמָּקוֹם לַעֲבֹדָתוֹ. שֶׁנֶּאֱמַר וַיֹּאמֶר יְהוֹשֻׁעַ אֶל כָּל הָעָם כֹּה אָמַר יְיָ אֱלֹהֵי יִשְׂרָאֵל בְּעֵבֶר הַנָּהָר יָשְׁבוּ אֲבוֹתֵיכֶם מֵעוֹלָם תֶּרַח אֲבִי אַבְרָהָם וַאֲבִי נָחוֹר וַיַּעַבְדוּ אֱלֹהִים אֲחֵרִים:
+וָאֶקַּח אֶת אֲבִיכֶם אֶת אַבְרָהָם מֵעֵבֶר הַנָּהָר וָאוֹלֵךְ אוֹתוֹ בְּכָל אֶרֶץ כְּנָעַן וָאַרְבֶּה אֶת זַרְעוֹ וָאֶתֶּן לוֹ אֶת יִצְחָק: וָאֶתֵּן לְיִצְחָק אֶת יַעֲקֹב וְאֶת עֵשָׂו וָאֶתֵּן לְעֵשָׂו אֶת הַר שֵׂעִיר לָרֶשֶׁת אוֹתוֹ וְיַעֲקֹב וּבָנָיו יָרְדוּ מִצְרָיִם:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Should it be from the first of the month [of Nisan]? No: for the Torah says, `On that day.' Does `That day' mean the daytime? No: for the Torah continues `This is done,' It would not have said, `This is done,' except to refer to the time when the Matzah and bitter herbs are there before you.
+In remotest days our ancestors were idolaters, but now G-d has brought us to worship Him, as it is said, `And Joshua said unto all the people: Thus says the Lord, G-d of Israel, Your fathers dwelt on the other side of the river in old time, including Terach, the father of Abraham, and the father of Nachor: and they served other gods.
+And I took your father Abraham from the other side of the river, and led him throughout all the land of Canaan, and multiplied his seed and gave him Isaac, And I gave unto Isaac, Jacob and Esau: and I gave unto Esau mount Seir, to possess it; but Jacob and his children went down into Egypt.
+\end{englishblock}
+\sederdivider
+
+\instruction{Cover the Matzah and raise your cup of wine.}
+
+\begin{hebrewblock}
+בָּרוּךְ שׁוֹמֵר הַבְטָחָתוֹ לְיִשְׂרָאֵל. בָּרוּךְ הוּא, שֶׁהַקָּדוֹשׁ בָּרוּךְ הוּא חִשֵּׁב אֶת הַקֵּץ לַעֲשׂוֹת כְּמָה שֶׁאָמַר לְאַבְרָהָם אָבִינוּ בִּבְרִית בֵּין הַבְּתָרִים. שֶׁנֶּאֱמַר וַיֹּאמֶר לְאַבְרָם יָדֹעַ תֵּדַע כִּי גֵר יִהְיֶה זַרְעֲךָ בְּאֶרֶץ לֹא לָהֶם וַעֲבָדוּם וְעִנּוּ אֹתָם אַרְבַּע מֵאוֹת שָׁנָה: וְגַם אֶת הַגּוֹי אֲשֶׁר יַעֲבֹדוּ דָּן אָנֹכִי וְאַחֲרֵי כֵן יֵצְאוּ בִּרְכוּשׁ גָּדוֹל:
+וְהִיא שֶׁעָמְדָה לַאֲבוֹתֵינוּ וְלָנוּ שֶׁלֹא אֶחָד בִּלְבַד עָמַד עָלֵינוּ לְכַלּוֹתֵנוּ אֶלָּא שֶׁבְּכָל דּוֹר וָדוֹר עוֹמְדִים עָלֵינוּ לְכַלּוֹתֵנוּ. וְהַקָּדוֹשׁ בָּרוּךְ הוּא מַצִּילֵנוּ מִיָּדָם:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+And it is this [same promise] that has been maintained to our forefathers and to us, for there has not been only one to rise up against us to destroy us, but in every generation there arises against us those who would destroy us, and the Holy One (blessed be He) delivers us from their hands.
+\end{englishblock}
+\instruction{Put down the cup of wine, and uncover the Matzah.}
+
+\subsedertitle{צֵא וּלְמַד}{The Midrashic Exposition}
+
+\begin{hebrewblock}
+צֵא וּלְמַד מַה בִּקֵּשׁ לָבָן הָאֲרַמִּי לַעֲשׂוֹת לְיַעֲקֹב אָבִינוּ. שֶׁפַּרְעֹה לֹא גָזַר אֶלָּא עַל הַזְּכָרִים וְלָבָן בִּקֵּשׁ לַעֲקוֹר אֶת הַכֹּל. שֶׁנֶּאֱמַר אֲרַמִּי אֹבֵד אָבִי וַיֵּרֶד מִצְרַיְמָה וַיָּגָר שָׁם בִּמְתֵי מְעָט וַיְהִי שָׁם לְגוֹי גָּדוֹל עָצוּם וָרָב:
+\end{hebrewblock}
+\begin{hebrewblock}
+וַיֵרֵֶד מִצְרַיְמָה אָנוּס עַל פִּי הַדִּבּוּר. וַיָּגָר שָׁם מְלַמֵּד שֶׁלֹּא יָרַד יַעֲקֹב אָבִינוּ לְהִשְׁתַּקֵּעַ בְּמִצְרַיִם אֶלָּא לָגוּר שָׁם. שֶׁנֶּאֱמַר וַיֹּאמְרוּ אֶל פַּרְעֹה לָגוּר בָּאָרֶץ בָּאנוּ כִּי אֵין מִרְעֶה לַצֹּאן אֲשֶׁר לַעֲבָדֶיךָ כִּי כָבֵד הָרָעָב בְּאֶרֶץ כְּנָעַן וְעַתָּה יֵשְׁבוּ נָא עֲבָדֶיךָ בְּאֶרֶץ גּשֶֹׁן:
+\end{hebrewblock}
+\begin{hebrewblock}
+בִּמְתֵי מְעָט כְּמָה שֶׁנֶּאֱמַר בְּשִׁבְעִים נֶפֶשׁ יָרְדוּ אֲבֹתֶיךָ מִצְרָיְמָה וְעַתָּה שָׂמְךָ אֲדנָֹי אֱלֹהֶיךָ כְּכוֹכְבֵי הַשָּׁמַיִם לָרֹב: וַיְהִי שָׁם לְגוֹי מְלַמֵּד שֶׁהָיוּ יִשְׂרָאֵל מְצֻיָּנִים שָׁם: גָּדוֹל עָצוּם כְּמָה שֶׁנֶּאֱמַר וּבְנֵי יִשְׂרָאֵל פָּרוּ וַיִּשְׁרְצוּ וַיִּרְבּוּ וַיַּעַצְמוּ בִּמְאֹד מְאֹד וַתִּמָּלֵא הָאָרֶץ אֹתָם: וָרָָב כְּמָה שֶׁנֶּאֱמַר וָאֶעֱבֹר עָלַיִךְ וָאֶרְאֵךְ מִתְבּוֹסֶסֶת בְּדָמָיִךְ וָאֹמַר לָךְ בְּדָמַיִךְ חֲיִי וָאֹמַר לָךְ בְּדָמַיִךְ חֲיִי: רְבָבָה כְּצֶמַח הַשָּׂדֶה נְתַתִּיךְ וַתִּרְבִּי וַתִּגְדְּלִי וַתָּבוֹאִי בַּעֲדִי עֲדָיִים שָׁדַיִם נָכֹנוּ וּשְׂעָרֵךְ צִמֵּחַ וְאַתְּ עֵרֹם וְעֶרְיָה:
+\end{hebrewblock}
+\begin{hebrewblock}
+וַיָּרֵעוּ אֹתָנוּ הַמִּצְרִים וַיְעַנּוּנוּ וַיִּתְּנוּ עָלֵינוּ עֲבֹדָה קָשָׁה: וַיָּרֵעוּ אֹתָנוּ הַמִּצְרִים כְּמָה שֶׁנֶּאֱמַר הָבָה נִתְחַכְּמָה לוֹ פֶּן יִרְבֶּה וְהָיָה כִּי תִקְרֶאנָה מִלְחָמָה וְנוֹסַף גַּם הוּא עַל שֹׂנְאֵינוּ וְנִלְחַם בָּנוּ וְעָלָה מִן הָאָרֶץ: וַיְעַנּוּנוּ כְּמָה שֶׁנֶּאֱמַר וַיָּשִׂימוּ עָלָיו שָׂרֵי מִסִּים לְמַעַן עַנֹּתוֹ בְּסִבְלֹתָם וַיִּבֶן עָרֵי מִסְכְּנוֹת לְפַרְעֹה אֶת פִּיתֹם וְאֶת רַעַמְסֵס: וַיִּתְּנוּ עָלֵינוּ עֲבֹדָה קָשָׁה כְּמָה שֶׁנֶּאֱמַר וַיַּעֲבִדוּ מִצְרַיִם אֶת בְּנֵי יִשְׂרָאֵל בְּפָרֶךְ: וַיְמָרֲרוּ אֶת חַיֵּיהֶם בַּעֲבֹדָה קָשָׁה בְּחֹמֶר וּבִלְבֵנִים וּבְכָל עֲבֹדָה בַּשָּׂדֶה אֵת כָּל עֲבֹדָתָם אֲשֶׁר עָבְדוּ בָהֶם בְּפָרֶךְ:
+\end{hebrewblock}
+\begin{hebrewblock}
+וַנִּצְעַק אֶל יְיָ אֱלֹהֵי אֲבֹתֵינוּ וַיִּשְׁמַע יְיָ אֶת קֹלֵנוּ וַיַּרְא אֶת עָנְיֵנוּ וְאֶת עֲמָלֵנוּ וְאֶת לַחֲצֵנוּ: וַנִּצְעַק אֶל יְיָ אֱלֹהֵי אֲבֹתֵינוּ כְּמָה שֶׁנֶּאֱמַר וַיְהִי בַיָּמִים הָרַבִּים הָהֵם וַיָּמָת מֶלֶךְ מִצְרַיִם וַיֵּאָנְחוּ בְנֵי יִשְׂרָאֵל מִן הָעֲבֹדָה וַיִּזְעָקוּ וַתַּעַל שַׁוְעָתָם אֶל הָאֱלֹהִים מִן הָעֲבֹדָה:
+\end{hebrewblock}
+\begin{hebrewblock}
+וַיִּשְׁמַע יְיָ אֶת קוֹלֵנוּ כְּמָה שֶׁנֶּאֱמַר וַיִּשְׁמַע אֱלֹהִים אֶת נַאֲקָתָם וַיִּזְכֹּר אֱלֹהִים אֶת בְּרִיתוֹ אֶת אַבְרָהָם אֶת יִצְחָק וְאֶת יַעֲקֹב:
+\end{hebrewblock}
+\begin{hebrewblock}
+וַיַּרְא אֶת עָנְיֵנוּ זוֹ פְּרִישׁוּת דֶּרֶךְ אֶרֶץ כְּמָה שֶׁנֶּאֱמַר וַיַּרְא אֱלֹהִים אֶת בְּנֵי יִשְׂרָאֵל וַיֵּדַע אֱלֹהִים:
+\end{hebrewblock}
+\begin{hebrewblock}
+וְאֶת עַמָלֵנוּ אֵלּוּ הַבָּנִים כְּמָה שֶׁנֶּאֱמַר כָּל הַבֵּן הַיִּלּוֹד הַיְאֹרָה תַּשְׁלִיכוּהוּ וְכָל הַבַּת תְּחַיּוּן: וְאֶת לַחֲצֵנוּ זֶה הַדְּחַק כְּמָה שֶׁנֶּאֱמַר וְגַם רָאִיתִי אֶת הַלַּחַץ אֲשֶׁר מִצְרַיִם לוֹחֲצִים אֹתָם:
+\end{hebrewblock}
+\begin{hebrewblock}
+וַיּוֹצִיאֵנוּ יְיָ מִמִּצְרַיִם בְּיָד חֲזָקָה וּבִזְרוֹעַ נְטוּיָה וּבְמֹרָא גָּדוֹל וּבְאֹתֹת וּבְמֹפְתִים: וַיּוֹצִיאֵנוּ יְיָ מִמִּצְרַיִם לֹא עַל יְדֵי מַלְאָךְ וְלֹא עַל יְדֵי שָׂרָף וְלֹא עַל יְדֵי שָׁלִיחַ אֶלָּא הַקָּדוֹשׁ בָּרוּךְ הוּא בִּכְבוֹדוֹ וּבְעַצְמוֹ. שֶׁנֶּאֱמַר וְעָבַרְתִּי בְאֶרֶץ מִצְרַיִם בַּלַּיְלָה הַזֶּה וְהִכֵּיתִי כָל בְּכוֹר בְּאֶרֶץ מִצְרַיִם מֵאָדָם וְעַד בְּהֵמָה וּבְכָל אֱלֹהֵי מִצְרַיִם אֶעֱשֶׂה שְׁפָטִים אֲנִי יְיָ: ועָבַרְתִּי בְאֶרֶֶץ מִצְרַיִם אֲנִי וְלֹא מַלְאָךְ. וְהִכֵּיתִי כָל בְּכוֹר בְּאֶרֶץ מִצְרַיִם אֲנִי וְלֹא שָׂרָף. וּבְכָל אֱלֹהֵי מִצְרַיִם אֶעֱשֶׂה שְׁפָטִים אֲנִי וְלֹא הַשָּׁלִיחַ. אֲנִי יְיָ. אֲנִי הוּא וְלֹא אַחֵר:
+\end{hebrewblock}
+\begin{hebrewblock}
+בְּיָד חֲזָקָה זֶה הַדֶּבֶר כְּמָה שֶׁנֶּאֱמַר הִנֵּה יַד יְיָ הוֹיָה בְּמִקְנְךָ אֲשֶׁר בַּשָּׂדֶה בַּסּוּסִים בַּחֲמֹרִים בַּגְּמַלִּים בַּבָּקָר וּבַצֹּאן דֶּבֶר כָּבֵד מְאֹד: וּבִזְרֹעַ נְטוּיָה זוֹ הַחֶרֶב כְּמָה שֶׁנֶּאֱמַר וְחַרְבּוֹ שְׁלוּפָה בְּיָדוֹ נְטוּיָה עַל יְרוּשָׁלָיִם. וּבְמֹרָא גָּדֹל זֶה גִּלּוּי שְׁכִינָה כְּמָה שֶׁנֶּאֱמַר אוֹ הֲנִסָּה אֱלֹהִים לָבֹא לָקַחַת לוֹ גוֹי מִקֶּרֶב גּוֹי בְּמַסֹּת בְּאֹתֹת וּבְמוֹפְתִים וּבְמִלְחָמָה וּבְיָד חֲזָקָה וּבִזְרֹעַ נְטוּיָה וּבְמוֹרָאִים גְּדוֹלִים כְּכֹל אֲשֶׁר עָשָׂה לָכֶם יְיָ אֱלֹהֵיכֶם בְּמִצְרַיִם לְעֵינֶיךָ:
+\end{hebrewblock}
+\begin{hebrewblock}
+וּבְאֹתוֹת זֶה הַמַַטֶּה כְּמָה שֶׁנֶּאֱמַר וְאֶת הַמַּטֶּה הַזֶּה תִּקַּח בְּיָדֶךָ אֲשֶׁר תַּעֲשֶׂה בּוֹ אֶת הָאֹתֹת: וּבְמוֹפְתִים זֶה הַדָּם כְּמָה שֶׁנֶּאֱמַר וְנָתַתִּי מֹפְתִים בַּשָּׁמַיִם וּבָאָרֶץ:
+\end{hebrewblock}
+\begin{hebrewblock}
+דָּם וָאֵשׁ וְתִמְרוֹת עָשָׁן:
+\end{hebrewblock}
+\begin{hebrewblock}
+דָּבָר אַחֵר בְּיָד חַזָקָָה שְׁתַּיִם. וּבִזְרוֹעַ נְטוּיָה שְׁתַּיִם. וּבְמוֹרָא גָּדוֹל שְׁתַּיִם. וּבְאֹתוֹת שְׁתַּיִם. וּבְמֹפְתִים שְׁתַּיִם:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Inquire and learn what Laban, the Syrian, sought to do to Jacob our father. For while Pharaoh decreed a sentence against the male children, Laban sought to destroy the whole [of the family of Jacob], as it is said, 'A Syrian [Laban] would have caused my father to perish, and he went down to Egypt, and sojourned there with but a few, and became there a great nation, mighty and populous.'
+'And he went down into Egypt,' inspired thereto by the word of G-d. 'And he sojourned there.' This teaches that our ancestor Jacob did not go down to Egypt to remain there, but only to sojourn; as it is further said, 'They said moreover unto Pharaoh, Only to sojourn in the land have we come, for your servants have no pasture for their flocks; for the famine is sore in the land of Canaan; now therefore, we ask you, let your servants dwell in the land of Goshen.'
+'With but a few,' as it is said, 'Your fathers went down into Egypt with seventy persons; and now the Lord your G-d has made you as the stars of heaven for multitude.'
+'...and became there a nation.' This teaches that Israel became distinguished. '...great and mighty,' as it is said, 'And the children of Israel were fruitful, and increased abundantly, and multiplied, and waxed exceeding mighty, and the land was filled with them.' '...and populous,' as it is said, 'I have caused you to multiply as the bud of the field, and you have increased and waxen great, and you have come to excellent ornaments; your shape is perfected, and your hair is grown, whereas you are naked and bare.'
+'And the Egyptians treated us evilly, and  afflicted us and laid upon us hard bondage:' 'And the Egyptians treated us evilly,' as it is said 'Come now, let us handle them [the Jews] wisely; lest they multiply, and it will come to pass that when there falls out any war, they will join also with our enemies and fight against us, and so leave out of our land.' '...and afflicted us,' as it is said, 'Therefore they set taskmasters in charge of them to afflict them with their burdens,  and they built for Pharaoh warehouse cities (Pithom and Rameses).' '...and laid upon us hard bondage,' as it is said, 'And the Egyptians made the children of Israel to serve with rigor [...] and they embittered their lives with hard bondage, with bricks and mortar, and with all sorts of work in the field, all their work which they served with rigor.'
+'And when we cried unto the Lord, G-d of our fathers, the Lord heard our voice and looked on our affliction and our labor and our oppression.' 'And when we cried unto the Lord, G-d of our fathers,' as it is said, 'And it came to pass in course of time that the king of Egypt died; and the children of Israel sighed from their bondage, and they cried, and their cry came up to G-d from their bondage.'
+'The Lord heard our voice,' as it is said, 'And G-d heard their groaning, and G-d remembered His covenant with Abraham, with Isaac, and with Jacob.'
+'And He saw our affliction.' This refers to Egyptian tyranny over Jewish family life; as it is said, 'And G-d looked upon the children of Israel, and G-d understood.'
+'And our labor.' This refers to the condemned male children, as it is said, 'Every son that is born you shall cast into the river, and every daughter you shall save alive.' '...and our oppression.' This refers to its severity, as it is said, 'And I have also seen the oppression with which the Egyptians oppressed them.'
+'And the Lord brought us forth out of Egypt with a mighty hand, and with an outstretched arm, and with great terribleness, and with signs and wonders.' 'And the Lord brought us forth out of Egypt.' Not by the hands of an angel, nor by the hands of a seraph, nor by the hands of a messenger; but it was the Holy One, blessed be He, He Himself, as it is said, 'For I will pass through the land of Egypt this night, and will smite all the first-born in the land of Egypt, both man and beast; and against all the gods of Egypt I will execute judgment; I am the Lord.' 'For I will pass through the land of Egypt,' i.e., I, myself, and not an angel; '...and I will smite all the first-born,' I, myself, and not a seraph; '...and against all the gods of Egypt I will execute judgment,' I, Myself, and not a messenger.' I am the Lord; it is I and no other.
+'With a mighty hand.' This refers to the pestilence, as it is said, 'Behold the hand of the Lord is upon your cattle which is in the field, upon the horses, upon the donkeys, upon the camels, upon the oxen, and upon the sheep. There shall be a very grievous pestilence.' '...and with an outstretched arm.' This refers to the sword, of which it is said, 'Having a drawn sword in His hand stretched out over Jerusalem.' '...and with great terribleness.' This refers to the revelation by G-d of His divine presence, as it is said, 'Or has G-d assayed to go and take Him a nation from the midst of another nation, by temptations, by signs, and by wonders, and by war, and by a mighty hand and by a stretched out arm, and by great terrors, according to all that the Lord your G-d did for you in Egypt before your eyes.'
+'And with signs.' This refers to the rod (of Moses), as it is said, 'And you shall take this rod in your hand wherewith you shall do signs.' '...and with wonders.' This refers to the blood, as it is said, 'And I will show wonders in the heavens and in the earth,
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{עֶשֶׂר מַכּוֹת}{The Ten Plagues}
+
+\instruction{Pour three times from your cup of wine into a broken dish, as we say:}
+
+\begin{hebrewblock}
+דָּם וָאֵשׁ וְתִמְרוֹת עָשָׁן:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blood, and fire, and pillars of smoke.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+דָּבָר אַחֵר בְּיָד חַזָקָָה שְׁתַּיִם. וּבִזְרוֹעַ נְטוּיָה שְׁתַּיִם. וּבְמוֹרָא גָּדוֹל שְׁתַּיִם. וּבְאֹתוֹת שְׁתַּיִם. וּבְמֹפְתִים שְׁתַּיִם:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Another explanation is, that these expressions: `A mighty hand,' indicates two plagues, `An outstretched arm,' another two plagues, `Great terribleness,' another two plagues, `Signs' another two plagues, and `Wonders' another two.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+אֵלּוּ עֶשֶׂר מַכּוֹת שֶׁהֵבִיא הַקָּדוֹשׁ בָּרוּךְ הוּא עַל הַמִּצְרִים בְּמִצְרַיִם. וְאֵלּוּ הֵן:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+These are the ten plagues which the Holy One, blessed be He, did bring upon the Egyptians in Egypt, namely:
+\end{englishblock}
+\instruction{For each plague, pour from your cup into a broken dish:}
+
+\begin{hebrewblock}
+דָּם.
+צְפַרְדֵּעַ.
+כִּנִּים.
+עָרוֹב.
+דֶּבֶר.
+שְׁחִין.
+בָּרָד.
+אַרְבֶּה.
+חֹשֶׁךְ.
+מַכַּת בְּכוֹרוֹת:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blood, frogs, lice, wild animals, pestilence, boils, hail, locusts, darkness, the slaying of the first-born.
+\end{englishblock}
+\parasep
+
+\instruction{Pour three times from your cup of wine into a broken dish, as we say:}
+
+\begin{hebrewblock}
+רַבִּי יְהוּדָה הָיָה נוֹתֵן בָּהֶם סִמָּנִים:
+דְּצַ"ךְ. עֲדַ"שׁ. בְּאַחַ"ב:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Rabbi Judah made acronyms for them: `Datzach, Adash, Be'achav.'
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+רַבִּי יוֹסֵי הַגְּלִילִי אוֹמֵר מִנַּיִן אַתָּה אוֹמֵר שֶׁלָּקוּ הַמִּצְרִים בְּמִצְרַיִם עֶשֶׂר מַכּוֹת וְעַל הַיָּם לָקוּ חֲמִשִּׁים מַכּוֹת. בְּמִצְרַיִם מַה הוּא אוֹמֵר וַיֹּאמְרוּ הַחַרְטֻמִּים אֶל פַּרְעֹה אֶצְבַּע אֱלֹהִים הִיא. וְעַל הַיָּם מַה הוּא אוֹמֵר וַיַּרְא יִשְׂרָאֵל אֶת הַיָּד הַגְּדוֹלָה אֲשֶׁר עָשָׂה יְיָ בְּמִצְרַיִם וַיִּירְאוּ הָעָם אֶת יְיָ וַיַּאֲמִינוּ בַּייָ וּבְמֹשֶׁה עַבְדּוֹ: כַּמָּה לָקוּ בְאֶצְבַּע עֶשֶׂר מַכּוֹת. אֱמוֹר מֵעַתָּה בְּמִצְרַיִם לָקוּ עֶשֶׂר מַכּוֹת. וְעַל הַיָּם לָקוּ חֲמִשִּׁים מַכּוֹת:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Rabbi Jose of the Galilee said: From where  do we know that while the Egyptians suffered ten plagues in Egypt, they were at the Red Sea smitten with fifty plagues? Regarding Egypt it is said, 'Then the magicians said unto Pharaoh, This is the finger of G-d.' While regarding the Red Sea it is said, 'And Israel saw that great hand with which the Lord wrought against Egypt, and the people feared the Lord, and believed in the Lord and in His servant Moses.' Now, if with the finger of G-d they were smitten with ten plagues, then we may say that in Egypt they were smitten with ten plagues and at the Red Sea they were smitten with fifty plagues.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+רַבִּי אֱלִיעֶזֶר אוֹמֵר מִנַּיִן שֶׁכָּל מַכָּה וּמַכָּה שֶׁהֵבִיא הַקָּדוֹשׁ בָּרוּךְ הוּא עַל הַמִּצְרִים בְּמִצְרַיִם הָיְתָה שֶׁל אַרְבַּע מַכּוֹת שֶׁנֶּאֱמַר יְשַׁלַּח בָּם חֲרוֹן אַפּוֹ עֶבְרָה וָזַעַם וְצָרָה מִשְׁלַחַת מַלְאֲכֵי רָעִים: עֶבְרָה אַחַת. וָזַעַַם שְׁתַּיִם. וְצָרָָה שָׁלֹשׁ. מִשְׁלַחַת מַלְאֲכֵי רָעִים אַרְבַּע. אֱמוֹר מֵעַתָּה בְּמִצְרַיִם לָקוּ אַרְבָּעִים מַכּוֹת. וְעַל הַיָּם לָקוּ מָאתַיִם מַכּוֹת:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Rabbi Eliezer said, From where can we tell  that each plague that the Holy One, blessed be He, brought upon the Egyptians in Egypt was the equivalent of four plagues? For it is said, ‘He cast upon them the fierceness of His anger, wrath, and indignation, and trouble, sending evil angels among them.’ Now ‘wrath’ indicates one plague, ‘indignation’ a second, ‘trouble’ a third, and ‘sending evil angels’ a fourth; hence we may say that in Egypt they were smitten with plagues equal to forty, while at the Red Sea they were smitten with plagues equal to two hundred.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+רַבִּי עֲקִיבָא אוֹמֵר מִנַּיִן שֶׁכָּל מַכָּה וּמַכָּה שֶׁהֵבִיא הַקָּדוֹשׁ בָּרוּךְ הוּא עַל הַמִּצְרִים בְּמִצְרַיִם הָיְתָה שֶׁל חָמֵשׁ מַכּוֹת. שֶׁנֶּאֱמַר יְשַׁלַּח בָּם חֲרוֹן אַפּוֹ עֶבְרָה וָזַעַם וְצָרָה מִשְׁלַחַת מַלְאֲכֵי רָעִים. חֲרוֹן אַפּוֹ אַחַת. עֶבְרָה שְׁתַּיִם. וָזַעַַם שָׁלֹשׁ. וְצָרָָה אַרְבַּע. מִשְׁלַחַת מַלְאֲכֵי רָעִים חָמֵשׁ. אֱמוֹר מֵעַתָּה בְּמִצְרַיִם לָקוּ חֲמִשִּׁים מַכּוֹת. וְעַל הַיָּם לָקוּ חֲמִשִּׁים וּמָאתַיִם מַכּוֹת:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Rabbi Akiva said, From where may we say  that each plague that the Holy One, blessed be He, brought upon the Egyptians in Egypt was equal to five plagues? For it is said, ‘He cast upon them the fierceness of His anger, wrath, and indignation, and trouble, sending evil angels.’ The ‘fierceness of His anger’ is one, ‘wrath’ is a second, ‘indignation’ is a third, ‘trouble’ is a fourth, and ‘sending evil angels’ is a fifth. Hence we may say, that in Egypt they were smitten with plagues equal to fifty, while at the Red Sea they were smitten with plagues equal to two hundred and fifty.
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{דַּיֵּנוּ}{Dayeinu}
+
+\haggadahimagefixed{4.5in}{2.0in}{Illustration --- Dayeinu}
+
+\begin{hebrewblock}
+כַּמָּה מַעֲלוֹת טוֹבוֹת לַמָּקוֹם עָלֵינוּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+How many are the benefits which G-d has conferred upon us:
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+אִלּוּ הוֹצִיאָנוּ מִמִּצְרַיִם וְלֹא עָשָׂה בָהֶם שְׁפָטִים דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ עָשָׂה בָהֶם שְׁפָטִים וְלֹא עָשָׂה בֵאלֹהֵיהֶם דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ עָשָׂה בֵאלֹהֵיהֶם וְלֹא הָרַג אֶת בְּכוֹרֵיהֶם דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ הָרַג אֶת בְּכוֹרֵיהֶם וְלֹא נָתַן לָנוּ אֶת מָמוֹנָם דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ נָתַן לָנוּ אֶת מָמוֹנָם וְלֹא קָרַע לָנוּ אֶת הַיָּם דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ קָרַע לָנוּ אֶת הַיָּם וְלֹא הֶעֱבִירָנוּ בְתוֹכוֹ בֶּחָרָבָה דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ הֶעֱבִירָנוּ בְתוֹכוֹ בֶּחָרָבָה וְלֹא שִׁקַּע צָרֵינוּ בְּתוֹכוֹ דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ שִׁקַּע צָרֵינוּ בְּתוֹכוֹ וְלֹא סִפֵּק צָרְכֵּנוּ בַּמִּדְבָּר אַרְבָּעִים שָׁנָה			 דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ סִפֵּק צָרְכֵּנוּ בַּמִּדְבָּר אַרְבָּעִים שָׁנָה וְלֹא הֶאֱכִילָנוּ אֶת הַמָּן			 דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ הֶאֱכִילָנוּ אֶת הַמָּן וְלֹא נָתַן לָנוּ אֶת הַשַּׁבָּת דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ נָתַן לָנוּ אֶת הַשַּׁבָּת וְלֹא קֵרְבָנוּ לִפְנֵי הַר סִינַי דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ קֵרְבָנוּ לִפְנֵי הַר סִינַי וְלֹא נָתַן לָנוּ אֶת הַתּוֹרָה דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ נָתַן לָנוּ אֶת הַתּוֹרָה וְלֹא הִכְנִיסָנוּ לְאֶרֶץ יִשְׂרָאֵל דַּיֵּנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אִלּוּ הִכְנִיסָנוּ לְאֶרֶץ יִשְׂרָאֵל וְלֹא בָנָה לָנוּ אֶת בֵּית הַבְּחִירָה			 דַּיֵּנוּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Had He brought us from Egypt, and had not executed judgments upon the Egyptians: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He executed judgments upon the Egyptians, and had not then executed judgments upon their gods: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He executed judgments upon their gods, and had not slain their first-born: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He slain their first-born, and had not then given us their wealth: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He given us their wealth, and had not then split the Sea: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He split the Sea for us, and had not then made us to pass through its midst on dry land: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He made us to pass through its midst on dry land, and had not sunk our adversaries in the midst thereof: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He sunk our adversaries in the midst thereof, and had not provided for our needs in the desert for forty years: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He provided for our needs in the desert for forty years, and had not fed us with the manna: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He fed us with the manna, and had not given us the Shabbat: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He given us the Shabbat, and had not brought us to Mount Sinai: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He brought us to Mount Sinai, and had not given us the Torah: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He given us the Torah, and had not brought us to the Land of Israel: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{englishblock}
+Had He brought us to the Land of Israel, and had not built for us the Holy Temple: It would have sufficed for our gratitude.
+\end{englishblock}
+\begin{hebrewblock}
+עַל אַחַת כַּמָּה וְכַמָּה טוֹבָה כְפוּלָה וּמְכֻפֶּלֶת לַמָּקוֹם עָלֵינוּ. שֶׁהוֹצִיאָנוּ מִמִּצְרָיִם. וְעָשָׂה בָהֶם שְׁפָטִים. וְעָשָׂה בֵאלֹהֵיהֶם. וְהָרַג אֶת בְּכוֹרֵיהֶם. וְנָתַן לָנוּ אֶת מָמוֹנָם. וְקָרַע לָנוּ אֶת הַיָּם. וְהֶעֱבִירָנוּ בְתוֹכוֹ בֶּחָרָבָה. וְשִׁקַּע צָרֵינוּ בְּתוֹכוֹ. וְסִפֵּק צָרְכֵּנוּ בַּמִּדְבָּר אַרְבָּעִים שָׁנָה. וְהֶאֱכִילָנוּ אֶת הַמָּן. וְנָתַן לָנוּ אֶת הַשַּׁבָּת. וְקֵרְבָנוּ לִפְנֵי הַר סִינַי. וְנָתַן לָנוּ אֶת הַתּוֹרָה. וְהִכְנִיסָנוּ לְאֶרֶץ יִשְׂרָאֵל. וּבָנָה לָנוּ אֶת בֵּית הַבְּחִירָה לְכַפֵּר עַל כָּל עֲוֹנוֹתֵינוּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+How much, therefore, has the goodness of the Almighty been doubled and redoubled towards us! For He brought us from Egypt; He executed judgments upon the Egyptians; He executed judgments upon their gods; He slew their first-born; He gave us their wealth; He split for us the Sea; He made us to pass through its midst on dry land; He sunk our adversaries in the midst thereof; He provided for our needs in the desert for forty years; He fed us with the manna; He gave us the Shabbat; He brought us to Mount Sinai; He gave us the Torah; He brought us to the Land of Israel; He built for us the Temple in which we atoned for our iniquities.
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{רַבָּן גַּמְלִיאֵל}{Rabban Gamliel}
+
+\begin{hebrewblock}
+רַבָּן גַּמְלִיאֵל הָיָה אוֹמֵר כָּל שֶׁלֹּא אָמַר שְׁלֹשָׁה דְבָרִים אֵלּוּ בַּפֶּסַח לֹא יָצָא יְדֵי חוֹבָתוֹ. וְאֵלּוּ הֵן: פֶּסַח. מַצָּה. וּמָרוֹר:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Rabban Gamaliel said, Whoever does not discuss these three items on the Passover has not fulfilled his duty, and these are they: The Passover offering; the Matzah (unleavened bread); the Maror (bitter herbs).
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+פֶּסַח שֶׁהָיוּ אֲבוֹתֵינוּ אוֹכְלִים בִּזְמַן שֶׁבֵּית הַמִּקְדָּשׁ קַיָּם עַל שׁוּם מָה. עַל שׁוּם שֶׁפָּסַח הַמָּקוֹם עַל בָּתֵּי אֲבוֹתֵינוּ בְּמִצְרָיִם. שֶׁנֶּאֱמַר וַאֲמַרְתֶּם זֶבַח פֶּסַח הוּא לַייָ אֲשֶׁר פָּסַח עַל בָּתֵּי בְנֵי יִשְׂרָאֵל בְּמִצְרַיִם בְּנָגְפּוֹ אֶת מִצְרַיִם וְאֶת בָּתֵּינוּ הִצִּיל וַיִּקֹּד הָעָם וַיִּשְׁתַּחֲווּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+What is the reason for the sacrifice of the Passover offering which our fathers ate in the time of the Temple? For the Holy One, blessed be He, passed over the houses of our ancestors in Egypt, as it is said, `You shall say it is the sacrifice of the Lord's Passover, who passed over the houses of the children of Israel in Egypt when He smote the Egyptians, and delivered our houses. And the people bowed the head and worshiped.
+\end{englishblock}
+\instruction{Hold the Matzah.}
+
+\begin{hebrewblock}
+מַצָּה זוֹ שֶׁאָנוּ אוֹכְלִים עַל שׁוּם מָה. עַל שׁוּם שֶׁלֹּא הִסְפִּיק בְּצֶקֶת שֶׁל אֲבוֹתֵינוּ לְהַחֲמִיץ עַד שֶׁנִּגְלָה עֲלֵיהֶם מֶלֶךְ מַלְכֵי הַמְּלָכִים הַקָּדוֹשׁ בָּרוּךְ הוּא וּגְאָלָם. שֶׁנֶּאֱמַר וַיֹּאפוּ אֶת הַבָּצֵק אֲשֶׁר הוֹצִיאוּ מִמִּצְרַיִם עֻגוֹת מַצּוֹת כִּי לֹא חָמֵץ כִּי גֹרְשׁוּ מִמִּצְרַיִם וְלֹא יָכְלוּ לְהִתְמַהְמֵהַּ וְגַם צֵדָה לֹא עָשׂוּ לָהֶם:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+This Matzah (unleavened bread) Which we now eat: Why is this eaten? Since the dough of our ancestors had not time to rise before the Supreme King of kings, the Holy One, blessed be He, appeared to them and redeemed them, as it is said, `And they baked unleavened cakes of the dough which they brought forth from Egypt, for it did not rise, because they were thrust out of Egypt and could not wait, nor had they prepared for themselves any provisions.'
+\end{englishblock}
+\instruction{Hold the Maror.}
+
+\begin{hebrewblock}
+מָרוֹר זֶה שֶׁאָנוּ אוֹכְלִים עַל שׁוּם מָה. עַל שׁוּם שֶׁמֵּרְרוּ הַמִּצְרִים אֶת חַיֵּי אֲבוֹתֵינוּ בְּמִצְרָיִם. שֶׁנֶּאֱמַר וַיְמָרְרוּ אֶת חַיֵּיהֶם בַּעֲבֹדָה קָשָׁה בְּחֹמֶר וּבִלְבֵנִים וּבְכָל עֲבוֹדָה בַּשָּׂדֶה אֵת כָּל עֲבֹדָתָם אֲשֶׁר עָבְדוּ בָהֶם בְּפָרֶךְ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+This Maror (bitter herbs) which we now eat: What does it mean? It is eaten because the Egyptians embittered the lives of our forefathers in Egypt, as it is said, `And they made their lives bitter with hard bondage, with mortar and with bricks, and with all types of work in the field; all their work wherein they made them serve was with rigor.'
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+בְּכָל דּוֹר וָדוֹר חַיָּב אָדָם לִרְאוֹת אֶת עַצְמוֹ כְּאִלּוּ הוּא יָצָא מִמִּצְרָיִם. שֶׁנֶּאֱמַר וְהִגַּדְתָּ לְבִנְךָ בַּיּוֹם הַהוּא לֵאמֹר בַּעֲבוּר זֶה עָשָׂה יְיָ לִי בְּצֵאתִי מִמִּצְרָיִם: לֹא אֶת אֲבוֹתֵינוּ בִּלְבָד גָּאַל הַקָּדוֹשׁ בָּרוּךְ הוּא מִמִּצְרַיִם אֶלָּא אַף אוֹתָנוּ גָּאַל עִמָּהֶם. שֶׁנֶּאֱמַר וְאוֹתָנוּ הוֹצִיא מִשָּׁם לְמַעַן הָבִיא אוֹתָנוּ לָתֶת לָנוּ אֶת הָאָרֶץ אֲשֶׁר נִשְׁבַּע לַאֲבוֹתֵינוּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+In every generation each one of us should regard himself as though he himself has gone out from Egypt, as it is said, `And you shall show your child on that day, saying, ``This is done because of that which the Lord did for me when I came out of Egypt.'' Not our ancestors alone did G-d redeem then, but He redeemed us with them, as it is said, `And He brought us out from there, that He might bring us in to give us the land which He swore unto our fathers.'
+\end{englishblock}
+\sederdivider
+
+\instruction{Cover the Matzah and raise your cup.}
+
+\begin{hebrewblock}
+לְפִיכָךְ אֲנַחְנוּ חַיָּבִים לְהוֹדוֹת לְהַלֵּל לְשַׁבֵּחַ לְפָאֵר לְרוֹמֵם לְהַדֵּר לְבָרֵךְ לְעַלֵּה וּלְקַלֵּס. לְמִי שֶׁעָשָׂה לַאֲבוֹתֵינוּ וְלָנוּ אֶת כָּל הַנִּסִּים הָאֵלּוּ. הוֹצִיאָנוּ מֵעַבְדוּת לְחֵרוּת. מִיָּגוֹן לְשִׂמְחָה.
+וּמֵאֵבֶל לְיוֹם טוֹב. וּמֵאֲפֵלָה לְאוֹר גָּדוֹל. וּמִשִּׁעְבּוּד לִגְאֻלָּה. וְנאֹמַר לְפָנָיו הַלְלוּיָהּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Therefore we are obliged to thank, to praise, to glorify, to exalt, to honor, to bless, to extol, and to give reverence to Him who performed for us, as well as for our forefathers, all these wonders. He has brought us forth from bondage to freedom, from sorrow to joy, from mourning to festival, from darkness to great light, and from slavery to redemption. Now, therefore, let us sing before Him a new song, Praise G-d!
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+הַלְלוּיָהּ הַלְלוּ עַבְדֵי יְיָ הַלְלוּ אֶת שֵׁם יְיָ: יְהִי שֵׁם יְיָ מְבֹרָךְ מֵעַתָּה וְעַד עוֹלָם: מִמִּזְרַח שֶׁמֶשׁ עַד מְבוֹאוֹ מְהֻלָּל שֵׁם יְיָ: רָם עַל כָּל גּוֹיִם יְיָ עַל הַשָּׁמַיִם כְּבוֹדוֹ: מִי כַּייָ אֱלֹהֵינוּ הַמַּגְבִּיהִי לָשָׁבֶת: הַמַּשְׁפִּילִי לִרְאוֹת בַּשָּׁמַיִם וּבָאָרֶץ: מְקִימִי מֵעָפָר דָּל מֵאַשְׁפֹּת יָרִים אֶבְיוֹן: לְהוֹשִׁיבִי עִם נְדִיבִים עִם נְדִיבֵי עַמּוֹ: מוֹשִׁיבִי עֲקֶרֶת הַבַּיִת אֵם הַבָּנִים שְׂמֵחָה הַלְלוּיָהּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Praise the Lord. Praise, O servants of the Lord, praise the Name of the Lord. Blessed be the Name of the Lord from this time forth and forever more. From the rising of the sun until the sunset, the Lord's Name is to be praised. The Lord is high above all nations, and His glory above the heavens. Who is like unto the Lord our G-d, that has His seat on high, that humbles himself to behold the things that are in heaven and in the earth? He raises up the poor out of the dust and lifts up the needy from the dunghill; that He may set them with princes, with the princes of His people. He makes the barren woman to keep house, and to be a joyful mother of children. Praise the Lord.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+בְּצֵאת יִשְׂרָאֵל מִמִּצְרָיִִם בֵּית יַעֲקֹב מֵעַם לֹעֵז: הָיְתָה יְהוּדָה לְקָדְשׁוֹ יִשְׂרָאֵל מַמְשְׁלוֹתָיו: הַיָּם רָאָה וַיָּנֹס הַיַּרְדֵּן יִסֹּב לְאָחוֹר: הֶהָרִים רָקְדוּ כְאֵילִים גְּבָעוֹת כִּבְנֵי צֹאן: מַה לְּךָ הַיָּם כִּי תָנוּס הַיַּרְדֵּן תִּסֹּב לְאָחוֹר: הֶהָרִים תִּרְקְדוּ כְאֵילִים גְּבָעוֹת כִּבְנֵי צֹאן: מִִלִּפְנֵי אָדוֹן חוּלִי אָרֶץ מִלִּפְנֵי אֱלוֹהַּ יַעֲקֹב: הַהֹפְכִי הַצּוּר אֲגַם מָיִם חַלָּמִישׁ לְמַעְיְנוֹ מָיִם:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+When Israel went out of Egypt, the house of Jacob from a people of a strange language; Judah became His sanctuary, Israel His dominion. The sea saw it and fled; Jordan was driven back. The mountains skipped like rams, the little hills like young sheep. What ails you, O sea, that you flee? Jordan, that you turn back? Mountains, that you skip like rams; you little hills like young sheep? Tremble, you earth, at the presence of the Lord, at the presence of the G-d of Jacob; which turned the rock into a pool of water, the flint into a fountain of water.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר גְּאָלָנוּ וְגָאַל אֶת אֲבוֹתֵינוּ מִמִּצְרַיִם וְהִגִּיעָנוּ הַלַּיְלָה הַזֶּה לֶאֱכָל בּוֹ מַצָּה וּמָרוֹר. כֵּן יְיָ אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ יַגִּיעֵנוּ לְמוֹעֲדִים וְלִרְגָלִים אֲחֵרִים הַבָּאִים לִקְרָאתֵנוּ לְשָׁלוֹם, שְׂמֵחִים בְּבִנְיַן עִירֶךָ וְשָׂשִׂים בַּעֲבוֹדָתֶךָ וְנֹאכַל שָׁם מִן הַזְּבָחִים וּמִן הַפְּסָחִים (במוצאי שבת מִן הַפְּסָחִים וּמִן הַזְבָחִים) אֲשֶׁר יַגִּיעַ דָּמָם עַל קִיר מִזְבַּחֲךָ לְרָצוֹן, וְנוֹדֶה לְּךָ שִׁיר חָדָשׁ עַל גְּאֻלָּתֵנוּ וְעַל פְּדוּת נַפְשֵׁנוּ: בָּרוּךְ אַתָּה יְיָ גָּאַל יִשְׂרָאֵל:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, who redeemed us and our ancestors from Egypt, and has brought us to this night to eat thereon Matzah and Maror. So, Lord our G-d, the G-d of our fathers, may You enable us to reach other festivals and holidays in future, with gladness at the rebuilding of Your city and with joy in Your service, there (in Jerusalem rebuilt) may we partake of the sacrifices and of the Passover offerings (of the Passover offerings and the sacrifices) offered upon your altar, in your favor, when we will offer to you a new song for our redemption and our salvation. Blessed are You, Lord, redeemer of Israel.
+\end{englishblock}
+
+\instruction{We drink the second cup, leaning to the left.}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָפֶן.
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.
+\end{englishblock}
+
 
 %% ---- 6. RACHTZAH ----
 \sedersection{רָחְצָה}{Rachtzah}{Washing for Bread}{6}
 
-\instruction{[Content will be placed here in Part~4]}
+\instruction{We wash our hands and make the blessing.}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל נְטִילַת יָדָיִם:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, who has sanctified us with Your commandments, and commanded us concerning the washing of the hands.
+\end{englishblock}
+
 
 %% ---- 7. MOTZI ----
 \sedersection{מוֹצִיא}{Motzi}{The Blessing Over Bread}{7}
 
-\instruction{[Content will be placed here in Part~4]}
+\instruction{We say the hamotzi blessing below holding all three matzot.}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַמּוֹצִיא לֶחֶם מִן הָאָרֶץ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, who brings forth bread from the earth.
+\end{englishblock}
+
 
 %% ---- 8. MATZAH ----
 \sedersection{מַצָּה}{Matzah}{Eating the Matzah}{8}
 
-\instruction{[Content will be placed here in Part~4]}
+\instruction{Put down the third matzah for the next blessing. (Have in mind that this blessing covers the afikoman as well.)}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Matzah}
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל אֲכִילַת מַצָּה:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, who hast sanctified us with Your commandments, and commanded us to eat unleavened bread.
+\end{englishblock}
+\instruction{We eat a piece (about half a matzah) from the top two matzot, leaning to the left.}
+
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Matzah}
+
+
 
 %% ---- 9. MAROR ----
 \sedersection{מָרוֹר}{Maror}{Bitter Herbs}{9}
 
-\instruction{[Content will be placed here in Part~4]}
+\instruction{We dip the maror into the charoset (and then shake it off so as to not sweeten the taste). We make the blessing, and eat the maror.}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם אֲשֶׁר קִדְּשָׁנוּ בְּמִצְוֹתָיו וְצִוָּנוּ עַל אֲכִילַת מָרוֹר:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, who has sanctified us with Your commandments, and commanded us concerning the eating of the bitter herbs.
+\end{englishblock}
+
 
 %% ---- 10. KORECH ----
 \sedersection{כּוֹרֵךְ}{Korech}{The ``Hillel Sandwich''}{10}
 
-\instruction{[Content will be placed here in Part~4]}
+\instruction{We make a sandwich: the third matzah, with the chazeret dipped in charoset. We say the following, and eat leaning to the left.}
+
+\begin{hebrewblock}
+כֵּן עָשָׂה הִלֵּל בִּזְמַן שֶׁבֵּית הַמִּקְדָּשׁ הָיָה קַיָּם הָיָה כּוֹרֵךְ פֶּסַח מַצָּה וּמָרוֹר וְאוֹכֵל בְּיַחַד. כְּמוֹ שֶׁנֶּאֱמַר עַל מַצּוֹת וּמְרוֹרִים יֹאכְלֻהוּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+So did Hillel do in the time when the Temple stood: He used to take a piece of the Passover lamb, Matzah, and Maror, and eat them together, so as to fulfil literally what is said in the Torah, "With Matzah and Maror shall they eat it".
+\end{englishblock}
+
 
 %% ---- 11. SHULCHAN ORECH ----
 \sedersection{שֻׁלְחָן עוֹרֵךְ}{Shulchan Orech}{Feast}{11}
 
-\instruction{[Content will be placed here in Part~4]}
+\instruction{We eat the meal.}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- The festive meal}
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The festive meal}
+
+
 
 %% ---- 12. TZAFUN ----
 \sedersection{צָפוּן}{Tzafun}{Eating the Afikoman}{12}
 
-\instruction{[Content will be placed here in Part~4]}
+\instruction{We finish the meal with the afikoman.}
+
+
 
 %% ---- 13. BERACH ----
-\sedersection{בָּרֵךְ}{Berach}{Grace After Meals}{13}
+\sedersectionbreak{בָּרֵךְ}{Berach}{Grace After Meals}{13}
 
-\instruction{[Content will be placed here in Part~4]}
+\instruction{The grace after meals. We fill the third cup.}
 
-%% ---- 14. HALLEL ----
-\sedersection{הַלֵּל}{Hallel}{Psalms of Praise}{14}
+\begin{hebrewblock}
+שִׁיר הַמַּעֲלוֹת בְּשׁוּב יְיָ אֶת שִׁיבַת צִיּוֹן הָיִינוּ כְּחֹלְמִים: אָז יִמָּלֵא שְׂחוֹק פִּינוּ וּלְשׁוֹנֵנוּ רִנָּה אָז יֹאמְרוּ בַגּוֹיִם הִגְדִּיל יְיָ לַעֲשׂוֹת עִם אֵלֶּה: הִגְדִּיל יְיָ לַעֲשׂוֹת עִמָּנוּ הָיִינוּ שְׂמֵחִים: שׁוּבָה יְיָ אֶת שְׁבִיתֵנוּ כַּאֲפִיקִים בַּנֶּגֶב: הַזֹּרְעִים בְּדִמְעָה בְּרִנָּה יִקְצֹרוּ: הָלוֹךְ יֵלֵךְ וּבָכֹה נֹשֵׂא מֶשֶׁךְ הַזָּרַע בֹּא יָבוֹא בְרִנָּה נֹשֵׂא אֲלֻמֹּתָיו:
+\end{hebrewblock}
+\begin{hebrewblock}
+לִבְנֵי קֹרַח מִזְמוֹר שִׁיר יְסוּדָתוֹ בְּהַרְרֵי קֹדֶשׁ: אֹהֵב יְיָ שַׁעֲרֵי צִיּוֹן מִכֹּל מִשְׁכְּנוֹת יַעֲקֹב: נִכְבָּדוֹת מְדֻבָּר בָּךְ עִיר הָאֱלֹהִים סֶלָה: אַזְכִּיר רַהַב וּבָבֶל לְיֹדְעָי: הִנֵּה פְלֶשֶׁת וְצֹר עִם כּוּשׁ זֶה יֻלַּד שָׁם: וּלְצִיּוֹן יֵאָמַר אִישׁ וְאִישׁ יֻלַּד בָּהּ וְהוּא יְכוֹנְנֶהָ עֶלְיוֹן: יְיָ יִסְפֹּר בִּכְתוֹב עַמִּים זֶה יֻלַּד שָׁם סֶלָה: וְשָׁרִים כְּחֹלְלִים כֹּל מַעְיָנַי בָּךְ:
+\end{hebrewblock}
+\begin{hebrewblock}
+אֲבָרְכָה אֶת־יְיָ בְּכָל עֵת תָּמִיד תְּהִלָּתוֹ בְּפִי: סוֹף דָּבָר הַכּל נִשְׁמָע אֶת הָאֱלֹהִים יְרָא וְאֶת מִצְוֹתָיו שְׁמוֹר כִּי זֶה כָּל הָאָדָם: תְּהִלַּת יְיָ יְדַבֶּר פִּי וִיבָרֵךְ כָּל בָּשָׂר שֵׁם קָדְשׁוֹ לְעוֹלָם וָעֶד: וַאֲנַחְנוּ נְבָרֵךְ יָה מֵעַתָּה וְעַד עוֹלָם הַלְלוּיָהּ:
+\end{hebrewblock}
+\instruction{Before rinsing the fingertips say}
 
-\instruction{[Content will be placed here in Part~4]}
+\begin{hebrewblock}
+זֶה חֵלֶק אָדָם רָשָׁע מֵאֱלֹהִים וְנַחֲלַת אִמְרוֹ מֵאֵל:
+\end{hebrewblock}
+\instruction{Afterward say}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Songs of praise}
+\begin{hebrewblock}
+וַיְדַבֵּר אֵלַי, זֶה הַשֻּׁלְחָן אֲשֶׁר לִפְנֵי יְיָ:
+\end{hebrewblock}
+\begin{hebrewblock}
+רַבּוֹתַי נְבָרֵךְ: (רבותי מיר וועלין בענטשין)
+\end{hebrewblock}
+\instruction{The others answer, and the leader repeats}
 
-%% ---- 15. NIRTZAH ----
-\sedersection{נִרְצָה}{Nirtzah}{Conclusion}{15}
+\begin{hebrewblock}
+יְהִי שֵׁם יְיָ מְבֹרָךְ מֵעַתָּה וְעַד עוֹלָם:
+בּ
+ִרְשׁוּת מָרָנָן וְרַבָּנָן וְרַבּוֹתַי. נְבָרֵךְ (אֱלֹהֵינוּ) שֶׁאָכַלְנוּ מִשֶּׁלּוֹ:
+\end{hebrewblock}
+\instruction{The others answer, and the leader repeats}
 
-\instruction{[Content will be placed here in Part~4]}
+\begin{hebrewblock}
+בָּרוּךְ (אֱלֹהֵינוּ) שֶׁאָכַלְנוּ מִשֶּׁלּוֹ וּבְטוּבוֹ חָיִינוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם הַזָּן אֶת הָעוֹלָם כֻּלּוֹ בְּטוּבוֹ בְּחֵן בְּחֶסֶד וּבְרַחֲמִים הוּא נוֹתֵן לֶחֶם לְכָל בָּשָׂר כִּי לְעוֹלָם חַסְדּוֹ: וּבְטוּבוֹ הַגָּדוֹל עִמָּנוּ תָּמִיד לֹא חָסֵר לָנוּ וְאַל יֶחְסַר לָנוּ מָזוֹן לְעוֹלָם וָעֶד: בַּעֲבוּר שְׁמוֹ הַגָּדוֹל כִּי הוּא אֵל זָן וּמְפַרְנֵס לַכֹּל וּמֵטִיב לַכֹּל וּמֵכִין מָזוֹן לְכָל בְּרִיּוֹתָיו אֲשֶׁר בָּרָא כָּאָמוּר פּוֹתֵחַ אֶת יָדֶךָ וּמַשְׂבִּיעַ לְכָל חַי רָצוֹן: בָּרוּךְ אַתָּה יְיָ הַזָּן אֶת הַכֹּל:
+\end{hebrewblock}
+\begin{hebrewblock}
+נוֹדֶה לְּךָ יְיָ אֱלֹהֵינוּ עַל שֶׁהִנְחַלְתָּ לַאֲבוֹתֵינוּ אֶרֶץ חֶמְדָּה טוֹבָה וּרְחָבָה וְעַל שֶׁהוֹצֵאתָנוּ יְיָ אֱלֹהֵינוּ מֵאֶרֶץ מִצְרַיִם וּפְדִיתָנוּ מִבֵּית עֲבָדִים וְעַל בְּרִיתְךָ שֶׁחָתַמְתָּ בִּבְשָׂרֵנוּ וְעַל תּוֹרָתְךָ שֶׁלִּמַּדְתָּנוּ וְעַל חֻקֶּיךָ שֶׁהוֹדַעְתָּנוּ וְעַל חַיִּים חֵן וָחֶסֶד שֶׁחוֹנַנְתָּנוּ וְעַל אֲכִילַת מָזוֹן שָׁאַתָּה זָן וּמְפַרְנֵס אוֹתָנוּ תָּמִיד בְּכָל יוֹם וּבְכָל עֵת וּבְכָל שָׁעָה:
+\end{hebrewblock}
+\begin{hebrewblock}
+וְעַל הַכֹּל יְיָ אֱלֹהֵינוּ אֲנַחְנוּ מוֹדִים לָךְ וּמְבָרְכִים אוֹתָךְ יִתְבָּרֵךְ שִׁמְךָ בְּפִי כָּל חַי תָּמִיד לְעוֹלָם וָעֶד: כַּכָּתוּב וְאָכַלְתָּ וְשָׂבָעְתָּ וּבֵרַכְתָּ אֶת יְיָ אֱלֹהֶיךָ עַל הָאָרֶץ הַטֹּבָה אֲשֶׁר נָתַן לָךְ: בָּרוּךְ אַתָּה יְיָ עַל־הָאָרֶץ וְעַל הַמָּזוֹן:
+\end{hebrewblock}
+\begin{hebrewblock}
+רַחֵם יְיָ אֱלֹהֵינוּ עַל יִשְׂרָאֵל עַמֶּךָ וְעַל יְרוּשָׁלַיִם עִירֶךָ וְעַל צִיּוֹן מִשְׁכַּן כְּבוֹדֶךָ וְעַל מַלְכוּת בֵּית דָּוִד מְשִׁיחֶךָ וְעַל–הַבַּיִת הַגָּדוֹל וְהַקָּדוֹשׁ שֶׁנִּקְרָא שִׁמְךָ עָלָיו: אֱלֹהֵינוּ אָבִינוּ רְעֵנוּ (בשבת: רוֹעֵנוּ) זוֹנֵנוּ פַּרְנְסֵנוּ וְכַלְכְּלֵנוּ וְהַרְוִיחֵנוּ וְהַרְוַח לָנוּ יְיָ אֱלֹהֵינוּ מְהֵרָה מִכָּל־צָרוֹתֵינוּ: וְנָא אַל־תַּצְרִיכֵנוּ יְיָ אֱלֹהֵינוּ לֹא לִידֵי מַתְּנַת בָּשָׂר וָדָם וְלֹא לִידֵי הַלְוָאָתָם כִּי אִם לְיָדְךָ הַמְּלֵאָה הַפְּתוּחָה הַקְּדוֹשָׁה וְהָרְחָבָה שֶׁלֹּא נֵבוֹשׁ וְלֹא נִכָּלֵם לְעוֹלָם וָעֶד:
+\end{hebrewblock}
+\begin{shabbatadd}
 
-\haggadahimagefixed{4.5in}{2.5in}{Illustration --- Next year in Jerusalem}
+\begin{hebrewblock}
+רְצֵה וְהַחֲלִיצֵנוּ יְיָ אֱלֹהֵינוּ בְּמִצְוֹתֶיךָ וּבְמִצְוַת יוֹם הַשְּׁבִיעִי הַשַּׁבָּת הַגָּדוֹל וְהַקָּדוֹשׂ הַזֶּה כִּי יוֹם זֶה גָּדוֹל וְקָדוֹשׁ הוּא לְפָנֶיךָ. לִשְׁבָּת בּוֹ וְלָנוּחַ בּוֹ בְּאַהֲבָה כְּמִצְוַת רְצוֹנֶךָ. וּבִרְצוֹנְךָ הָנִיחַ לָנוּ יְיָ אֱלֹהֵינוּ שֶׁלֹּא תְהֵא צָרָה וְיָגוֹן וַאֲנָחָה בְּיוֹם מְנוּחָתֵנוּ. וְהַרְאֵנוּ יְיָ אֱלֹהֵינוּ בְּנֶחָמַת צִיּוֹן עִירֶךָ וּבְבִנְיַן יְרוּשָׁלַיִם עִיר קָדְשֶׁךָ כִּי אַתָּה הוּא בַּעַל הַיְשׁוּעוֹת וּבַעַל הַנֶּחָמוֹת:
+\end{hebrewblock}
+\end{shabbatadd}
+\begin{hebrewblock}
+אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ יַעֲלֶה וְיָבֹא. וְיַגִּיעַַ וְיֵרָאֶה וְיֵרָצֶה. וְיִשָּׁמַע וְיִפָּקֵד וְיִזָּכֵר. זִכְרוֹנֵנוּ וּפִקְּדוֹנֵנוּ. וְזִכְרוֹן אֲבוֹתֵינוּ, וְזִכְרוֹן מָשִׁיחַ בֶּן דָּוִד עַבְדֶּךָ. וְזִכְרוֹן יְרוּשָׁלַיִם עִיר קָדְשֶׁךָ. וְזִכְרוֹן כָּל עַמְּךָ בֵּית יִשְׂרָאֵל לְפָנֶיךָ לִפְלֵיטָה לְטוֹבָה. לְחֵן וּלְחֶסֶד וּלְרַחֲמִים וּלְחַיִּים טוֹבִים וּלְשָׁלוֹם. בְּיוֹם חַג הַמַּצּוֹת הַזֶּה. בְּיוֹם טוֹב מִקְרָא קֹדֶשׁ הַזֶּה. זָכְרֵנוּ יְיָ אֱלֹהֵינוּ בּוֹ לְטוֹבָה. וּפָקְדֵנוּ בוֹ לִבְרָכָה וְהוֹשִׁיעֵנוּ בוֹ לְחַיִּים טוֹבִים: וּבִדְבַר יְשׁוּעָה וְרַחֲמִים חוּס וְחָנֵּנוּ וְרַחֵם עָלֵינוּ וְהוֹשִׁיעֵנוּ כִּי אֵלֶיךָ עֵינֵינוּ כִּי אֵל מֶלֶךְ חַנּוּן וְרַחוּם אָתָּה:
+\end{hebrewblock}
+\begin{hebrewblock}
+וּבְנֵה יְרוּשָׁלַיִם עִיר הַקֹּדֶשׁ בִּמְהֵרָה בְיָמֵינוּ. בָּרוּךְ אַתָּה יְיָ בּוֹנֵה בְרַחֲמָיו יְרוּשָׁלָיִם. אָמֵן:
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶֶךְ הָעוֹלָם הָאֵל. אָבִינוּ מַלְכֵּנוּ. אַדִּירֵנוּ בּוֹרְאֵנוּ גֹּאֲלֵנוּ יוֹצְרֵנוּ. קְדוֹשֵׁנוּ קְדוֹשׁ יַעֲקֹב רוֹעֵנוּ רוֹעֵה יִשְׂרָאֵל הַמֶּלֶךְ הַטּוֹב וְהַמֵּטִיב לַכֹּל בְּכָל יוֹם וָיוֹם. הוּא הֵיטִיב לָנוּ. הוּא מֵטִיב לָנוּ. הוּא יֵיטִיב לָנוּ. הוּא גְמָלָנוּ הוּא גּוֹמְלֵנוּ הוּא יִגְמְלֵנוּ לָעַד. לְחֵן וּלְחֶסֶד וּלְרַחֲמִים. וּלְרֶוַח הַצָּלָה וְהַצְלָחָה. בְּרָכָה וִישׁוּעָה. נֶחָמָה פַּרְנָסָה וְכַלְכָּלָה וְרַחֲמִים וְחַיִּים וְשָׁלוֹם וְכָל טוֹב וּמִכָּל טוּב לְעוֹלָם אַל יְחַסְּרֵנוּ:
+\end{hebrewblock}
+\begin{hebrewblock}
+הָרַחֲמָן הוּא יִמְלוֹךְ עָלֵינוּ לְעוֹלָם וָעֶד: הָרַחֲמָן הוּא יִתְבָּרֵךְ בַּשָּׁמַיִם וּבָאָרֶץ: הָרַחֲמָן הוּא יִשְׁתַּבַּח לְדוֹר דּוֹרִים וְיִתְפָּאֵר בָּנוּ לָעַד וּלְנֵצַח נְצָחִים וְיִתְהַדַּר בָּנוּ לָעַד וּלְעוֹלְמֵי עוֹלָמִים: הָרַחֲמָן הוּא יְפַרְנְסֵנוּ בְּכָבוֹד: הָרַחֲמָן הוּא יִשְׁבּוֹר עוֹל גָּלוּת מֵעַל צַוָּארֵנוּ וְהוּא יוֹלִיכֵנוּ קוֹמְמִיּוּת לְאַרְצֵנוּ: הָרַחֲמָן הוּא יִשְׁלַח בְּרָכָה מְרֻבָּה בְּבַיִת זֶה וְעַל שֻׁלְחָן זֶה שֶׁאָכַלְנוּ עָלָיו: הָרַחֲמָן הוּא יִשְׁלַח לָנוּ אֶת אֵלִיָּהוּ הַנָּבִיא זָכוּר לַטּוֹב וִיבַשֶּׂר לָנוּ בְּשׂוֹרוֹת טוֹבוֹת יְשׁוּעוֹת וְנֶחָמוֹת: הָרַחֲמָן הוּא יְבָרֵךְ אֵֶת אָבִי מוֹרִי בַּעַל הַבַּיִת הַזֶּה וְאֶת אִמִּי מוֹרָתִי בַּעְלַת הַבַּיִת הַזֶּה אוֹתָם וְאֶת בֵּיתָם וְאֶת זַרְעָם וְאֶת כָּל אֲשֶׁר לָהֶם אוֹתָנוּ וְאֶת כָּל אֲשֶׁר לָנוּ: כְּמוֹ שֶׁבֵּרַךְ אֶת אֲבוֹתֵינוּ אַבְרָהָם יִצְחָק וְיַעֲקֹב בַּכֹּל מִכֹּל כֹּל כֵּן יְבָרֵךְ אוֹתָנוּ (בני ברית) כֻּלָּנוּ יַחַד בִּבְרָכָה שְׁלֵמָה וְנֹאמַר אָמֵן:
+\end{hebrewblock}
+\begin{hebrewblock}
+מִמָּרוֹם יְלַמְּדוּ עָלָיו וְעָלֵינוּ זְכוּת שֶׁתְּהֵא לְמִשְׁמֶרֶת שָׁלוֹם וְנִשָּׂא בְרָכָה מֵאֵת יְיָ וּצְדָקָה מֵאֱלֹהֵי יִשְׁעֵנוּ וְנִמְצָא חֵן וְשֵׂכֶל טוֹב בְּעֵינֵי אֱלֹהִים וְאָדָם:
+\end{hebrewblock}
+\begin{shabbatadd}
 
-%%% ---- BACK MATTER ----
+\begin{hebrewblock}
+הָרַחֲמָן הוּא יַנְחִילֵנוּ לְיוֹם שֶׁכֻּלוֹ שַׁבָּת וּמְנוּחָה לְחַיֵּי הָעוֹלָמִים:
+\end{hebrewblock}
+\end{shabbatadd}
+\begin{hebrewblock}
+הָרַחֲמָן הוּא יַנְחִילֵנוּ לְיוֹם שֶׁכֻּלּוֹ טוֹב:
+\end{hebrewblock}
+\begin{hebrewblock}
+הָרַחֲמָן הוּא יְזַכֵּנוּ לִימוֹת הַמָּשִׁיחַ וּלְחַיֵּי הָעוֹלָם הַבָּא. מִגְדֹּל יְשׁוּעוֹת מַלְכּוֹ וְעֹשֶׂה חֶסֶד לִמְשִׁיחוֹ לְדָוִד וּלְזַרְעוֹ עַד עוֹלָם: עֹשֶׂה שָׁלוֹם בִּמְרוֹמָיו הוּא יַעֲשֶׂה שָׁלוֹם עָלֵינוּ וְעַל כָּל יִשְׂרָאֵל וְאִמְרוּ אָמֵן:
+\end{hebrewblock}
+\begin{hebrewblock}
+יְראוּ אֶת יְיָ קְדֹשָׁיו כִּי אֵין מַחְסוֹר לִירֵאָיו: כְּפִירִים רָשׁוּ וְרָעֵבוּ וְדֹרְשֵׁי יְיָ לֹא יַחְסְרוּ כָל טוֹב: הוֹדוּ לַאדֹנָי כִּי טוֹב כִּי לְעוֹלָם חַסְדּוֹ: פּוֹתֵחַ אֶת יָדֶךָ וּמַשְׂבִּיעַ לְכָל חַי רָצוֹן: בָּרוּךְ הַגֶּבֶר אֲשֶׁר יִבְטַח בַּאדֹנָי וְהָיָה יְיָ מִבְטַחוֹ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+A Song of Ascents. When the Lord returns Zion from captivity, we will have been as if in a dream. Then our mouth will be filled with laughter, and our tongue with exultation: then they'll say among the nations, The Lord has done great things for them. The Lord has done great things for us, we are glad. Bring back our captivity, Lord, as the streams in the south. They who sow in tears shall reap in joy. Though he goes on his way weeping, bearing the store of seed, he shall come back with joy, bearing his sheaves,
+\end{englishblock}
+\begin{englishblock}
+Let us say Grace.
+\end{englishblock}
+\instruction{The others answer, and the leader repeats:}
+
+\begin{englishblock}
+Blessed be the Name of the Lord from this time forth and forever.
+\end{englishblock}
+\begin{englishblock}
+With the sanction of those present: We will bless Him of whose bounty we have eaten.
+\end{englishblock}
+\instruction{The others answer, and the leader repeats:}
+
+\begin{englishblock}
+Blessed be He of whose bounty we have eaten, and through whose goodness we live.
+\end{englishblock}
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the universe, who feeds the whole world with your goodness, with grace, with loving-kindness and with tender mercy; He gives food to all flesh, for His loving-kindness endures forever, and through His great goodness toward us, food has never failed us, nor will it fail us forever and ever, for His great Name's sake, since He, G-d nourishes and sustains all beings, and does good unto all, and provides food for all His creatures which He has created. Blessed are You, Lord, who gives food unto all.
+\end{englishblock}
+\begin{englishblock}
+We thank You, Lord our G-d, for You did give as an inheritance unto our fathers a desirable, good, and ample land, and for You did bring us forth, Lord our G-d, from the land of Egypt, and did deliver us from the house of bondage; as well for Your covenant which You have sealed in our flesh; as well as for Your Torah which You have taught us; Your statutes which You have made known unto us; the life, grace, and loving-kindness which You have bestowed upon us; and for the food wherewith You do constantly feed and sustain us every day, in every time, at every hour.
+\end{englishblock}
+\begin{englishblock}
+For all this, Lord our G-d, we thank You and  bless You. Blessed be Your Name by the mouth of all life continually, forever. As it is written, And you shall eat and be satisfied, and you shall bless the Lord your G-d for the good land which He has given you. Blessed are You, Lord, for the land and for the food.
+\end{englishblock}
+\begin{englishblock}
+Have mercy, Lord our G-d, upon Israel Your people, and upon Jerusalem Your city, upon Zion the abiding place of Your glory, upon the kingdom of the house of David Your anointed, and upon the great and holy house called by Your Name. O our G-d, our Father, tend to us, nourish us, sustain us, support us, relieve us, and speedily, Lord our G-d, grant us relief from all our troubles. We beseech You, Lord our G-d, let us not be in need neither of the gifts from people of flesh and blood, nor of their loans, rather only of Your hand, which is full, open, holy, and ample; that we may not be ashamed nor confounded forever and ever.
+\end{englishblock}
+\begin{shabbatadd}
+\begin{englishblock}
+Be pleased, Lord our G-d, to fortify us by Your commandments, and by the commandment of the seventh day, this great and holy Shabbat, since this day is great and holy before You, that we may rest and repose then in love, according to the commandment, Your will. With Your favor, Lord our G-d, grant us such repose that there be no trouble, grief, or lamenting on the day of our rest. Let us, Lord our G-d, behold the consolation of Zion Your city, and the rebuilding of Jerusalem Your holy city, for You are the master of salvation and of consolation.
+\end{englishblock}
+\end{shabbatadd}
+\begin{englishblock}
+Our G-d, G-d of our fathers: May there rise, and come, and reach, and be seen, and accepted, and heard, and addressed, and remembered, our remembrance and our redemption, with the remembrance of our fathers, of Moshiach the son of David Your servant, of Jerusalem Your holy city, and of all Your people the house of Israel, before You, bringing deliverance and well-being. Bringing grace, loving-kindness, mercy, good life, and peace on this day of the Passover, this holiday. Remember us, Lord our G-d, thereon, for our wellbeing; be mindful of us for blessing; and save us unto good life; by Your promise of salvation and mercy, spare us and be gracious unto us, have mercy upon us, and save us, for our eyes are bent upon You, for You are the gracious and merciful G-d and King.
+\end{englishblock}
+\begin{englishblock}
+And rebuild Jerusalem the holy city speedily in our days. Blessed are You, Lord, who in His compassion rebuilds Jerusalem. Amen.
+\end{englishblock}
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the universe; O G-d, our Father, our King, our Mighty One, our Creator, our Redeemer, our Maker, our Holy One, the Holy One of Jacob, our Shepherd, the Shepherd of Israel, O King, who is kind and deals kindly with all, day by day He has dealt kindly, does deal kindly, and will deal kindly with us, He has bestowed, He does bestow, He will forever bestow benefits upon us, yielding us grace, loving-kindness, and mercy, and relief, deliverance, and prosperity, blessing and salvation, consolation, sustenance, and support, mercy, life, peace, and all good, of no manner of good will He let us be in want.
+\end{englishblock}
+\begin{englishblock}
+The All-merciful shall reign over us forever and ever. The All-merciful shall be blessed in heaven and on earth. The All-merciful shall be praised throughout all generations, glorified in us forever and for all eternity, and honored in us forever, everlasting. May the All-merciful grant us an honorable livelihood. May the All-merciful break off the yoke of exile from our neck, and lead us upright to our land. May the All-merciful send a plentiful blessing upon this house and upon this table at which we have eaten. May the All-merciful send us Elijah the prophet (let him be remembered for good), who shall give us good tidings, salvation and consolation. May the All-merciful bless my honored father, the master of this house, and my honored mother, the mistress of this house, they, their household, their children, and all that is theirs; us and all that is ours, as our fathers Abraham, Isaac and Jacob were blessed with everything, from everything, comprehensively; so may He bless all of us together (children of the covenant) with a perfect blessing, and let us say, Amen. Both on their and on our behalf may there be such advocacy on high as shall lead to enduring peace; and may we receive a blessing from the Lord, and righteousness from the G-d of our salvation; and may we find grace and good understanding in the sight of G-d and man.
+\end{englishblock}
+\begin{shabbatadd}
+\begin{englishblock}
+May the All-merciful let us inherit the day which shall be wholly a Shabbat and rest in the life everlasting.
+\end{englishblock}
+\end{shabbatadd}
+\begin{englishblock}
+May the All-merciful let us inherit the day which is altogether good. May the All-merciful let us merit the days of Moshiach and the life of the world to come. He is a tower of salvation to His king, and shows loving-kindness to His anointed, to David and to his seed, for evermore. He who makes peace in His high places, may He make peace for us and for all Israel, and say, Amen.
+\end{englishblock}
+\begin{englishblock}
+Fear the Lord, His holy ones, for there is no want to them that fear Him. Young lions do lack and suffer hunger, but they that seek the Lord shall not want any good. Give thanks unto the Lord, for He is good, for His loving-kindness endures forever. You open Your hand, and satisfy every living thing with favor. Blessed is the man that trusts in the Lord, and whose trust the Lord is.
+\end{englishblock}
+\instruction{We drink the third cup, leaning to the left.}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָפֶן.
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.
+\end{englishblock}
+
+
+
+\instruction{We fill the fourth cup and also the cup of Elijah. The door is opened as we say:}
+
+%% ---- 14. HALLEL NIRTZAH ----
+\sedersectionbreak{הַלֵּל נִרְצָה}{Hallel Nirtzah}{Psalms of Praise \& Conclusion}{14}
+
+
+\subsedertitle{שְׁפוֹךְ חֲמָתְךָ}{Shfoch Chamatcha}
+
+\begin{hebrewblock}
+שְׁפוֹךְ חֲמָתְךָ אֶל הַגּוֹיִם אֲשֶׁר לֹא יְדָעוּךָ. וְעַל מַמְלָכוֹת אֲשֶׁר בְּשִׁמְךָ לֹא קָרָאוּ: כִּי אָכַל אֶת יַעֲקֹב וְאֶת נָוֵהוּ הֵשַׁמּוּ: שְׁפָךְ עֲלֵיהֶם זַעְמֶךָ וַחֲרוֹן אַפְּךָ יַשִּׂיגֵם: תִּרְדּוֹף בְּאַף וְתַשְׁמִידֵם מִתַּחַת שְׁמֵי יְיָ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Pour out Your wrath upon the nations who know You not, and upon kingdoms which call not upon Your Name. They have consumed Jacob, and they have desolated His dwelling. Pour out upon them Your indignation; let the fierceness of Your anger overtake them. Pursue them in anger, and destroy them from under the heavens of the Lord.
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{לֹא לָנוּ}{Psalm 115}
+
+\begin{hebrewblock}
+לֹא לָנוּ יְיָ לֹא לָנוּ כִּי לְשִׁמְךָ תֵּן כָּבוֹד עַל חַסְדְּךָ עַל אֲמִתֶּךָ: לָמָּה יֹאמְרוּ הַגּוֹיִם אַיֵּה נָא אֱלֹהֵיהֶם: וֵאלֹהֵינוּ בַשָּׁמָיִם כֹּל אֲשֶׁר חָפֵץ עָשָׂה: עֲצַבֵּיהֶם כֶּסֶף וְזָהָב מַעֲשֵׂה יְדֵי אָדָם: פֶּה לָהֶם וְלֹא יְדַבֵּרוּ עֵינַיִם לָהֶם וְלֹא יִרְאוּ: אָזְנַיִם לָהֶם וְלֹא יִשְׁמָעוּ אַף לָהֶם וְלֹא יְרִיחוּן: יְדֵיהֶם וְלֹא יְמִישׁוּן רַגְלֵיהֶם וְלֹא יְהַלֵּכוּ לֹא יֶהְגּוּ בִּגְרוֹנָם: כְּמוֹהֶם יִהְיוּ עֹשֵׂיהֶם כֹּל אֲשֶׁר בֹּטֵחַ בָּהֶם: יִשְׂרָאֵל בְּטַח בַּאדֹנָי עֶזְרָם וּמָגִנָּם הוּא: בֵּית אַהֲרֹן בִּטְחוּ בַאדֹנָי עֶזְרָם וּמָגִנָּם הוּא: יִרְאֵי יְיָ בִּטְחוּ בַאדֹנָי עֶזְרָם וּמָגִנָּם הוּא:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Not unto us, Lord, not unto us, but unto Your Name give glory, for Your mercy, and for Your truth's sake. Why should the nations say, Where then is their G-d? And our G-d is in the heavens: He does whatsoever He pleases. Their idols are silver and gold, the work of men's hands. They have mouths, but they don't speak; they have eyes, but they don't see; they have ears, but they don't hear; they have noses, but they don't smell; they have hands, but they don't touch; they have feet, but they don't walk; they don't speak through their throat. They that make them shall be like them, everyone that trusts in them. Israel trusts in the Lord: He is their help and their shield. The house of Aaron trusts in the Lord: He is their help and their shield. Those who fear the Lord, trust in the Lord: He is their help and their shield.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+יְיָ זְכָרָנוּ יְבָרֵךְ יְבָרֵךְ אֶת בֵּית יִשְׂרָאֵל יְבָרֵךְ אֶת בֵּית אַהֲרֹן: יְבָרֵךְ יִרְאֵי יְיָ הַקְּטַנִּים עִם הַגְּדֹלִים: יֹסֵף יְיָ עֲלֵיכֶם עֲלֵיכֶם וְעַל בְּנֵיכֶם: בְּרוּכִים אַתֶּם לַאדֹנָי עֹשֵׂה שָׁמַיִם וָאָרֶץ: הַשָּׁמַיִם שָׁמַיִם לַאדֹנָי וְהָאָרֶץ נָתַן לִבְנֵי אָדָם: לֹא הַמֵּתִים יְהַלְלוּ יָהּ וְלֹא כָּל יֹרְדֵי דוּמָה: וַאֲנַחְנוּ נְבָרֵךְ יָהּ מֵעַתָּה וְעַד עוֹלָם הַלְלוּיָהּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\sederdivider
+
+\subsedertitle{אָהַבְתִּי}{Psalm 116}
+
+\begin{hebrewblock}
+אָהַבְתִּי כִּי יִשְׁמַע יְיָ אֶת קוֹלִי תַּחֲנוּנָי: כִּי הִטָּה אָזְנוֹ לִי וּבְיָמַי אֶקְרָא: אֲפָפוּנִי חֶבְלֵי מָוֶת וּמְצָרֵי שְׁאוֹל מְצָאוּנִי צָרָה וְיָגוֹן אֶמְצָא: וּבְשֵׁם יְיָ אֶקְרָא אָנָּה יְיָ מַלְּטָה נַפְשִׁי: חַנּוּן יְיָ וְצַדִּיק וֵאלֹהֵינוּ מְרַחֵם: שֹׁמֵר פְּתָאיִם יְיָ דַּלֹּתִי וְלִי יְהוֹשִׁיעַ: שׁוּבִי נַפְשִׁי לִמְנוּחָיְכִי כִּי יְיָ גָּמַל עָלָיְכִי: כִּי חִלַּצְתָּ נַפְשִׁי מִמָּוֶת אֶת עֵינִי מִן דִּמְעָה אֶת רַגְלִי מִדֶּחִי: אֶתְהַלֵּךְ לִפְנֵי יְיָ בְּאַרְצוֹת הַחַיִּים: הֶאֱמַנְתִּי כִּי אֲדַבֵּר אֲנִי עָנִיתִי מְאֹד: אֲנִי אָמַרְתִּי בְחָפְזִי כָּל הָאָדָם כֹּזֵב:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+I love the Lord, because He has heard my voice, my supplications. Because He has turned His ear to me, and I will  call upon Him as long as I live. The cords of death compassed me, and the pains of Sheol got hold upon me; I found trouble and sorrow. Then I called upon the Name of the Lord; Lord, I beseech You, deliver my soul. Gracious is the Lord, and righteous; our G-d is merciful. The Lord protects the simple: I was brought low and He saved me. Return unto your rest, my soul, for the Lord has dealt bountifully with you. For You have delivered my soul from death, my eyes from tears, my feet from falling. I will walk before the Lord in the land of the living. I believe, for I will speak: I was greatly afflicted: I said in my haste, All men are a lie.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+מָה אָשִׁיב לַאדֹנָי כָּל תַּגְמוּלוֹהִי עָלָי: כּוֹס יְשׁוּעוֹת אֶשָּׂא וּבְשֵׁם יְיָ אֶקְרָא: נְדָרַי לַייָ אֲשַׁלֵּם נֶגְדָּה נָּא לְכָל עַמּוֹ: יָקָר בְּעֵינֵי יְיָ הַמָּוְתָה לַחֲסִידָיו: אָנָּה יְיָ כִּי אֲנִי עַבְדֶּךָ, אֲנִי עַבְדְּךָ בֶּן אֲמָתֶךָ פִּתַּחְתָּ לְמוֹסֵרָי: לְךָ אֶזְבַּח זֶבַח תּוֹדָה וּבְשֵׁם יְיָ אֶקְרָא: נְדָרַי לַייָ אֲשַׁלֵּם נֶגְדָּה נָּא לְכָל עַמּוֹ: בְּחַצְרוֹת בֵּית יְיָ בְּתוֹכֵכִי יְרוּשָׁלָיִם הַלְלוּיָהּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+What shall I respond to the Lord for all his benefits toward me? I will take the cup of salvation, and call upon the Name of the Lord. I will pay my vows unto the Lord, in the presence of all His people. Precious in the sight of the Lord is the death of His pious ones. I thank you, Lord, for I am Your servant: I am Your servant the son of Your handmaid; You have loosened my bonds. I will offer to You a sacrifice of thanksgiving, and will call upon the Name of the Lord. I will pay my vows unto the Lord, in the presence of all His people; in the courts of the Lord's house, in your midst, O Jerusalem, praise the Lord.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+הַלְלוּ אֶת יְיָ כָּל גּוֹיִם שַׁבְּחוּהוּ כָּל הָאֻמִּים: כִּי גָבַר עָלֵינוּ חַסְדּוֹ וֶאֱמֶת יְיָ לְעוֹלָם הַלְלוּיָהּ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+O praise the Lord, all nations: laud Him all peoples. For His mercy is great toward us; and the truth of the Lord is forever. Praise the Lord.
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{הוֹדוּ}{Psalm 118}
+
+\begin{hebrewblock}
+הוֹדוּ לַאדֹנָי כִּי טוֹב,	כִּי לְעוֹלָם חַסְדּוֹ:
+יֹאמַר נָא יִשְׂרָאֵל,		כִּי לְעוֹלָם חַסְדּוֹ:
+יֹאמְרוּ נָא בֵית אַהֲרֹן,	כִּי לְעוֹלָם חַסְדּוֹ:
+יֹאמְרוּ נָא יִרְאֵי יְיָ,	כִּי לְעוֹלָם חַסְדּוֹ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+O give thanks unto the Lord; for He is good: for His mercy endures forever.\\[2pt]
+Let Israel say: That His mercy endures forever.\\[2pt]
+Let the house of Aaron say: That His mercy endures forever.\\[2pt]
+Let those who fear the Lord say: That His mercy endures forever.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+מִן הַמֵּצַר קָרָאתִי יָהּ עָנָנִי בַמֶּרְחַב יָהּ: יְיָ לִי לֹא אִירָא מַה יַּעֲשֶׂה לִי אָדָם: יְיָ לִי בְּעֹזְרָי וַאֲנִי אֶרְאֶה בְשׂנְאָי: טוֹב לַחֲסוֹת בַּאדֹנָי מִבְּטֹחַ בָּאָדָם: טוֹב לַחֲסוֹת בַּאדֹנָי מִבְּטֹחַ בִּנְדִיבִים: כָּל גּוֹיִם סְבָבוּנִי בְּשֵׁם יְיָ כִּי אֲמִילַם: סַבּוּנִי גַם סְבָבוּנִי בְּשֵׁם יְיָ כִּי אֲמִילַם: סַבּוּנִי כִדְבֹרִים דֹּעֲכוּ כְּאֵשׁ קוֹצִים בְּשֵׁם יְיָ כִּי אֲמִילַם: דָּחֹה דְחִיתַנִי לִנְפֹּל וַאדֹנָי עֲזָרָנִי: עָזִּי וְזִמְרָת יָהּ וַיְהִי לִי לִישׁוּעָה: קוֹל רִנָּה וִישׁוּעָה בְּאָהֳלֵי צַדִּיקִים יְמִין יְיָ עֹשָׂה חָיִל: יְמִין יְיָ רוֹמֵמָה יְמִין יְיָ עֹשָׂה חָיִל: לֹא אָמוּת כִּי אֶחְיֶה וַאֲסַפֵּר מַעֲשֵׂי יָהּ: יַסֹּר יִסְּרַנִּי יָהּ וְלַמָּוֶת לֹא נְתָנָנִי: פִּתְחוּ לִי שַׁעֲרֵי צֶדֶק אָבֹא בָם אוֹדֶה יָהּ: זֶה הַשַּׁעַר לַייָ צַדִּיקִים יָבֹאוּ בוֹ: אוֹדְךָ כִּי עֲנִיתָנִי וַתְּהִי לִי לִישׁוּעָה: אוֹדְךָ כִּי עֲנִיתָנִי וַתְּהִי לִי לִישׁוּעָה: אֶבֶן מָאֲסוּ הַבּוֹנִים הָיְתָה לְרֹאשׁ פִּנָּה: אֶבֶן מָאֲסוּ הַבּוֹנִים הָיְתָה לְרֹאשׁ פִּנָּה: מֵאֵת יְיָ הָיְתָה זֹּאת הִיא נִפְלָאת בְּעֵינֵינוּ: מֵאֵת יְיָ הָיְתָה זֹּאת הִיא נִפְלָאת בְּעֵינֵינוּ: זֶה הַיּוֹם עָשָׂה יְיָ נָגִילָה וְנִשְׂמְחָה בוֹ: זֶה הַיּוֹם עָשָׂה יְיָ נָגִילָה וְנִשְׂמְחָה בוֹ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+In my constraint I called upon the Lord: the Lord answered me in abundance. The Lord is on my side; I will not fear: what can man do to me? The Lord is on my side among them that help me: therefore shall I face my enemies. It is better to trust in the Lord than to put confidence in man. It is better to trust in the Lord than to put confidence in princes. All nations encompassed: in the Name of the Lord I will cut them off. They surrounded me, encompassed me: in the Name of the Lord I will cut them off. They surrounded me like bees; they are quenched as the fire of thorns: in the Name of the Lord I will cut them off. You pushed me that I might fall: but the Lord helped me. The strength and vengeance of our Lord has become my salvation. The voice of rejoicing and salvation is in the tents of the righteous: the right hand of the Lord acts valiantly. The right hand of the Lord is exalted: the right hand of the Lord acts valiantly. I shall not die, rather live, and declare the works of the Lord. The Lord has chastened me sore, but He has not given me over unto death. Open to me the gates of righteousness, I will enter into them, I will give thanks unto the Lord. This is the gate of the Lord, the righteous shall enter into it.
+\end{englishblock}
+\parasep
+
+\begin{englishblock}
+I will give thanks unto You, for You have answered me, and have become my salvation. \textit{(Repeat this verse.)} The stone which the builders rejected has become the cornerstone. \textit{(Repeat.)} This is the Lord’s doing; it is marvelous in our eyes. \textit{(Repeat.)} This is the day which the Lord has made, we will rejoice and be glad in it. \textit{(Repeat.)}
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+אָנָּא יְיָ הוֹשִׁיעָה נָּא:
+אָנָּא יְיָ הוֹשִׁיעָה נָּא:
+אָנָּא יְיָ הַצְלִיחָה נָּא:
+אָנָּא יְיָ הַצְלִיחָה נָּא:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+We beseech You, Lord: save us, please.\\[2pt]
+We beseech You, Lord: save us, please.\\[2pt]
+We beseech You, Lord: grant success please.\\[2pt]
+We beseech You, Lord: grant success please.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+בָּרוּךְ הַבָּא בְּשֵׁם יְיָ בֵּרַכְנוּכֶם מִבֵּית יְיָ:
+בָּרוּךְ הַבָּא בְּשֵׁם יְיָ בֵּרַכְנוּכֶם מִבֵּית יְיָ: אֵל יְיָ וַיָּאֶר לָנוּ אִסְרוּ חַג בַּעֲבֹתִים עַד קַרְנוֹת הַמִּזְבֵּחַ: אֵל יְיָ וַיָּאֶר לָנוּ אִסְרוּ חַג בַּעֲבֹתִים עַד קַרְנוֹת הַמִּזְבֵּחַ: אֵלִי אַתָּה וְאוֹדֶךָּ אֱלֹהַי אֲרוֹמְמֶךָּ: אֵלִי אַתָּה וְאוֹדֶךָּ אֱלֹהַי אֲרוֹמְמֶךָּ: הוֹדוּ לַייָ כִּי טוֹב כִּי לְעוֹלָם חַסְדּוֹ: הוֹדוּ לַייָ כִּי טוֹב כִּי לְעוֹלָם חַסְדּוֹ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed be he that comes in the Name of the Lord: we have blessed you out of the house of the Lord. \textit{(Repeat.)}\\[2pt]
+The Lord is G-d, and He has given us light; bind the sacrifice with cords, even unto the horns of the altar. \textit{(Repeat.)}\\[2pt]
+You are my G-d, and I will give thanks unto You: You are my G-d, I will exalt You. \textit{(Repeat.)}\\[2pt]
+Give thanks unto the Lord, for He is good, for His mercy endures forever. \textit{(Repeat.)}
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{יְהַלְלוּךָ}{Yehalelukha}
+
+\begin{hebrewblock}
+יְהַלְלוּךָ יְיָ אֱלֹהֵינוּ כָּל מַעֲשֶׂיךָ וַחֲסִידֶיךָ צַדִּיקִים עוֹשֵׂי רְצוֹנֶךָ וְכָל עַמְּךָ בֵּית יִשְׂרָאֵל בְּרִנָּה יוֹדוּ וִיבָרְכוּ וִישַׁבְּחוּ וִיפָאֲרוּ וִירוֹמְמוּ וְיַעֲרִיצוּ וְיַקְדִּישׁוּ וְיַמְלִיכוּ אֶת שִׁמְךָ מַלְכֵּנוּ. כִּי לְךָ טוֹב לְהוֹדוֹת וּלְשִׁמְךָ נָאֶה לְזַמֵּר כִּי מֵעוֹלָם וְעַד עוֹלְָם אַתָּה אֵל:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Let all Your works praise You Lord, our G-d. And let the righteous, who do Your will and all Your people the house of Israel, joyfully praise, bless, laud, glorify, exalt, reverence, declare holy and ascribe royalty to Your Name, our King. For to You it is right to give thanks, and to Your Name it is fitting to sing, for from everlasting unto everlasting You are G-d.
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{הַלֵּל הַגָּדוֹל}{Hallel HaGadol}
+
+\begin{hebrewblock}
+הוֹדוּ לַייָ כִּי טוֹב		כִּי לְעוֹלָם חַסְדּוֹ:
+הוֹדוּ לֵאלֹהֵי הָאֱלֹהִים	כִּי לְעוֹלָם חַסְדּוֹ:
+הוֹדוּ לַאֲדֹנֵי הָאֲדֹנִים	כִּי לְעוֹלָם חַסְדּוֹ:
+לְעֹשֵׂה נִפְלָאוֹת גְּדֹלוֹת לְבַדּוֹ כִּי לְעוֹלָם חַסְדּוֹ:
+לְעֹשֵׂה הַשָּׁמַיִם בִּתְבוּנָה	כִּי לְעוֹלָם חַסְדּוֹ:
+לְרוֹקַע הָאָרֶץ עַל הַמָּיִם	כִּי לְעוֹלָם חַסְדּוֹ:
+לְעֹשֵׂה אוֹרִים גְּדֹלִים	כִּי לְעוֹלָם חַסְדּוֹ:
+אֶת הַשֶּׁמֶשׁ לְמֶמְשֶׁלֶת בַּיּוֹם כִּי לְעוֹלָם חַסְדּוֹ:
+אֶת הַיָּרֵחַ וְכוֹכָבִים לְמֶמְשְׁלוֹת בַּלָּיְלָה			כִּי לְעוֹלָם חַסְדּוֹ:
+לְמַכֵּה מִצְרַיִם בִּבְכוֹרֵיהֶם כִּי לְעוֹלָם חַסְדּוֹ:
+וַיּוֹצֵא יִשְׂרָאֵל מִתּוֹכָם	כִּי לְעוֹלָם חַסְדּוֹ:
+בְּיָד חֲזָקָה וּבִזְרוֹעַ נְטוּיָה	כִּי לְעוֹלָם חַסְדּוֹ:
+לְגֹזֵר יַם סוּף לִגְזָרִים	כִּי לְעוֹלָם חַסְדּוֹ:
+וְהֶעֱבִיר יִשְׂרָאֵל בְּתוֹכוֹ	כִּי לְעוֹלָם חַסְדּוֹ:
+וְנִעֵר פַּרְעֹה וְחֵילוֹ בְיַם סוּף כִּי לְעוֹלָם חַסְדּוֹ:
+לְמוֹלִיךְ עַמּוֹ בַּמִּדְבָּר	כִּי לְעוֹלָם חַסְדּוֹ:
+לְמַכֵּה מְלָכִים גְּדֹלִים	כִּי לְעוֹלָם חַסְדּוֹ:
+וַיַּהֲרֹג מְלָכִים אַדִּירִים	כִּי לְעוֹלָם חַסְדּוֹ:
+לְסִיחוֹן מֶלֶךְ הָאֱמֹרִי	כִּי לְעוֹלָם חַסְדּוֹ:
+וּלְעוֹג מֶלֶךְ הַבָּשָׁן	כִּי לְעוֹלָם חַסְדּוֹ:
+וְנָתַן אַרְצָם לְנַחֲלָה	כִּי לְעוֹלָם חַסְדּוֹ:
+נַחֲלָה לְיִשְׂרָאֵל עַבְדּוֹ	כִּי לְעוֹלָם חַסְדּוֹ:
+שֶׁבְּשִׁפְלֵנוּ זָכַר לָנוּ	כִּי לְעוֹלָם חַסְדּוֹ:
+וַיִּפְרְקֵנוּ מִצָּרֵינוּ		כִּי לְעוֹלָם חַסְדּוֹ:
+נֹותֵן לֶחֶם לְכָל בָּשָׂר	כִּי לְעוֹלָם חַסְדּוֹ:
+הוֹדוּ לְאֵל הַשָּׁמָיִם	כִּי לְעוֹלָם חַסְדּוֹ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+O give thanks unto the Lord; for He is good: For His mercy endures forever.\\[2pt]
+O give thanks unto the G-d of gods: For His mercy endures forever.\\[2pt]
+O give thanks unto the Lord of lords: For His mercy endures forever.\\[2pt]
+To Him who alone does great wonders: For His mercy endures forever.\\[2pt]
+To Him that through understanding made the heavens: For His mercy endures forever.\\[2pt]
+To Him that spread forth the earth over the waters: For His mercy endures forever.\\[2pt]
+To Him that made great lights: For His mercy endures forever.\\[2pt]
+The sun to rule by day: For His mercy endures forever.\\[2pt]
+The moon and stars to rule by night: For His mercy endures forever.\\[2pt]
+To Him that smote Egypt in their first-born: For His mercy endures forever.\\[2pt]
+And brought out Israel from among them: For His mercy endures forever.\\[2pt]
+With a strong hand and with an outstretched arm: For His mercy endures forever.\\[2pt]
+To him which divided the Red Sea apart: For His mercy endures forever.\\[2pt]
+And made Israel to pass through the midst of it: For His mercy endures forever.\\[2pt]
+And overthrew Pharaoh and his host in the Red Sea: For His mercy endures forever.\\[2pt]
+To Him which led His people through the wilderness: For His mercy endures forever.\\[2pt]
+To Him which smote great kings: For His mercy endures forever.\\[2pt]
+And slew famous kings: For His mercy endures forever.\\[2pt]
+Sihon king of the Amorites: For His mercy endures forever.\\[2pt]
+And Og king of Bashan: For His mercy endures forever.\\[2pt]
+And gave their land for an inheritance: For His mercy endures forever.\\[2pt]
+An inheritance unto Israel His servant: For His mercy endures forever.\\[2pt]
+He gives food to all flesh: For His mercy endures forever.\\[2pt]
+O give thanks to the G-d of heaven: For His mercy endures forever.
+\end{englishblock}
+\sederdivider
+
+\subsedertitle{נִשְׁמַת כָּל חַי}{Nishmat}
+
+\begin{hebrewblock}
+נִשְׁמַת כָּל חַי תְּבָרֵךְ אֶת שִׁמְךָ יְיָ אֱלֹהֵינוּ. וְרוּחַ כָּל בָּשָׂר תְּפָאֵר וּתְרוֹמֵם זִכְרְךָ מַלְכֵּנוּ תָּמִיד. מִן הָעוֹלָם וְעַד הָעוֹלָם אַתָּה אֵל. וּמִבַּלְעָדֶיךָ אֵין לָנוּ מֶלֶךְ גּוֹאֵל וּמוֹשִׁיעַ פּוֹדֶה וּמַצִּיל וּמְפַרְנֵס וְעוֹנֶה וּמְרַחֵם בְּכָל עֵת צָרָה וְצוּקָה אֵין לָנוּ מֶלֶךְ אֶלָּא אָתָּה: אֱלֹהֵי הָרִאשׁוֹנִים וְהָאַחֲרוֹנִים אֱלוֹהַּ כָּל בְּרִיּוֹת אֲדוֹן כָּל תּוֹלָדוֹת הַמְהֻלָּל בְּרֹב הַתִּשְׁבָּחוֹת. הַמְנַהֵג עוֹלָמוֹ בְּחֶסֶד וּבְרִיּוֹתָיו בְּרַחֲמִים. וַייָ הִנֵּה לֹא יָנוּם וְלֹא יִישָׁן. הַמְּעוֹרֵר יְשֵׁנִים וְהַמֵּקִיץ נִרְדָּמִים וְהַמֵּשִׂיחַ אִלְּמִים וְהַמַּתִּיר אֲסוּרִים וְהַסּוֹמֵךְ נוֹפְלִים וְהַזּוֹקֵף כְּפוּפִים. לְךָ לְבַדְּךָ אֲנַחְנוּ מוֹדִים. אִלּוּ פִינוּ מָלֵא שִׁירָה כַּיָּם וּלְשׁוֹנֵנוּ רִנָּה כַּהֲמוֹן גַּלָּיו וְשִׂפְתוֹתֵינוּ שֶׁבַח כְּמֶרְחֲבֵי רָקִיעַ וְעֵינֵינוּ מְאִירוֹת כַּשֶּׁמֶשׁ וְכַיָּרֵחַ וְיָדֵינוּ פְרוּשׂוֹת כְּנִשְׁרֵי שָׁמָיִם וְרַגְלֵינוּ קַלּוֹת כָּאַיָּלוֹת: אֵין אָנוּ מַסְפִּיקִים לְהוֹדוֹת לְךָ יְיָ אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ וּלְבָרֵךְ אֶת שְׁמֶךָ עַל אַחַת מֵאֶלֶף אַלְפֵי אֲלָפִים וְרִבֵּי רְבָבוֹת פְּעָמִים הַטּוֹבוֹת נִסִּים וְנִפְלָאוֹת שֶׁעָשִׂיתָ עִמָּנוּ וְעִם אֲבֹתֵינוּ מִלְּפָנִים: מִמִּצְרַיִם גְּאַלְתָּנוּ יְיָ אֱלֹהֵינוּ. מִבֵּית עֲבָדִים פְּדִיתָנוּ. בְּרָעָב זַנְתָּנוּ וּבְשָׂבָע כִּלְכַּלְתָּנוּ מֵחֶרֶב הִצַּלְתָּנוּ וּמִדֶּבֶר מִלַּטְתָּנוּ וּמֵחֳלָיִם רָעִים וְנֶאֱמָנִים דִּלִּיתָנוּ: עַד הֵנָּה עֲזָרוּנוּ רַחֲמֶיךָ וְלֹא עֲזָבוּנוּ חֲסָדֶיךָ. וְאַל תִּטְּשֵׁנוּ יְיָ אֱלֹהֵינוּ לָנֶצַח: עַל כֵּן אֵבָרִים שֶׁפִּלַּגְתָּ בָּנוּ וְרוּחַ וּנְשָׁמָה שֶׁנָּפַחְתָּ בְּאַפֵּנוּ וְלָשׁוֹן אֲשֶׁר שַׂמְתָּ בְּפִינוּ: הֵן הֵם יוֹדוּ וִיבָרְכוּ וִישַׁבְּחוּ וִיפָאֲרוּ וִירוֹמְמוּ וְיַעֲרִיצוּ וְיַקְדִּישׁוּ וְיַמְלִיכוּ אֶת שִׁמְךָ מַלְכֵּנוּ: כִּי כָל פֶּה לְךָ יוֹדֶה וְכָל לָשׁוֹן לְךָ תִשָּׁבַע. וְכָל עַיִן לְךָ תְצַפֶּה וְכָל בֶּרֶךְ לְךָ תִכְרַע וְכָל קוֹמָה לְפָנֶיךָ תִשְׁתַּחֲוֶה. וְכָל הַלְּבָבוֹת יִירָאוּךָ וְכָל קֶרֶב וּכְלָיוֹת יְזַמְּרוּ לִשְׁמֶךָ. כַּדָּבָר שֶׁכָּתוּב כָּל עַצְמוֹתַי תֹּאמַרְנָה יְיָ מִי כָמוֹךָ. מַצִּיל עָנִי מֵחָזָק מִמֶּנוּ וְעָנִי וְאֶבְיוֹן מִגּוֹזְלוֹ: מִי יִדְמֶה לָּךְ וּמִי יִשְׁוֶה לָּךְ וּמִי יַעֲרָךְ לָךְ. הָאֵל הַגָּדוֹל הַגִּבּוֹר וְהַנּוֹרָא אֵל עֶלְיוֹן קֹנֵה שָׁמַיִם וָאָרֶץ: נְהַלֶּלְךָ וּנְשַׁבֵּחֲךָ וּנְפָאֶרְךָ וּנְבָרֵךְ אֶת שֵׁם קָדְשֶׁךָ. כָּאָמוּר לְדָוִד בָּרְכִי נַפְשִׁי אֶת יְיָ וְכָל קְרָבַי אֶת שֵׁם קָדְשׁוֹ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+The breath of every living being shall bless Your Name, Lord our G-d, and the spirit of all flesh shall continually glorify and exalt Your memorial, O our King; from everlasting to everlasting You are G-d; and beside You we have no King who redeems and saves, sets free and delivers, and who supports and answers and has mercy in all times of trouble and distress; we have no King but You. He is G-d of the first and of the last, the G-d of all creatures, the Lord of all generations, who is extolled with many praises, and guides His world with loving-kindness and His creatures with tender mercies. The Lord neither slumbers, nor sleeps; He arouses the sleepers and awakens the slumberers; He makes the dumb to speak, loosens the bound, supports the falling, and raises up the bowed. To You alone we give thanks. Though our mouths were full of song as the sea, and our tongues of exultation as the multitude of its waves, and our lips of praise as the expanses of the cosmos; though our eyes shone like the sun and the moon, and our hands were spread forth like the eagles of heaven, and our feet were swift as deer, we should still be unable to thank You, Lord our G-d and G-d of our fathers, and to bless Your Name for one of the thousands of thousands upon thousands, myriad leagues of events, the favors, miracles and wonders which You have done for us and for our fathers before us. You redeemed us from Egypt, Lord our G-d, and released us from the house of bondage; during famine You fed us, and in plenty You sustained us; from the sword You did rescue us, from pestilence You did save us, and from sore and lasting diseases You delivered us. Thus far Your tender mercy has helped us, and Your loving-kindness has not left us: forsake us not, Lord our G-d, forever. Therefore the limbs which You have put within us, and the spirit and soul which You have breathed into our nostrils, and the tongue which You have set in our mouths: they shall thank, bless, praise, glorify, extol, reverence, make holy, and assign kingship to Your Name our King. For every mouth shall give thanks unto You, and every tongue shall swear unto You; every knee shall bow to You, and whatsoever is lofty shall prostrate itself before You; all hearts shall fear You, and all the inward parts shall sing unto Your Name, as it is written, All my bones shall say, Lord, who is like You? You deliver the poor from him that is too strong for him, the poor and the needy from him that robs them. Who can be likened to You, who can be equated to You, who can be compared to You, G-d, the great, mighty, and awful, most high G-d, Possessor of heaven and earth. We will praise, laud, and glorify You, and we will bless Your holy Name, as it is said (A Psalm of David), Bless the Lord, O my soul; and all that is within me, bless His holy Name.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+הָאֵל בְּתַעֲצֻמוֹת עֻזֶּךָ. הַגָּדוֹל בִּכְבוֹד שְׁמֶךָ. הַגִּבּוֹר לָנֶצַח וְהַנּוֹרָא בְּנוֹרְאוֹתֶיךָ. הַמֶּלֶךְ הַיּוֹשֵׁב עַל כִּסֵּא רָם וְנִשָּׂא:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+The G-d in the incredibleness of Your power, the great One in the glory of Your Name, the mighty One forever and the Awesome One by Your awesome acts. The King who sits upon a high and lofty throne.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+שׁוֹכֵן עַד מָרוֹם וְקָדוֹשׁ שְׁמוֹ. וְכָתוּב רַנְּנוּ צַדִּיקִים בַּייָ, לַיְשָׁרִים נָאוָה תְהִלָּה: בְּפִי יְשָׁרִים תִּתְרוֹמָם. וּבְשִׂפְתֵי צַדִּיקִים תִּתְבָּרֵךְ. וּבִלְשׁוֹן חֲסִידִים תִּתְקַדָּשׁ. וּבְקֶרֶב קְדוֹשִׁים תִּתְהַלָּל: וּבְמַקְהֵלוֹת רִבְבוֹת עַמְּךָ בֵּית יִשְׂרָאֵל בְּרִנָּה יִתְפָּאֵר שִׁמְךָ מַלְכֵּנוּ בְּכָל דּוֹר וָדוֹר שֶׁכֵּן חוֹבַת כָּל הַיְצוּרִים. לְפָנֶיךָ יְיָ אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ לְהוֹדוֹת לְהַלֵּל לְשַׁבֵּחַ לְפָאֵר לְרוֹמֵם לְהַדֵּר לְבָרֵךְ לְעַלֵּה וּלְקַלֵּס עַל כָּל דִּבְרֵי שִׁירוֹת וְתִשְׁבְּחוֹת דָּוִד בֶּן יִשַׁי עַבְדְּךָ מְשִׁיחֶךָ:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+He who dwells in eternity, exalted and holy is His Name; and it is written, Exult in the Lord, O you righteous; praise is seemly for the just. By the mouth of the just You shall be praised, by the words of the righteous You shall be blessed, by the tongues of the devoted ones You shall be extolled, and in the midst of the holy You shall be praised. In the assemblies also of the multitudes of Your people, the house of Israel, Your Name, our King, shall be glorified with joyous cries in every generation; for such is the duty of all creatures in Your presence, Lord our G-d, G-d of our fathers, to thank, praise, laud, glorify, extol, honor, bless, exalt, and adore, beyond all the words of song and praise of David the son of Yishai, Your servant and anointed.
+\end{englishblock}
+\parasep
+
+\begin{hebrewblock}
+וּבְכֵן יִשְׁתַּבַּח שִׁמְךָ לָעַד מַלְכֵּנוּ הָאֵל הַמֶּלֶךְ הַגָּדוֹל וְהַקָּדוֹשׁ בַּשָּׁמַיִם וּבָאָרֶץ. כִּי לְךָ נָאֶה יְיָ אֱלֹהֵינוּ וֵאלֹהֵי אֲבוֹתֵינוּ לְעוֹלָם וָעֶד: שִׁיר וּשְׁבָחָה הַלֵּל וְזִמְרָה עֹז וּמֶמְשָׁלָה נֶצַח גְּדֻלָּה וּגְבוּרָה תְּהִלָּה וְתִפְאֶרֶת קְדֻשָּׁה וּמַלְכוּת. בְּרָכוֹת וְהוֹדָאוֹת לְשִׁמְךָ הַגָּדוֹל וְהַקָּדוֹשׁ וּמֵעוֹלָם עַד עוֹלָם אַתָּה אֵל: בָּרוּךְ אַתָּה יְיָ אֵל מֶלֶךְ גָּדוֹל וּמְהֻלָּל בַּתִּשְׁבָּחוֹת אֵל הַהוֹדָאוֹת אֲדוֹן הַנִּפְלָאוֹת בּוֹרֵא כָּל הַנְּשָׁמוֹת רִבּוֹן כָּל הַמַּעֲשִׂים. הַבּוֹחֵר בְּשִׁירֵי זִמְרָה. מֶלֶךְ יָחִיד חֵי הָעוֹלָמִים:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+And so praised be Your Name forever, our King, the Almighty, the King,  the Great, the Holy in heaven and on earth; for to You, is becoming, Lord our G-d, G-d of our fathers, song and praise, hymn and psalm, strength and dominion, victory, greatness, and might, renown and glory, holiness and sovereignty, blessings and thanksgivings for Your great and holy Name; forever and ever your are Almighty G-d. Blessed are You, Lord, Almighty G-d, King, great and renowned in praises, G-d of thanksgivings, master of wonders, Creator of all souls orchestrator of all events, who chooses song and hymn: one and only King, the life of all worlds.
+\end{englishblock}
+\sederdivider
+
+\instruction{We drink the fourth cup, leaning to the left.}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ, אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא פְּרִי הַגָפֶן.
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.
+\end{englishblock}
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Songs of praise}
+
+\sederdivider
+
+\subsedertitle{נִרְצָה}{Nirtzah --- Conclusion}
+
+\instruction{The concluding blessing for wine and grape juice:}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם עַל הַגֶּפֶן וְעַל פְּרִי הַגֶּפֶן וְעַל תְּנוּבַת הַשָּׂדֶה וְעַל אֶרֶץ חֶמְדָּה טוֹבָה וּרְחָבָה שֶׁרָצִיתָ וְהִנְחַלְתָּ לַאֲבוֹתֵינוּ לֶאֱכֹל מִפִּרְיָהּ וְלִשְׂבּוֹעַ מִטּוּבָהּ רַחֶם נָא יְיָ אֱלֹהֵינוּ עַל יִשְׂרָאֵל עַמֶּךָ וְעַל יְרוּשָׁלַיִם עִירֶךָ וְעַל צִיּוֹן מִשְׁכַּן כְּבוֹדֶךָ וְעַל מִזְבְּחֶךָ וְעַל הֵיכָלֶךָ. וּבְנֵה יְרוּשָׁלַיִם עִיר הַקֹּדֶשׁ בִּמְהֵרָה בְיָמֵינוּ וְהַעֲלֵנוּ לְתוֹכָהּ. וְשַׂמְּחֵנוּ בָהּ וּנְבָרֶכְךָ בִּקְדֻשָּׁה וּבְטָהֳרָה. (On Shabbat add וּרְצֵה וְהַחֲלִיצֵנוּ בְּיוֹם הַשַּׁבָּת הַזֶּה) וְזָכְרֵנוּ לְטוֹבָה בְּיוֹם חַג הַמַּצּוֹת הַזֶּה. כִּי אַתָּה יְיָ טוֹב וּמֵטִיב לַכֹּל וְנוֹדֶה לְךָ עַל הָאָרֶץ וְעַל פְּרִי הַגָּפֶן: בָּרוּךְ אַתָּה יְיָ עַל הָאָרֶץ וְעַל פְּרִי הַגָּפֶן:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, King of the Universe, for the vine and for the fruit of the vine, for the produce of the field, and for the pleasant, goodly and great land in which You did delight, and which You did grant as the inheritance of our forefathers, to eat its fruit, and be satiated with its bounties. Be merciful, please, Lord our G-d, to Israel Your people; to Jerusalem, Your city; to Zion, the dwelling place of Your honor; to Your altar and to Your sanctuary. And rebuild Jerusalem, Your holy city, speedily in our days. And bring us there, let us rejoice in it. And may we there be enabled to offer You pure and sanctified blessing (be pleased to grant us strength on this Shabbat day), and remember us for goodness on this holiday of Passover, for You, Lord, are good and benevolent to all. Then shall we render You thanks for the land and for the fruit of the vine. Blessed are You, Lord, for the land and for the fruit of the vine.
+\end{englishblock}
+\parasep
+
+\instruction{The concluding blessing for other drinks:}
+
+\begin{hebrewblock}
+בָּרוּךְ אַתָּה יְיָ אֱלֹהֵינוּ מֶלֶךְ הָעוֹלָם בּוֹרֵא נְפָשׁוֹת רַבּוֹת וְחֶסְרוֹנָן עַל כָּל מַה שֶׁבָּרָאתָ לְהַחֲיוֹת בָּהֶם נֶפֶשׁ כָּל חָי. בָּרוּךְ חֵי הָעוֹלָמִים:
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{englishblock}
+Blessed are You, Lord our G-d, Creator of so many diverse beings, for all You have created, and through which you maintain the soul of all life, Blessed is He, the Life of all worlds.
+\end{englishblock}
+\vspace{10pt}
+\begin{center}
+\textcolor{sedergold}{\pgfornament[width=1.5cm]{11}}
+\end{center}
+\vspace{6pt}
+
+\begin{hebrewblock}
+לְשָׁנָה הַבָּאָה בִּירוּשָׁלָיִם!
+\end{hebrewblock}
+\hebrewenglishsep
+
+\begin{center}
+{\Large\scshape\textcolor{sederblue}{Next Year in Jerusalem!}}
+\end{center}
+
+\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Next year in Jerusalem}
+
+%%% ---- BACK COVER ----
 \clearpage
 \thispagestyle{empty}
+\showpageornamentsfalse
+\begin{tikzpicture}[remember picture, overlay]
+  %% background colour
+  \fill[sederblue] (current page.south west) rectangle (current page.north east);
+  %% decorative border
+  \draw[sedergold, line width=2pt]
+    ([shift={(0.4in, 0.4in)}]current page.south west) rectangle
+    ([shift={(-0.4in,-0.4in)}]current page.north east);
+  \draw[sedergold, line width=0.5pt]
+    ([shift={(0.5in, 0.5in)}]current page.south west) rectangle
+    ([shift={(-0.5in,-0.5in)}]current page.north east);
+  %% corner ornaments
+  \node[anchor=north west] at ([shift={(0.55in,-0.55in)}]current page.north west)
+    {\pgfornament[width=1.6cm, color=sedergold]{63}};
+  \node[anchor=north east] at ([shift={(-0.55in,-0.55in)}]current page.north east)
+    {\pgfornament[width=1.6cm, color=sedergold, symmetry=v]{63}};
+  \node[anchor=south west] at ([shift={(0.55in,0.55in)}]current page.south west)
+    {\pgfornament[width=1.6cm, color=sedergold, symmetry=h]{63}};
+  \node[anchor=south east] at ([shift={(-0.55in,0.55in)}]current page.south east)
+    {\pgfornament[width=1.6cm, color=sedergold, symmetry=c]{63}};
+\end{tikzpicture}
+
 \vspace*{\fill}
+
 \begin{center}
-  \textcolor{sedergold}{\pgfornament[width=2cm]{11}}\\[20pt]
-  {\Large\scshape\textcolor{sederblue}{Next Year in Jerusalem!}}\\[12pt]
-  {\hebrewfontlarge\TeXXeTstate=1\beginR\textcolor{sederblue}{לְשָׁנָה הַבָּאָה בִּירוּשָׁלָיִם!}\endR}
+  \textcolor{sedergold}{\pgfornament[width=2.5cm]{75}}
+
+  \vspace{0.5in}
+
+  {\Large\scshape\textcolor{white}{Your Chabad House}}
+
+  \vspace{0.3in}
+
+  {\normalsize\textcolor{sedergold}{Address Line 1\\[4pt]
+  City, State ZIP\\[4pt]
+  Phone $\cdot$ Email\\[4pt]
+  www.yourchabadhouse.com}}
+
+  \vspace{0.5in}
+
+  \haggadahimagefixed{2.5in}{1.2in}{Chabad House logo}
+
+  \vspace{0.5in}
+
+  \textcolor{sedergold}{\pgfornament[width=2.5cm, symmetry=h]{75}}
+
+  \vspace{0.4in}
+
+  {\small\textcolor{white}{\itshape Wishing you and your family\\[4pt]
+  a kosher and joyous Pesach!}}
+
+  \vspace{0.3in}
+
+  \textcolor{sedergold}{\hebrewfontlarge\TeXXeTstate=1\beginR חַג כָּשֵׁר וְשָׂמֵחַ!\endR}
 \end{center}
+
 \vspace*{\fill}
 
 \end{document}
