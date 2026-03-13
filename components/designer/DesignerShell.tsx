@@ -460,7 +460,13 @@ export function DesignerShell({
         />
       </div>
 
-      {/* Mobile layout: portrait = top/bottom, landscape = side-by-side */}
+      {/*
+        Mobile layout (below md breakpoint):
+        - Single pane: book image + chat (no tabs, no sidebar/photo reservoir)
+        - Portrait: book on top (40%), chat on bottom (60%)
+        - Landscape: side-by-side split (book left, chat right)
+        - Images are uploaded as chat attachments via the paperclip button
+      */}
       <div className="flex flex-1 flex-col landscape:flex-row overflow-hidden md:hidden">
         {/* Book page viewer */}
         <div className="h-[40%] min-h-0 shrink-0 overflow-auto border-b landscape:h-full landscape:w-1/2 landscape:border-b-0 landscape:border-r">
