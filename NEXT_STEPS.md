@@ -21,6 +21,27 @@ The current implementation fetches cover thumbnails client-side by calling `/api
 3. Return the cover URL directly from `GET /api/project` to avoid N+1 render calls on dashboard load
 4. Alternatively, create a dedicated `GET /api/project/thumbnails?ids=...` batch endpoint
 
+## Page Editability (Locking Pages)
+
+Pages can be individually locked to prevent AI editing. This is configured per-page in `templates/metadata/pages.json` via the `editable` field.
+
+### How it works
+
+- **Configuration**: Set `"editable": false` on any page entry in `templates/metadata/pages.json` to lock it. Default is `true`.
+- **UI behavior**: When a user navigates to a locked page:
+  - An amber warning banner appears above the preview: *"[Page Label] is not editable. This page is locked and cannot be modified."*
+  - A lock icon badge appears on the page render.
+  - The page thumbnail in the sidebar shows a small lock icon.
+- **AI behavior**: The AI system prompt includes the `editable` flag for every page. If the user asks the AI to edit a locked page:
+  - The designer agent filters it out of the target pages before generating HTML.
+  - If *all* requested pages are locked, the AI returns a message explaining the pages are locked.
+  - As a defense-in-depth measure, the server also strips any page-html blocks the AI returns for non-editable pages.
+
+### Future enhancements
+
+- Per-project overrides: Allow `editable` overrides stored in `projects.variant_options` so different projects can have different locked pages without changing the template.
+- Admin UI: Add a settings panel in the designer to toggle page editability visually instead of editing JSON.
+
 ## Autosave Indicator Completeness
 
 The autosave indicator currently tracks:
