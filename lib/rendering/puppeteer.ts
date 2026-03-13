@@ -25,9 +25,23 @@ export async function renderPageToImage(html: string): Promise<Buffer> {
     // Inject <base> so absolute paths (/fonts/, /images/) resolve to the local server
     const port = process.env.PORT || '8080'
     const baseTag = `<base href="http://localhost:${port}/">`
-    const htmlWithBase = html.includes('<head>')
-      ? html.replace('<head>', `<head>${baseTag}`)
-      : `<html><head>${baseTag}</head><body>${html}</body></html>`
+
+    // Strip the font-loading overlay injected by rewriteAssetPaths —
+    // it has position:fixed + white bg that covers the entire screenshot.
+    // Puppeteer waits for fonts separately via document.fonts.ready below.
+    let cleanHtml = html
+      .replace(/<div class="font-loading-overlay"[\s\S]*?<\/div>\s*<\/div>/gi, '')
+      .replace(/<script>[\s\S]*?fontOverlay[\s\S]*?<\/script>/gi, '')
+      .replace(/<style>[^<]*\.font-loading-overlay[\s\S]*?<\/style>/gi, '')
+
+    const htmlWithBase = cleanHtml.includes('<head>')
+      ? cleanHtml.replace('<head>', `<head>${baseTag}`)
+      : `<html><head>${baseTag}</head><body>${cleanHtml}</body></html>`
+
+    // Log failed resource loads for debugging
+    page.on('requestfailed', (req) => {
+      console.warn('[Render] Resource failed:', req.url(), req.failure()?.errorText)
+    })
 
     // 576px = 540px page + 18px bleed each side
     // deviceScaleFactor 2 = retina/2x PNG

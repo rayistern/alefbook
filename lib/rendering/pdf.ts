@@ -23,23 +23,34 @@ function extractHeadStyles(html: string): string {
   const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi
   let match
   while ((match = styleRegex.exec(html)) !== null) {
-    styles.push(match[1])
+    const block = match[1]
+    // Skip the font-loading overlay styles
+    if (block.includes('.font-loading-overlay')) continue
+    styles.push(block)
   }
   return styles.length > 0 ? `<style>${styles.join('\n')}</style>` : ''
 }
 
 function extractBodyContent(html: string): string {
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i)
-  if (bodyMatch) return bodyMatch[1]
+  let body = bodyMatch ? bodyMatch[1] : html
 
-  // If no body tag, get content after </head> or use the whole thing
-  const headEnd = html.indexOf('</head>')
-  if (headEnd !== -1) {
-    const afterHead = html.substring(headEnd + 7)
-    return afterHead.replace(/<\/?html[^>]*>/gi, '').replace(/<\/?body[^>]*>/gi, '')
+  if (!bodyMatch) {
+    // If no body tag, get content after </head> or use the whole thing
+    const headEnd = html.indexOf('</head>')
+    if (headEnd !== -1) {
+      const afterHead = html.substring(headEnd + 7)
+      body = afterHead.replace(/<\/?html[^>]*>/gi, '').replace(/<\/?body[^>]*>/gi, '')
+    }
   }
 
-  return html
+  // Strip the font-loading overlay + script injected by rewriteAssetPaths
+  // (not needed in PDF context — Puppeteer waits for fonts separately)
+  body = body
+    .replace(/<div class="font-loading-overlay"[\s\S]*?<\/div>\s*<\/div>/gi, '')
+    .replace(/<script>[\s\S]*?fontOverlay[\s\S]*?<\/script>/gi, '')
+
+  return body
 }
 
 function buildPrintDocument(pageStates: Record<number, string>): string {
@@ -86,18 +97,29 @@ export async function compileToPDF(
 
   try {
     const allPagesHtml = buildPrintDocument(pageStates)
+    console.log('[PDF] Built print document:', allPagesHtml.length, 'chars,', Object.keys(pageStates).length, 'pages')
+
+    // Log any failed resource loads
+    page.on('requestfailed', (req) => {
+      console.warn('[PDF] Resource failed to load:', req.url(), req.failure()?.errorText)
+    })
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') console.error('[PDF Browser]', msg.text())
+    })
 
     // Set a timeout to prevent infinite hangs
     await page.setContent(allPagesHtml, {
       waitUntil: 'networkidle0',
       timeout: 30000,
     })
+    console.log('[PDF] Page content loaded')
 
     // Wait for fonts with a timeout
     await Promise.race([
       page.evaluateHandle('document.fonts.ready'),
       new Promise((_, reject) => setTimeout(() => reject(new Error('Font loading timeout')), 10000)),
     ])
+    console.log('[PDF] Fonts ready')
 
     const pdf = await page.pdf({
       width: '152.4mm',
@@ -105,6 +127,7 @@ export async function compileToPDF(
       printBackground: true,
       margin: { top: '0', bottom: '0', left: '0', right: '0' },
     })
+    console.log('[PDF] Generated:', (pdf.length / 1024).toFixed(1), 'KB')
 
     return Buffer.from(pdf)
   } finally {
