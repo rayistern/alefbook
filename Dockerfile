@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   texlive-xetex \
   texlive-latex-extra \
   texlive-fonts-recommended \
-  texlive-lang-hebrew \
   texlive-lang-other \
   poppler-utils \
   && rm -rf /var/lib/apt/lists/*
