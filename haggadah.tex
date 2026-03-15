@@ -28,13 +28,6 @@
 \newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5]{FreeSerif}
 \newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0]{FreeSerif}
 
-%%% ---- Hebrew / RTL support (polyglossia + bidi) ----
-\usepackage{polyglossia}
-\setdefaultlanguage{english}
-\setotherlanguage{hebrew}
-%% polyglossia uses \hebrewfont (defined above) automatically for Hebrew text
-%% provides \begin{hebrew}...\end{hebrew} and \texthebrew{} with proper RTL
-
 %%% ---- Colours ----
 \usepackage[dvipsnames]{xcolor}
 \definecolor{sederblue}{HTML}{1B3A5C}
@@ -97,6 +90,13 @@
 
 %% Decorative page elements via TikZ overlay (drawn every content page)
 \usepackage{eso-pic}
+
+%%% ---- Hebrew / RTL support (polyglossia + bidi) ----
+%%% MUST come after all other \usepackage calls (bidi requires it)
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguage{hebrew}
+
 \newif\ifshowpageornaments
 \showpageornamentstrue
 \AddToShipoutPictureBG{%
