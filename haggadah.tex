@@ -58,11 +58,7 @@
 \usepackage{parskip}
 \usepackage{needspace}
 \usepackage{changepage}
-\usepackage{paracol}
-\columnratio{0.46}              % Left (English) 46 %, Right (Hebrew) 54 %
-\setlength{\columnsep}{0.35in}
-\columnseprule=0.3pt
-\def\columnseprulecolor{\color{sedergold}}
+%%% paracol removed — conflicts with bidi RTL; using minipage+savebox instead
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
 \usepackage{hyperref}
@@ -297,35 +293,55 @@
 }
 
 %%% ---- Bilingual parallel columns (Hebrew right, English left) ----
-\newenvironment{bilingual}{%
-  \par\vspace{4pt}%
-  \begin{paracol}{2}%
-}{%
-  \end{paracol}%
-  \par\vspace{2pt}%
-}
+%%% Uses minipage + savebox to avoid paracol/bidi RTL conflicts.
 
+%% Declare saveboxes and widths
+\newsavebox{\bidiHebBox}
+\newsavebox{\bidiEngBox}
+\newlength{\bidiColSep}
+\setlength{\bidiColSep}{0.25in}
+\newlength{\bidiHebWidth}
+\newlength{\bidiEngWidth}
+\setlength{\bidiHebWidth}{0.54\textwidth}
+\addtolength{\bidiHebWidth}{-0.5\bidiColSep}
+\setlength{\bidiEngWidth}{0.46\textwidth}
+\addtolength{\bidiEngWidth}{-0.5\bidiColSep}
+
+%% Collect Hebrew content into a savebox
 \newenvironment{hebrewcol}{%
-  \switchcolumn[1]%
-  \begingroup
+  \begin{lrbox}{\bidiHebBox}\begin{minipage}{\bidiHebWidth}%
   \hebrewfont\TeXXeTstate=1\beginR
   \large
   \setstretch{1.4}%
   \emergencystretch=1em
   \parindent=0pt\relax
 }{%
-  \endR\endgroup
+  \endR
+  \end{minipage}\end{lrbox}%
 }
 
+%% Collect English content into a savebox
 \newenvironment{englishcol}{%
-  \switchcolumn[0]%
-  \begingroup
+  \begin{lrbox}{\bidiEngBox}\begin{minipage}{\bidiEngWidth}%
   \setstretch{1.4}%
   \emergencystretch=0.5em
   \normalsize
   \rightskip=0.12in\relax
 }{%
-  \endgroup
+  \end{minipage}\end{lrbox}%
+}
+
+%% Render both side-by-side: English left, Hebrew right
+\newenvironment{bilingual}{\par\vspace{4pt}}{%
+  \noindent
+  \begin{minipage}[t]{\bidiEngWidth}
+    \usebox{\bidiEngBox}
+  \end{minipage}%
+  \hfill{\color{sedergold}\vrule width 0.3pt}\hfill
+  \begin{minipage}[t]{\bidiHebWidth}
+    \usebox{\bidiHebBox}
+  \end{minipage}%
+  \par\vspace{2pt}%
 }
 
 %%% ---- Small fleuron paragraph separator ----
