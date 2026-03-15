@@ -28,13 +28,12 @@
 \newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5]{FreeSerif}
 \newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0]{FreeSerif}
 
-%%% ---- Hebrew / RTL support (native XeTeX bidi) ----
-\newenvironment{hebrew}{%
-  \par\begingroup\hebrewfont\TeXXeTstate=1\beginR\parindent=0pt\relax
-}{%
-  \endR\endgroup\par
-}
-\newcommand{\texthebrew}[1]{{\hebrewfont\TeXXeTstate=1\beginR #1\endR}}
+%%% ---- Hebrew / RTL support (polyglossia + bidi) ----
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguage{hebrew}
+%% polyglossia uses \hebrewfont (defined above) automatically for Hebrew text
+%% provides \begin{hebrew}...\end{hebrew} and \texthebrew{} with proper RTL
 
 %%% ---- Colours ----
 \usepackage[dvipsnames]{xcolor}
@@ -60,7 +59,7 @@
 \usepackage{changepage}
 \usepackage{paracol}
 \columnratio{0.46}              % Left (English) 46 %, Right (Hebrew) 54 %
-\setlength{\columnsep}{0.25in}
+\setlength{\columnsep}{0.35in}
 \columnseprule=0.3pt
 \def\columnseprulecolor{\color{sedergold}}
 \usepackage{tcolorbox}
@@ -181,7 +180,7 @@
   \vspace{2pt}
   %% Hebrew title
   \begin{center}
-    {\hebrewfonttitle\TeXXeTstate=1\beginR\textcolor{sederblue}{#1}\endR}\\[4pt]
+    {\hebrewfonttitle\texthebrew{\textcolor{sederblue}{#1}}}\\[4pt]
     {\Large\scshape\textcolor{sederblue}{#2}}\\[2pt]
     {\normalsize\textcolor{sederwine}{\itshape #3}}
   \end{center}
@@ -248,16 +247,14 @@
 \newenvironment{hebrewblock}{%
   \par\vspace{4pt}
   \begin{adjustwidth}{0.15in}{0.2in}
-  \begingroup
-  \hebrewfont\TeXXeTstate=1\beginR
+  \begin{hebrew}
+  \hebrewfont
   \large
-  \setstretch{1.6}
+  \setstretch{1.4}
   \emergencystretch=1em
   \parindent=0pt\relax
-  \leftskip=0pt plus 1fill
-  \parfillskip=0pt\relax
 }{%
-  \endR\endgroup
+  \end{hebrew}
   \end{adjustwidth}
   \par\vspace{2pt}
 }
@@ -266,7 +263,7 @@
 \newenvironment{englishblock}{%
   \par\vspace{2pt}
   \begin{adjustwidth}{0.15in}{0.15in}
-  \setstretch{1.2}
+  \setstretch{1.4}
   \emergencystretch=0.5em
   \normalsize
 }{%
@@ -307,24 +304,23 @@
 
 \newenvironment{hebrewcol}{%
   \switchcolumn[1]%
-  \begingroup
-  \hebrewfont\TeXXeTstate=1\beginR
+  \begin{hebrew}
+  \hebrewfont
   \large
-  \setstretch{1.6}%
+  \setstretch{1.4}%
   \emergencystretch=1em
   \parindent=0pt\relax
-  \leftskip=0pt plus 1fill
-  \parfillskip=0pt\relax
 }{%
-  \endR\endgroup
+  \end{hebrew}
 }
 
 \newenvironment{englishcol}{%
   \switchcolumn[0]%
   \begingroup
-  \setstretch{1.2}%
+  \setstretch{1.4}%
   \emergencystretch=0.5em
   \normalsize
+  \rightskip=0.12in\relax
 }{%
   \endgroup
 }
@@ -342,7 +338,7 @@
 \newcommand{\subsedertitle}[2]{%
   \par\vspace{8pt}
   \begin{center}
-    {\hebrewfontlarge\TeXXeTstate=1\beginR\textcolor{sederblue}{#1}\endR}\\[3pt]
+    {\hebrewfontlarge\texthebrew{\textcolor{sederblue}{#1}}}\\[3pt]
     {\normalsize\scshape\textcolor{sederblue}{#2}}
   \end{center}
   \par\vspace{3pt}
@@ -426,7 +422,7 @@
 \vspace*{0.5in}
 
 \begin{center}
-  \textcolor{sedergold}{\hebrewfonttitle\TeXXeTstate=1\beginR\fontsize{36pt}{42pt}\selectfont הַגָּדָה שֶׁל פֶּסַח\endR}
+  {\hebrewfonttitle\fontsize{36pt}{42pt}\selectfont\texthebrew{\textcolor{sedergold}{הַגָּדָה שֶׁל פֶּסַח}}}
 
   \vspace{0.5in}
 
@@ -464,7 +460,7 @@
 \vspace*{1.5in}
 
 \begin{center}
-  {\hebrewfontlarge\TeXXeTstate=1\beginR\textcolor{sederblue}{הַגָּדָה שֶׁל פֶּסַח}\endR}
+  {\hebrewfontlarge\texthebrew{\textcolor{sederblue}{הַגָּדָה שֶׁל פֶּסַח}}}
 
   \vspace{0.4in}
 
@@ -506,46 +502,46 @@
 \renewcommand{\arraystretch}{1.8}
 \begin{tabular}{r@{\quad}l@{\qquad}l}
   \textcolor{sedergold}{\sffamily\bfseries 1.} &
-    \texthebrew{קַדֵּשׁ} &
+    \texthebrew{קדש} &
     \textsc{Kadesh} --- Kiddush \\
   \textcolor{sedergold}{\sffamily\bfseries 2.} &
-    \texthebrew{וּרְחַץ} &
+    \texthebrew{ורחץ} &
     \textsc{Urchatz} --- Washing Hands for the Vegetable \\
   \textcolor{sedergold}{\sffamily\bfseries 3.} &
-    \texthebrew{כַּרְפַּס} &
+    \texthebrew{כרפס} &
     \textsc{Karpas} --- Vegetable \\
   \textcolor{sedergold}{\sffamily\bfseries 4.} &
-    \texthebrew{יַחַץ} &
+    \texthebrew{יחץ} &
     \textsc{Yachatz} --- Breaking the Middle Matzah \\
   \textcolor{sedergold}{\sffamily\bfseries 5.} &
-    \texthebrew{מַגִּיד} &
+    \texthebrew{מגיד} &
     \textsc{Maggid} --- Retelling the Passover Story \\
   \textcolor{sedergold}{\sffamily\bfseries 6.} &
-    \texthebrew{רָחְצָה} &
-    \textsc{Rachtzah} --- Washing for Bread \\
+    \texthebrew{רחצה} &
+    \textsc{Rachtzah} --- Washing for Matzah \\
   \textcolor{sedergold}{\sffamily\bfseries 7.} &
-    \texthebrew{מוֹצִיא} &
-    \textsc{Motzi} --- The Blessing Over Bread \\
+    \texthebrew{מוציא} &
+    \textsc{Motzi} --- The Blessing Over Matzah \\
   \textcolor{sedergold}{\sffamily\bfseries 8.} &
-    \texthebrew{מַצָּה} &
+    \texthebrew{מצה} &
     \textsc{Matzah} \\
   \textcolor{sedergold}{\sffamily\bfseries 9.} &
-    \texthebrew{מָרוֹר} &
+    \texthebrew{מרור} &
     \textsc{Maror} --- Bitter Herbs \\
   \textcolor{sedergold}{\sffamily\bfseries 10.} &
-    \texthebrew{כּוֹרֵךְ} &
+    \texthebrew{כורך} &
     \textsc{Korech} --- The ``Hillel Sandwich'' \\
   \textcolor{sedergold}{\sffamily\bfseries 11.} &
-    \texthebrew{שֻׁלְחָן עוֹרֵךְ} &
+    \texthebrew{שלחן עורך} &
     \textsc{Shulchan Orech} --- Feast \\
   \textcolor{sedergold}{\sffamily\bfseries 12.} &
-    \texthebrew{צָפוּן} &
+    \texthebrew{צפון} &
     \textsc{Tzafun} --- Eating the Afikoman \\
   \textcolor{sedergold}{\sffamily\bfseries 13.} &
-    \texthebrew{בָּרֵךְ} &
+    \texthebrew{ברך} &
     \textsc{Berach} --- Grace After Meals \\
   \textcolor{sedergold}{\sffamily\bfseries 14.} &
-    \texthebrew{הַלֵּל נִרְצָה} &
+    \texthebrew{הלל נרצה} &
     \textsc{Hallel Nirtzah} --- Psalms of Praise \& Conclusion \\
 \end{tabular}
 \end{center}
@@ -569,7 +565,7 @@
 %%% ===========================================================
 
 %% ---- 1. KADESH ----
-\sedersectionbreak{קַדֵּשׁ}{Kadesh}{Kiddush}{1}
+\sedersectionbreak{קדש}{Kadesh}{Kiddush}{1}
 
 \instruction{First we make kiddush and drink the first cup, leaning to the left.}
 
@@ -641,14 +637,14 @@ Blessed are You, Lord our G-d, King of the Universe, who has preserved us in lif
 \haggadahimagefixed{3.5in}{1.8in}{Illustration --- Kiddush cup and wine}
 
 %% ---- 2. URCHATZ ----
-\sedersection{וּרְחַץ}{Urchatz}{Washing Hands for the Vegetable}{2}
+\sedersection{ורחץ}{Urchatz}{Washing Hands for the Vegetable}{2}
 
 \instruction{We wash our hands, without saying a blessing.}
 
 \haggadahimagefixed{3.5in}{1.8in}{Illustration --- Washing hands}
 
 %% ---- 3. KARPAS ----
-\sedersection{כַּרְפַּס}{Karpas}{Vegetable}{3}
+\sedersection{כרפס}{Karpas}{Vegetable}{3}
 
 \instruction{We eat just a little bit of the Karpas, dipped in salt water. Recite the blessing (also having in mind that this is the blessing for when we eat the maror too):}
 
@@ -664,18 +660,18 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 \haggadahimagefixed{3.5in}{1.8in}{Illustration --- Dipping the vegetable}
 
 %% ---- 4. YACHATZ ----
-\sedersection{יַחַץ}{Yachatz}{Breaking the Middle Matzah}{4}
+\sedersection{יחץ}{Yachatz}{Breaking the Middle Matzah}{4}
 
 \instruction{We break the middle matzah, and we put away the bigger piece for the Afikoman.}
 
 \haggadahimagefixed{3.5in}{1.8in}{Illustration --- Breaking the matzah}
 
 %% ---- 5. MAGGID ----
-\sedersectionbreak{מַגִּיד}{Maggid}{Retelling the Passover Story}{5}
+\sedersectionbreak{מגיד}{Maggid}{Retelling the Passover Story}{5}
 
 \instruction{We fill the second cup. Uncover the Matzah, as we begin telling the story of our exodus...}
 
-\subsedertitle{הֵא לַחְמָא עַנְיָא}{Hei Lachma Anya}
+\subsedertitle{הא לחמא עניא}{Hei Lachma Anya}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -687,7 +683,7 @@ This is the bread of affliction which our fathers did eat in the land of Egypt. 
 \end{bilingual}
 \haggadahimagefixed{3.5in}{1.8in}{Illustration --- Hei Lachma Anya}
 
-\subsedertitle{מַה נִּשְׁתַּנָּה}{Mah Nishtanah --- The Four Questions}
+\subsedertitle{מה נשתנה}{Mah Nishtanah --- The Four Questions}
 
 \instruction{The children now ask the four questions...}
 
@@ -743,7 +739,7 @@ On all other nights we eat either sitting or reclining, but on this night we all
 
 \haggadahimagefixed{3.5in}{1.8in}{Illustration --- The Four Questions}
 
-\subsedertitle{עֲבָדִים הָיִינוּ}{Avadim Hayinu}
+\subsedertitle{עבדים היינו}{Avadim Hayinu}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -775,7 +771,7 @@ Rabbi Elazar ben Azariah said, ``I am like a man of seventy, and I did not appre
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{אַרְבָּעָה בָנִים}{The Four Sons}
+\subsedertitle{ארבעה בנים}{The Four Sons}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -829,7 +825,7 @@ If the child cannot engage with a question, you shall open the subject to him, a
 
 \sederdivider
 
-\subsedertitle{מִתְּחִלָה עוֹבְדֵי עֲבוֹדָה זָרָה}{In the Beginning}
+\subsedertitle{מתחלה עובדי עבודה זרה}{In the Beginning}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -858,7 +854,7 @@ And it is this [same promise] that has been maintained to our forefathers and to
 \end{bilingual}
 \instruction{Put down the cup of wine, and uncover the Matzah.}
 
-\subsedertitle{צֵא וּלְמַד}{The Midrashic Exposition}
+\subsedertitle{צא ולמד}{The Midrashic Exposition}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -905,7 +901,7 @@ Inquire and learn what Laban, the Syrian, sought to do to Jacob our father. For 
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{עֶשֶׂר מַכּוֹת}{The Ten Plagues}
+\subsedertitle{עשר מכות}{The Ten Plagues}
 
 \instruction{Pour three times from your cup of wine into a broken dish, as we say:}
 
@@ -1001,7 +997,7 @@ Rabbi Akiva said, From where may we say  that each plague that the Holy One, ble
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{דַּיֵּנוּ}{Dayeinu}
+\subsedertitle{דינו}{Dayeinu}
 
 \haggadahimagefixed{4.5in}{2.0in}{Illustration --- Dayeinu}
 
@@ -1085,7 +1081,7 @@ How much, therefore, has the goodness of the Almighty been doubled and redoubled
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{רַבָּן גַּמְלִיאֵל}{Rabban Gamliel}
+\subsedertitle{רבן גמליאל}{Rabban Gamliel}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1192,7 +1188,7 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 
 
 %% ---- 6. RACHTZAH ----
-\sedersection{רָחְצָה}{Rachtzah}{Washing for Bread}{6}
+\sedersection{רחצה}{Rachtzah}{Washing for Matzah}{6}
 
 \instruction{We wash our hands and make the blessing.}
 
@@ -1207,7 +1203,7 @@ Blessed are You, Lord our G-d, King of the Universe, who has sanctified us with 
 
 
 %% ---- 7. MOTZI ----
-\sedersection{מוֹצִיא}{Motzi}{The Blessing Over Bread}{7}
+\sedersection{מוציא}{Motzi}{The Blessing Over Matzah}{7}
 
 \instruction{We say the hamotzi blessing below holding all three matzot.}
 
@@ -1222,7 +1218,7 @@ Blessed are You, Lord our G-d, King of the Universe, who brings forth bread from
 
 
 %% ---- 8. MATZAH ----
-\sedersection{מַצָּה}{Matzah}{Eating the Matzah}{8}
+\sedersection{מצה}{Matzah}{Eating the Matzah}{8}
 
 \instruction{Put down the third matzah for the next blessing. (Have in mind that this blessing covers the afikoman as well.)}
 
@@ -1241,7 +1237,7 @@ Blessed are You, Lord our G-d, King of the Universe, who hast sanctified us with
 
 
 %% ---- 9. MAROR ----
-\sedersection{מָרוֹר}{Maror}{Bitter Herbs}{9}
+\sedersection{מרור}{Maror}{Bitter Herbs}{9}
 
 \instruction{We dip the maror into the charoset (and then shake it off so as to not sweeten the taste). We make the blessing, and eat the maror.}
 
@@ -1256,7 +1252,7 @@ Blessed are You, Lord our G-d, King of the Universe, who has sanctified us with 
 
 
 %% ---- 10. KORECH ----
-\sedersection{כּוֹרֵךְ}{Korech}{The ``Hillel Sandwich''}{10}
+\sedersection{כורך}{Korech}{The ``Hillel Sandwich''}{10}
 
 \instruction{We make a sandwich: the third matzah, with the chazeret dipped in charoset. We say the following, and eat leaning to the left.}
 
@@ -1271,7 +1267,7 @@ So did Hillel do in the time when the Temple stood: He used to take a piece of t
 
 
 %% ---- 11. SHULCHAN ORECH ----
-\sedersection{שֻׁלְחָן עוֹרֵךְ}{Shulchan Orech}{Feast}{11}
+\sedersection{שלחן עורך}{Shulchan Orech}{Feast}{11}
 
 \instruction{We eat the meal.}
 
@@ -1280,14 +1276,14 @@ So did Hillel do in the time when the Temple stood: He used to take a piece of t
 
 
 %% ---- 12. TZAFUN ----
-\sedersection{צָפוּן}{Tzafun}{Eating the Afikoman}{12}
+\sedersection{צפון}{Tzafun}{Eating the Afikoman}{12}
 
 \instruction{We finish the meal with the afikoman.}
 
 
 
 %% ---- 13. BERACH ----
-\sedersectionbreak{בָּרֵךְ}{Berach}{Grace After Meals}{13}
+\sedersection{ברך}{Berach}{Grace After Meals}{13}
 
 \instruction{The grace after meals. We fill the third cup.}
 
@@ -1448,10 +1444,10 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 \instruction{We fill the fourth cup and also the cup of Elijah. The door is opened as we say:}
 
 %% ---- 14. HALLEL NIRTZAH ----
-\sedersectionbreak{הַלֵּל נִרְצָה}{Hallel Nirtzah}{Psalms of Praise \& Conclusion}{14}
+\sedersectionbreak{הלל נרצה}{Hallel Nirtzah}{Psalms of Praise \& Conclusion}{14}
 
 
-\subsedertitle{שְׁפוֹךְ חֲמָתְךָ}{Shfoch Chamatcha}
+\subsedertitle{שפוך חמתך}{Shfoch Chamatcha}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1463,7 +1459,7 @@ Pour out Your wrath upon the nations who know You not, and upon kingdoms which c
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{לֹא לָנוּ}{Psalm 115}
+\subsedertitle{לא לנו}{Psalm 115}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1481,7 +1477,7 @@ Not unto us, Lord, not unto us, but unto Your Name give glory, for Your mercy, a
 
 \sederdivider
 
-\subsedertitle{אָהַבְתִּי}{Psalm 116}
+\subsedertitle{אהבתי}{Psalm 116}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1513,7 +1509,7 @@ O praise the Lord, all nations: laud Him all peoples. For His mercy is great tow
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{הוֹדוּ}{Psalm 118}
+\subsedertitle{הודו}{Psalm 118}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1576,7 +1572,7 @@ Give thanks unto the Lord, for He is good, for His mercy endures forever. \texti
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{יְהַלְלוּךָ}{Yehalelukha}
+\subsedertitle{יהללוך}{Yehalelukha}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1588,7 +1584,7 @@ Let all Your works praise You Lord, our G-d. And let the righteous, who do Your 
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{הַלֵּל הַגָּדוֹל}{Hallel HaGadol}
+\subsedertitle{הלל הגדול}{Hallel HaGadol}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1648,7 +1644,7 @@ O give thanks to the G-d of heaven: For His mercy endures forever.
 \end{bilingual}
 \sederdivider
 
-\subsedertitle{נִשְׁמַת כָּל חַי}{Nishmat}
+\subsedertitle{נשמת כל חי}{Nishmat}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1704,7 +1700,7 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 
 \sederdivider
 
-\subsedertitle{נִרְצָה}{Nirtzah --- Conclusion}
+\subsedertitle{נרצה}{Nirtzah --- Conclusion}
 
 \instruction{The concluding blessing for wine and grape juice:}
 
@@ -1801,7 +1797,7 @@ Blessed are You, Lord our G-d, Creator of so many diverse beings, for all You ha
 
   \vspace{0.3in}
 
-  \textcolor{sedergold}{\hebrewfontlarge\TeXXeTstate=1\beginR חַג כָּשֵׁר וְשָׂמֵחַ!\endR}
+  {\hebrewfontlarge\texthebrew{\textcolor{sedergold}{חַג כָּשֵׁר וְשָׂמֵחַ!}}}
 \end{center}
 
 \vspace*{\fill}
