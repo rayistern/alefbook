@@ -28,6 +28,14 @@
 \newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5]{FreeSerif}
 \newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0]{FreeSerif}
 
+%%% ---- Hebrew / RTL support (native XeTeX bidi) ----
+\newenvironment{hebrew}{%
+  \par\begingroup\hebrewfont\TeXXeTstate=1\beginR\parindent=0pt\relax
+}{%
+  \endR\endgroup\par
+}
+\newcommand{\texthebrew}[1]{{\hebrewfont\TeXXeTstate=1\beginR #1\endR}}
+
 %%% ---- Colours ----
 \usepackage[dvipsnames]{xcolor}
 \definecolor{sederblue}{HTML}{1B3A5C}
@@ -50,7 +58,7 @@
 \usepackage{parskip}
 \usepackage{needspace}
 \usepackage{changepage}
-%% No paracol — it conflicts with polyglossia/bidi RTL handling.
+%% No paracol — it conflicts with bidi RTL handling.
 %% Side-by-side columns use minipage pairs instead (see bilingual env below).
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
@@ -61,14 +69,6 @@
   pdftitle={Haggadah Shel Pesach},
   pdfauthor={Your Chabad House},
 }
-
-%%% ---- Hebrew / RTL support (polyglossia + bidi) ----
-%%% MUST be loaded after all other packages (bidi requirement)
-\usepackage{polyglossia}
-\setdefaultlanguage{english}
-\setotherlanguage{hebrew}
-%% polyglossia uses \hebrewfont (defined above) automatically for Hebrew text
-%% provides \begin{hebrew}...\end{hebrew} and \texthebrew{} with proper RTL
 
 %%% ---- Spacing ----
 \setlength{\parskip}{2pt plus 1pt minus 1pt}
@@ -178,7 +178,7 @@
   \vspace{2pt}
   %% Hebrew title
   \begin{center}
-    {\hebrewfonttitle\texthebrew{\textcolor{sederblue}{#1}}}\\[6pt]
+    {\hebrewfonttitle\TeXXeTstate=1\beginR\textcolor{sederblue}{#1}\endR}\\[4pt]
     {\Large\scshape\textcolor{sederblue}{#2}}\\[2pt]
     {\normalsize\textcolor{sederwine}{\itshape #3}}
   \end{center}
@@ -241,19 +241,22 @@
 }
 
 %%% ---- Hebrew block (for main Hebrew paragraphs) ----
-%%% Subtle gold left-border accent marks liturgical text
+%%% RTL: flush-right, ragged-left for short lines; justified for full lines
 \newenvironment{hebrewblock}{%
-  \par\vspace{6pt}
-  \begin{adjustwidth}{0.2in}{0.15in}
-  \begin{hebrew}
-  \hebrewfont
-  \large
-  \setstretch{1.7}
-  \parindent=0pt\relax
-}{%
-  \end{hebrew}
-  \end{adjustwidth}
   \par\vspace{4pt}
+  \begin{adjustwidth}{0.15in}{0.2in}
+  \begingroup
+  \hebrewfont\TeXXeTstate=1\beginR
+  \large
+  \setstretch{1.4}
+  \emergencystretch=1em
+  \parindent=0pt\relax
+  \leftskip=0pt plus 1fill
+  \parfillskip=0pt\relax
+}{%
+  \endR\endgroup
+  \end{adjustwidth}
+  \par\vspace{2pt}
 }
 
 %%% ---- English block (for main English paragraphs) ----
@@ -317,10 +320,10 @@
   {\color{sedergold}\vrule width 0.3pt}%
   \hfill
   \begin{minipage}[t]{\bidiHebWidth}
-    \begin{hebrew}
-    \hebrewfont\large\setstretch{1.4}\emergencystretch=1em\parindent=0pt\relax
+    \begingroup\hebrewfont\TeXXeTstate=1\beginR
+    \large\setstretch{1.4}\emergencystretch=1em\parindent=0pt\relax
     \usebox{\bidiHebBox}
-    \end{hebrew}
+    \endR\endgroup
   \end{minipage}%
   \par\vspace{2pt}%
 }
@@ -350,7 +353,7 @@
 \newcommand{\subsedertitle}[2]{%
   \par\vspace{8pt}
   \begin{center}
-    {\hebrewfontlarge\texthebrew{\textcolor{sederblue}{#1}}}\\[3pt]
+    {\hebrewfontlarge\TeXXeTstate=1\beginR\textcolor{sederblue}{#1}\endR}\\[3pt]
     {\normalsize\scshape\textcolor{sederblue}{#2}}
   \end{center}
   \par\vspace{3pt}
@@ -434,7 +437,7 @@
 \vspace*{0.5in}
 
 \begin{center}
-  {\hebrewfonttitle\fontsize{36pt}{42pt}\selectfont\textcolor{sedergold}{\texthebrew{הַגָּדָה שֶׁל פֶּסַח}}}
+  \textcolor{sedergold}{\hebrewfonttitle\TeXXeTstate=1\beginR\fontsize{36pt}{42pt}\selectfont הַגָּדָה שֶׁל פֶּסַח\endR}
 
   \vspace{0.5in}
 
@@ -472,7 +475,7 @@
 \vspace*{1.5in}
 
 \begin{center}
-  {\hebrewfontlarge\texthebrew{\textcolor{sederblue}{הַגָּדָה שֶׁל פֶּסַח}}}
+  {\hebrewfontlarge\TeXXeTstate=1\beginR\textcolor{sederblue}{הַגָּדָה שֶׁל פֶּסַח}\endR}
 
   \vspace{0.4in}
 
@@ -1822,7 +1825,7 @@ Blessed are You, Lord our G-d, Creator of so many diverse beings, for all You ha
 
   \vspace{0.3in}
 
-  {\hebrewfontlarge\textcolor{sedergold}{\texthebrew{חַג כָּשֵׁר וְשָׂמֵחַ!}}}
+  \textcolor{sedergold}{\hebrewfontlarge\TeXXeTstate=1\beginR חַג כָּשֵׁר וְשָׂמֵחַ!\endR}
 \end{center}
 
 \vspace*{\fill}
