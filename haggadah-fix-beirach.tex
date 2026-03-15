@@ -58,11 +58,8 @@
 \usepackage{parskip}
 \usepackage{needspace}
 \usepackage{changepage}
-\usepackage{paracol}
-\columnratio{0.46}              % Left (English) 46 %, Right (Hebrew) 54 %
-\setlength{\columnsep}{0.35in}
-\columnseprule=0.3pt
-\def\columnseprulecolor{\color{sedergold}}
+%% No paracol — it conflicts with bidi RTL handling.
+%% Side-by-side columns use minipage pairs instead (see bilingual env below).
 \usepackage{tcolorbox}
 \tcbuselibrary{skins, breakable}
 \usepackage{hyperref}
@@ -296,36 +293,51 @@
   \par\vspace{1pt}
 }
 
-%%% ---- Bilingual parallel columns (Hebrew right, English left) ----
+%%% ---- Bilingual side-by-side (minipage-based, bidi-safe) ----
+%%% Collects Hebrew and English in saveboxes, then places them side by side.
+\newsavebox{\bidiHebBox}
+\newsavebox{\bidiEngBox}
+\newlength{\bidiColSep}
+\setlength{\bidiColSep}{0.25in}
+\newlength{\bidiHebWidth}
+\newlength{\bidiEngWidth}
+%% Hebrew = 54%, English = 46% of available width minus separator
+\setlength{\bidiHebWidth}{0.54\textwidth}
+\addtolength{\bidiHebWidth}{-0.5\bidiColSep}
+\setlength{\bidiEngWidth}{0.46\textwidth}
+\addtolength{\bidiEngWidth}{-0.5\bidiColSep}
+
 \newenvironment{bilingual}{%
   \par\vspace{4pt}%
-  \begin{paracol}{2}%
 }{%
-  \end{paracol}%
+  %% Render: English on left, gold rule, Hebrew on right
+  \noindent
+  \begin{minipage}[t]{\bidiEngWidth}
+    \setstretch{1.4}\emergencystretch=0.5em\normalsize
+    \usebox{\bidiEngBox}
+  \end{minipage}%
+  \hfill
+  {\color{sedergold}\vrule width 0.3pt}%
+  \hfill
+  \begin{minipage}[t]{\bidiHebWidth}
+    \begingroup\hebrewfont\TeXXeTstate=1\beginR
+    \large\setstretch{1.4}\emergencystretch=1em\parindent=0pt\relax
+    \usebox{\bidiHebBox}
+    \endR\endgroup
+  \end{minipage}%
   \par\vspace{2pt}%
 }
 
 \newenvironment{hebrewcol}{%
-  \switchcolumn[1]%
-  \begingroup
-  \hebrewfont\TeXXeTstate=1\beginR
-  \large
-  \setstretch{1.4}%
-  \emergencystretch=1em
-  \parindent=0pt\relax
+  \begin{lrbox}{\bidiHebBox}\begin{minipage}{\bidiHebWidth}%
 }{%
-  \endR\endgroup
+  \end{minipage}\end{lrbox}%
 }
 
 \newenvironment{englishcol}{%
-  \switchcolumn[0]%
-  \begingroup
-  \setstretch{1.4}%
-  \emergencystretch=0.5em
-  \normalsize
-  \rightskip=0.12in\relax
+  \begin{lrbox}{\bidiEngBox}\begin{minipage}{\bidiEngWidth}%
 }{%
-  \endgroup
+  \end{minipage}\end{lrbox}%
 }
 
 %%% ---- Small fleuron paragraph separator ----
