@@ -1,34 +1,29 @@
 FROM node:20-slim
 
-# Install Puppeteer dependencies + Chromium
-RUN apt-get update && apt-get install -y \
-  chromium \
-  fonts-liberation \
-  libatk-bridge2.0-0 \
-  libgtk-3-0 \
-  libnss3 \
-  libxss1 \
+# Install TeX Live (XeLaTeX + Hebrew support + extras) and cleanup
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  texlive-xetex \
+  texlive-lang-hebrew \
+  texlive-latex-extra \
+  texlive-fonts-extra \
+  texlive-latex-recommended \
+  texlive-plain-generic \
+  texlive-pictures \
+  latexmk \
+  fonts-freefont-ttf \
+  fontconfig \
   ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-# Install custom fonts so Puppeteer renders them correctly
+# Install custom fonts if any
 COPY templates/fonts/ /usr/local/share/fonts/
 RUN fc-cache -fv
-
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
+
 COPY . .
-
-# Make fonts and images available as static assets via Next.js public/
-# (thumbnails are already in public/thumbnails/ from the repo)
-RUN mkdir -p public/fonts public/images \
-    && cp -r templates/fonts/* public/fonts/ \
-    && cp -r images/* public/images/
-
 RUN npm run build
 
 # Remove dev dependencies after build

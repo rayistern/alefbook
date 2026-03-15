@@ -1,29 +1,53 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/api/webhooks/(.*)',
-  '/api/health',
-])
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({ request: { headers: request.headers } })
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    const session = await auth()
-    if (!session.userId) {
-      // Return JSON 401 for API routes instead of redirecting
-      if (req.nextUrl.pathname.startsWith('/api/')) {
-        return NextResponse.json(
-          { error: 'Unauthorized' },
-          { status: 401 }
-        )
-      }
-      return NextResponse.redirect(new URL('/sign-in', req.url))
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          )
+          response = NextResponse.next({ request: { headers: request.headers } })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options as never)
+          )
+        },
+      },
     }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/auth')
+  const isApiRoute = request.nextUrl.pathname.startsWith('/api')
+  const isPublicRoute = request.nextUrl.pathname === '/' ||
+    request.nextUrl.pathname === '/gallery' ||
+    request.nextUrl.pathname.startsWith('/view/') ||
+    request.nextUrl.pathname === '/api/health'
+
+  if (isPublicRoute || isAuthRoute) {
+    return response
   }
-})
+
+  if (!user && isApiRoute) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  if (!user) {
+    return NextResponse.redirect(new URL('/auth/login', request.url))
+  }
+
+  return response
+}
 
 export const config = {
   matcher: ['/((?!_next|.*\\..*).*)'],
