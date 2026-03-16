@@ -117,14 +117,14 @@
 \AddToShipoutPictureBG{%
   \ifshowpageornaments
   \begin{tikzpicture}[remember picture, overlay]
-    %% Gold header rule (above header text, with padding)
+    %% Gold header rule (above header text)
     \draw[sedergold, line width=0.4pt]
-      ([shift={(0.65in,-0.55in)}]current page.north west) --
-      ([shift={(-0.65in,-0.55in)}]current page.north east);
-    %% Gold footer rule
+      ([shift={(0.65in,-0.35in)}]current page.north west) --
+      ([shift={(-0.65in,-0.35in)}]current page.north east);
+    %% Gold footer rule (below page number)
     \draw[sedergold, line width=0.3pt]
-      ([shift={(0.65in,0.6in)}]current page.south west) --
-      ([shift={(-0.65in,0.6in)}]current page.south east);
+      ([shift={(0.65in,0.38in)}]current page.south west) --
+      ([shift={(-0.65in,0.38in)}]current page.south east);
     %% Corner ornaments (subtle, 18% opacity)
     \node[anchor=north west, opacity=0.18] at
       ([shift={(0.2in,-0.15in)}]current page.north west)
