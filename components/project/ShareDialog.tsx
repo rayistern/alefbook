@@ -37,24 +37,30 @@ export function ShareDialog({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-background rounded-lg p-6 w-full max-w-sm space-y-4" onClick={(e) => e.stopPropagation()}>
-        <h3 className="font-semibold text-lg">Share Book</h3>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl p-6 w-full max-w-sm space-y-5 shadow-2xl shadow-purple-500/10 border border-purple-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div>
+          <h3 className="font-semibold text-lg">Share Book</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">Control who can see your creation</p>
+        </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-purple-50/50 border border-purple-100">
           <div>
-            <p className="text-sm font-medium">Public</p>
-            <p className="text-xs text-muted-foreground">Anyone can view and fork</p>
+            <p className="text-sm font-medium">Make public</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Anyone can view and copy</p>
           </div>
           <button
             onClick={togglePublic}
             disabled={saving}
             className={`relative w-11 h-6 rounded-full transition-colors ${
-              isPublic ? 'bg-primary' : 'bg-muted'
+              isPublic ? 'gradient-bg' : 'bg-gray-200'
             }`}
           >
             <span
-              className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+              className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
                 isPublic ? 'left-[22px]' : 'left-0.5'
               }`}
             />
@@ -63,16 +69,20 @@ export function ShareDialog({
 
         {isPublic && (
           <div>
-            <p className="text-xs text-muted-foreground mb-2">Share link:</p>
-            <div className="flex gap-2">
+            <label className="text-xs font-medium text-muted-foreground">Share link</label>
+            <div className="flex gap-2 mt-1.5">
               <input
                 readOnly
                 value={`${typeof window !== 'undefined' ? window.location.origin : ''}/view/${projectId}`}
-                className="flex-1 rounded-md border border-input bg-muted px-2 py-1 text-xs"
+                className="flex-1 rounded-xl border border-purple-100 bg-purple-50/30 px-3 py-2 text-xs focus:outline-none"
               />
               <button
                 onClick={copyLink}
-                className="rounded-md border px-3 py-1 text-xs hover:bg-accent"
+                className={`rounded-xl px-4 py-2 text-xs font-medium transition-all ${
+                  copied
+                    ? 'bg-green-50 text-green-700 border border-green-200'
+                    : 'gradient-bg text-white hover:opacity-90 shadow-sm shadow-purple-500/20'
+                }`}
               >
                 {copied ? 'Copied!' : 'Copy'}
               </button>
@@ -82,9 +92,9 @@ export function ShareDialog({
 
         <button
           onClick={onClose}
-          className="w-full rounded-md border px-3 py-2 text-sm hover:bg-accent"
+          className="w-full rounded-xl border border-purple-100 px-4 py-2.5 text-sm font-medium hover:bg-purple-50 transition-colors"
         >
-          Close
+          Done
         </button>
       </div>
     </div>
