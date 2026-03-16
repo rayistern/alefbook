@@ -68,11 +68,14 @@
   pdfauthor={Your Chabad House},
 }
 
-%%% ---- Hebrew / RTL support via polyglossia ----
-%%% Loaded LAST because bidi (its dependency) must come after other packages.
+%%% ---- Hebrew / RTL support ----
+%%% polyglossia loads bidi which provides \setRTL, \beginR, etc.
+%%% bidi must come LAST after all other packages.
 \usepackage{polyglossia}
 \setdefaultlanguage{english}
 \setotherlanguage{hebrew}
+%% Provide a manual \texthebrew for inline use (polyglossia may provide one too)
+\providecommand{\texthebrew}[1]{{\hebrewfont\beginR #1\endR}}
 
 %%% ---- Spacing ----
 \setlength{\parskip}{2pt plus 1pt minus 1pt}
@@ -250,14 +253,13 @@
   \par\vspace{4pt}
   \begin{adjustwidth}{0.15in}{0.2in}
   \begingroup
-  \begin{hebrew}
-  \setRTL
+  \RTL
   \hebrewfont\large
   \setstretch{1.4}
   \emergencystretch=1em
   \parindent=0pt\relax
 }{%
-  \end{hebrew}
+  \endRTL
   \endgroup
   \end{adjustwidth}
   \par\vspace{2pt}
@@ -309,17 +311,13 @@
 \newenvironment{hebrewcol}{%
   \switchcolumn[1]%
   \begingroup
-  \begin{hebrew}
-  \setRTL
+  \RTL
   \hebrewfont\large
   \setstretch{1.4}%
   \emergencystretch=1em
   \parindent=0pt\relax
-  \leftskip=0pt\relax
-  \rightskip=0pt\relax
-  \parfillskip=0pt plus 1fil\relax
 }{%
-  \end{hebrew}
+  \endRTL
   \endgroup
 }
 
