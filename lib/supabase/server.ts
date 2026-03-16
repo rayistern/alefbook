@@ -1,16 +1,20 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+// Use bracket notation to prevent Next.js from inlining these at build time
+function getSupabaseUrl() { return process.env['NEXT_PUBLIC_SUPABASE_URL'] }
+function getSupabaseKey() { return process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] }
+
 export function isSupabaseConfigured() {
-  return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  return !!(getSupabaseUrl() && getSupabaseKey())
 }
 
 export async function createServerSupabase() {
   const cookieStore = await cookies()
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    getSupabaseUrl()!,
+    getSupabaseKey()!,
     {
       cookies: {
         getAll() {
@@ -34,7 +38,7 @@ export function createServiceClient() {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { createClient } = require('@supabase/supabase-js')
   return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    getSupabaseUrl()!,
+    process.env['SUPABASE_SERVICE_ROLE_KEY']!
   )
 }
