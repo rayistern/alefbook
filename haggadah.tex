@@ -74,6 +74,11 @@
 \setlength{\parskip}{2pt plus 1pt minus 1pt}
 \setlength{\parindent}{0pt}
 
+%%% ---- Line-breaking: prefer loose lines over overfull hboxes ----
+\tolerance=3000
+\hbadness=3000
+\hfuzz=2pt
+
 %%% ---- Headers & Footers ----
 \pagestyle{fancy}
 \fancyhf{}
@@ -249,7 +254,8 @@
   \hebrewfont\TeXXeTstate=1\beginR
   \large
   \setstretch{1.4}
-  \emergencystretch=1em
+  \emergencystretch=3em
+  \tolerance=9999
   \parindent=0pt\relax
   \leftskip=0pt plus 1fill
   \parfillskip=0pt\relax
@@ -321,7 +327,7 @@
   \hfill
   \begin{minipage}[t]{\bidiHebWidth}
     \begingroup\hebrewfont\TeXXeTstate=1\beginR
-    \large\setstretch{1.4}\emergencystretch=1em\parindent=0pt\relax
+    \large\setstretch{1.4}\emergencystretch=3em\tolerance=9999\parindent=0pt\relax
     \usebox{\bidiHebBox}
     \endR\endgroup
   \end{minipage}%
