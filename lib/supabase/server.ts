@@ -1,9 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
-// Use bracket notation to prevent Next.js from inlining these at build time
-function getSupabaseUrl() { return process.env['NEXT_PUBLIC_SUPABASE_URL'] }
-function getSupabaseKey() { return process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] }
+// Server-side: use non-NEXT_PUBLIC vars to avoid build-time inlining
+// These are set as SUPABASE_URL and SUPABASE_ANON_KEY in Railway
+function getSupabaseUrl() {
+  return process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+}
+function getSupabaseKey() {
+  return process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+}
 
 export function isSupabaseConfigured() {
   return !!(getSupabaseUrl() && getSupabaseKey())
