@@ -12,8 +12,10 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['puppeteer-core', 'sharp'],
+  webpack: (config) => {
+    // react-pdf worker
+    config.resolve.alias.canvas = false
+    return config
   },
 }
 
