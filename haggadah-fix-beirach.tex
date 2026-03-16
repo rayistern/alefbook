@@ -81,6 +81,11 @@
 \setlength{\parskip}{2pt plus 1pt minus 1pt}
 \setlength{\parindent}{0pt}
 
+%%% ---- Line-breaking: prefer loose lines over overfull hboxes ----
+\tolerance=3000
+\hbadness=3000
+\hfuzz=2pt
+
 %%% ---- Headers & Footers ----
 \pagestyle{fancy}
 \fancyhf{}
@@ -256,7 +261,8 @@
   \RTL
   \hebrewfont\large
   \setstretch{1.4}
-  \emergencystretch=1em
+  \emergencystretch=3em
+  \tolerance=9999
   \parindent=0pt\relax
 }{%
   \endRTL
@@ -314,7 +320,8 @@
   \RTL
   \hebrewfont\large
   \setstretch{1.4}%
-  \emergencystretch=1em
+  \emergencystretch=3em
+  \tolerance=9999
   \parindent=0pt\relax
 }{%
   \endRTL
