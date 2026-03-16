@@ -41,7 +41,7 @@ export async function compileLatexToPdf(texSource: string): Promise<Buffer> {
             },
           }
         )
-      } catch (err) {
+      } catch {
         // XeLaTeX often exits non-zero on warnings — check if PDF was produced
         const pdfPath = path.join(tmpDir, 'book.pdf')
         const pdfExists = await fs.access(pdfPath).then(() => true).catch(() => false)
