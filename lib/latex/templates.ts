@@ -1,3 +1,6 @@
+import { readFileSync } from 'fs'
+import path from 'path'
+
 export interface TemplateFiles {
   main: string
   preamble: string
@@ -6,6 +9,8 @@ export interface TemplateFiles {
 
 export function getTemplate(templateId: string, pageCount: number): TemplateFiles {
   switch (templateId) {
+    case 'haggadah':
+      return haggadahTemplate()
     case 'hebrew-english':
       return hebrewEnglishTemplate(pageCount)
     case 'blank':
@@ -129,6 +134,60 @@ Content for page ${i}.
   return {
     main: generateMainTex(pageCount),
     preamble: hebrewEnglishPreamble(),
+    pages,
+  }
+}
+
+/**
+ * Haggadah template — reads the monolithic source.tex and splits it into
+ * preamble + page files at each section marker (%%+ ---- SECTION ----).
+ */
+function haggadahTemplate(): TemplateFiles {
+  const sourcePath = path.join(process.cwd(), 'templates/haggadah-latex/source.tex')
+  const source = readFileSync(sourcePath, 'utf-8')
+  const lines = source.split('\n')
+
+  // Find key boundaries
+  const docClassIdx = lines.findIndex(l => l.startsWith('\\documentclass'))
+  const beginDocIdx = lines.findIndex(l => l.trim() === '\\begin{document}')
+  const endDocIdx = lines.findIndex(l => l.trim() === '\\end{document}')
+
+  // Preamble: everything between \documentclass and \begin{document}
+  const preamble = lines.slice(docClassIdx + 1, beginDocIdx).join('\n').trim()
+
+  // Body: between \begin{document} and \end{document}
+  const bodyLines = lines.slice(beginDocIdx + 1, endDocIdx)
+
+  // Split body at section markers (lines like: %%% ---- COVER PAGE ----)
+  const sectionMarker = /^%%+\s+----/
+  const pages: Record<string, string> = {}
+  let current: string[] = []
+  let pageNum = 0
+
+  for (const line of bodyLines) {
+    if (sectionMarker.test(line)) {
+      // Save accumulated content as a page (if non-empty)
+      const content = current.join('\n').trim()
+      if (content) {
+        pageNum++
+        pages[`page-${String(pageNum).padStart(3, '0')}.tex`] = content
+      }
+      current = [line]
+    } else {
+      current.push(line)
+    }
+  }
+
+  // Save last section
+  const last = current.join('\n').trim()
+  if (last) {
+    pageNum++
+    pages[`page-${String(pageNum).padStart(3, '0')}.tex`] = last
+  }
+
+  return {
+    main: generateMainTex(pageNum),
+    preamble,
     pages,
   }
 }

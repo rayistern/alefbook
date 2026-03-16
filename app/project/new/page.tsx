@@ -6,11 +6,12 @@ import Link from 'next/link'
 
 const templates = [
   {
-    id: 'blank',
-    name: 'Blank Book',
-    description: 'Start fresh with a clean layout. Perfect for any book project.',
-    icon: '📄',
-    color: 'from-blue-500 to-cyan-500',
+    id: 'haggadah',
+    name: 'Passover Haggadah',
+    description: 'Complete Haggadah Shel Pesach with Hebrew/English bilingual text, decorative ornaments, and all 15 seder steps.',
+    icon: '🍷',
+    color: 'from-amber-600 to-red-700',
+    fixedPages: true,
   },
   {
     id: 'hebrew-english',
@@ -19,11 +20,18 @@ const templates = [
     icon: '📖',
     color: 'from-purple-500 to-pink-500',
   },
+  {
+    id: 'blank',
+    name: 'Blank Book',
+    description: 'Start fresh with a clean layout. Perfect for any book project.',
+    icon: '📄',
+    color: 'from-blue-500 to-cyan-500',
+  },
 ]
 
 export default function NewProjectPage() {
   const [name, setName] = useState('')
-  const [templateId, setTemplateId] = useState('blank')
+  const [templateId, setTemplateId] = useState('haggadah')
   const [pageCount, setPageCount] = useState(10)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -116,24 +124,26 @@ export default function NewProjectPage() {
             </div>
           </div>
 
-          {/* Page count */}
-          <div>
-            <label className="text-sm font-medium">Number of pages</label>
-            <div className="mt-2 flex items-center gap-3">
-              <input
-                type="range"
-                value={pageCount}
-                onChange={(e) => setPageCount(Number(e.target.value))}
-                min={2}
-                max={100}
-                className="flex-1 accent-purple-600"
-              />
-              <span className="text-sm font-medium text-purple-700 bg-purple-50 rounded-lg px-3 py-1 min-w-[60px] text-center">
-                {pageCount}
-              </span>
+          {/* Page count — hidden for templates with fixed pages */}
+          {!templates.find(t => t.id === templateId)?.fixedPages && (
+            <div>
+              <label className="text-sm font-medium">Number of pages</label>
+              <div className="mt-2 flex items-center gap-3">
+                <input
+                  type="range"
+                  value={pageCount}
+                  onChange={(e) => setPageCount(Number(e.target.value))}
+                  min={2}
+                  max={100}
+                  className="flex-1 accent-purple-600"
+                />
+                <span className="text-sm font-medium text-purple-700 bg-purple-50 rounded-lg px-3 py-1 min-w-[60px] text-center">
+                  {pageCount}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">You can always add or remove pages later by asking the AI.</p>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">You can always add or remove pages later by asking the AI.</p>
-          </div>
+          )}
 
           {/* Create button */}
           <button
