@@ -139,6 +139,8 @@ function runLatexmk(workDir: string): Promise<CompileResult> {
 
         if (error) {
           const errors = parseLatexErrors(log)
+          console.error('[Compiler] LaTeX compilation failed. Errors:', errors)
+          console.error('[Compiler] Log (last 3000 chars):', log.slice(-3000))
           resolve({
             success: false,
             log,
