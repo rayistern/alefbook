@@ -46,6 +46,7 @@
 
 %%% ---- Graphics & Decorations ----
 \usepackage{graphicx}
+\graphicspath{{newImages_notext/}}
 \usepackage{tikz}
 \usetikzlibrary{calc, decorations.pathmorphing}
 \usepackage{pgfornament}
@@ -206,7 +207,7 @@
 %%% ---- Seder-step chapter (for the TOC page) ----
 \newcommand{\sederchapterformat}{}
 
-%%% ---- Image placeholder command ----
+%%% ---- Image placeholder command (kept for any remaining placeholders) ----
 \newcommand{\haggadahimagefixed}[3]{%
   \par\vspace{10pt}
   \begin{center}
@@ -219,6 +220,15 @@
          IMAGE PLACEHOLDER\\[2pt]
          \footnotesize\itshape #3};
     \end{tikzpicture}
+  \end{center}
+  \par\vspace{10pt}
+}
+
+%%% ---- Actual image inclusion command ----
+\newcommand{\haggadahimage}[2]{%  #1=width, #2=filename
+  \par\vspace{10pt}
+  \begin{center}
+    \includegraphics[width=#1]{#2}
   \end{center}
   \par\vspace{10pt}
 }
@@ -461,7 +471,7 @@
 
   \vspace{0.3in}
 
-  \haggadahimagefixed{3.2in}{1.8in}{Cover illustration --- Seder table scene}
+  \haggadahimage{3.2in}{kaarah1a.png}
 
   \vspace*{\fill}
 
@@ -655,14 +665,14 @@ Blessed are You, Lord our G-d, King of the Universe, who has preserved us in lif
 \end{englishcol}
 \end{bilingual}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Kiddush cup and wine}
+\haggadahimage{3.5in}{kadeish1a.png}
 
 %% ---- 2. URCHATZ ----
 \sedersection{ורחץ}{Urchatz}{Washing Hands for the Vegetable}{2}
 
 \instruction{We wash our hands, without saying a blessing.}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Washing hands}
+\haggadahimage{3.5in}{urchatz1a.png}
 
 %% ---- 3. KARPAS ----
 \sedersection{כרפס}{Karpas}{Vegetable}{3}
@@ -678,14 +688,14 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 \end{englishcol}
 \end{bilingual}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Dipping the vegetable}
+\haggadahimage{3.5in}{karpas1a.png}
 
 %% ---- 4. YACHATZ ----
 \sedersection{יחץ}{Yachatz}{Breaking the Middle Matzah}{4}
 
 \instruction{We break the middle matzah, and we put away the bigger piece for the Afikoman.}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Breaking the matzah}
+\haggadahimage{3.5in}{yachatz1a.png}
 
 %% ---- 5. MAGGID ----
 \sedersectionbreak{מגיד}{Maggid}{Retelling the Passover Story}{5}
@@ -702,7 +712,7 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 This is the bread of affliction which our fathers did eat in the land of Egypt. Let all who are hungry come in and eat; let all who need come in and celebrate Passover. This year we celebrate it here, may we celebrate it next year in the land of Israel. This year we are in exile, next year may we be free.
 \end{englishcol}
 \end{bilingual}
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Hei Lachma Anya}
+\haggadahimage{3.5in}{maror1a.png}
 
 \subsedertitle{מה נשתנה}{Mah Nishtanah --- The Four Questions}
 
@@ -758,7 +768,7 @@ On all other nights we eat either sitting or reclining, but on this night we all
 \end{bilingual}
 \parasep
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The Four Questions}
+% Four Questions image removed — no matching illustration
 
 \subsedertitle{עבדים היינו}{Avadim Hayinu}
 
@@ -842,7 +852,7 @@ Which is the simple child's question? ``What is this?'' you shall answer him by 
 If the child cannot engage with a question, you shall open the subject to him, as it is said, ``And you shall show your child on that day, saying, This is done because of that which the Lord did for me when I came out of Egypt.''
 \end{englishcol}
 \end{bilingual}
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The Four Sons}
+\haggadahimage{3.5in}{foursons1a.png}
 
 \sederdivider
 
@@ -1020,7 +1030,7 @@ Rabbi Akiva said, From where may we say  that each plague that the Holy One, ble
 
 \subsedertitle{דינו}{Dayeinu}
 
-\haggadahimagefixed{4.5in}{2.0in}{Illustration --- Dayeinu}
+% Dayeinu image removed — no matching illustration
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1253,7 +1263,7 @@ Blessed are You, Lord our G-d, King of the Universe, who hast sanctified us with
 \end{bilingual}
 \instruction{We eat a piece (about half a matzah) from the top two matzot, leaning to the left.}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Matzah}
+\haggadahimage{3.5in}{motzimatza1a.png}
 
 
 
@@ -1275,6 +1285,8 @@ Blessed are You, Lord our G-d, King of the Universe, who has sanctified us with 
 %% ---- 10. KORECH ----
 \sedersection{כורך}{Korech}{The ``Hillel Sandwich''}{10}
 
+\haggadahimage{3.5in}{korech1a.png}
+
 \instruction{We make a sandwich: the third matzah, with the chazeret dipped in charoset. We say the following, and eat leaning to the left.}
 
 \begin{bilingual}
@@ -1292,12 +1304,14 @@ So did Hillel do in the time when the Temple stood: He used to take a piece of t
 
 \instruction{We eat the meal.}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The festive meal}
+\haggadahimage{3.5in}{shulchanorech1a.png}
 
 
 
 %% ---- 12. TZAFUN ----
 \sedersection{צפון}{Tzafun}{Eating the Afikoman}{12}
+
+\haggadahimage{3.5in}{tzafun1a.png}
 
 \instruction{We finish the meal with the afikoman.}
 
@@ -1305,6 +1319,8 @@ So did Hillel do in the time when the Temple stood: He used to take a piece of t
 
 %% ---- 13. BERACH ----
 \sedersection{ברך}{Berach}{Grace After Meals}{13}
+
+\haggadahimage{3.5in}{beirach1a.png}
 
 \instruction{The grace after meals. We fill the third cup.}
 
@@ -1730,7 +1746,7 @@ And so praised be Your Name forever, our King, the Almighty, the King,  the Grea
 Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.
 \end{englishcol}
 \end{bilingual}
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Songs of praise}
+\haggadahimage{3.5in}{hallel1a.png}
 
 \sederdivider
 
@@ -1773,7 +1789,7 @@ Blessed are You, Lord our G-d, Creator of so many diverse beings, for all You ha
 \end{englishcol}
 \end{bilingual}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Next year in Jerusalem}
+\haggadahimage{3.5in}{eliyahu1a.png}
 
 %%% ---- BACK COVER ----
 \clearpage
