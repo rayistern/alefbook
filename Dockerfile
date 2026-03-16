@@ -29,6 +29,5 @@ RUN npm run build
 # Remove dev dependencies after build
 RUN npm prune --production
 
-ENV PORT=8080
 EXPOSE 8080
-CMD ["npm", "start"]
+CMD ["npx", "next", "start", "-p", "8080"]

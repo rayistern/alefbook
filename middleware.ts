@@ -4,9 +4,22 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } })
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // If Supabase isn't configured, allow public routes and block everything else
+  if (!supabaseUrl || !supabaseKey) {
+    const isPublicRoute = request.nextUrl.pathname === '/' ||
+      request.nextUrl.pathname === '/gallery' ||
+      request.nextUrl.pathname.startsWith('/view/') ||
+      request.nextUrl.pathname === '/api/health'
+    if (isPublicRoute) return response
+    return NextResponse.json({ error: 'Service not configured' }, { status: 503 })
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {
