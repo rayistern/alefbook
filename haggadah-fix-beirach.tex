@@ -82,9 +82,14 @@
 \setlength{\parindent}{0pt}
 
 %%% ---- Line-breaking: prefer loose lines over overfull hboxes ----
-\tolerance=3000
-\hbadness=3000
+\tolerance=9999
+\hbadness=9999
 \hfuzz=2pt
+\emergencystretch=3em
+
+%%% ---- Disable hyphenation globally ----
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
 
 %%% ---- Headers & Footers ----
 \pagestyle{fancy}
@@ -167,7 +172,6 @@
 \newcommand{\sedersection}[4]{%
   \needspace{3.5in}%
   \sectionpagetrue
-  \thispagestyle{plain}%
   \markboth{#2\enspace---\enspace#3}{}%
   %% Suppress top gold rule if we're at top of page
   \begin{tikzpicture}[remember picture, overlay]
@@ -207,6 +211,7 @@
 %%% ---- Major section break (forces new page) ----
 \newcommand{\sedersectionbreak}[4]{%
   \clearpage
+  \thispagestyle{plain}%
   \sedersection{#1}{#2}{#3}{#4}%
 }
 
