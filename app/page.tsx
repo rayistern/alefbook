@@ -2,11 +2,18 @@ import { createServerSupabase, isSupabaseConfigured } from '@/lib/supabase/serve
 import Link from 'next/link'
 
 export default async function HomePage() {
-  let user = null
-  if (isSupabaseConfigured()) {
-    const supabase = await createServerSupabase()
-    user = (await supabase.auth.getUser()).data.user
+  if (!isSupabaseConfigured()) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <h1 className="text-4xl font-bold mb-2">AlefBook</h1>
+        <p className="text-muted-foreground mb-8">Create LaTeX books with AI assistance</p>
+        <p className="text-sm text-muted-foreground">Supabase not configured.</p>
+      </div>
+    )
   }
+
+  const supabase = await createServerSupabase()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     return (
