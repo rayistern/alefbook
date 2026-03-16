@@ -5,7 +5,6 @@ import { ProjectEditor } from '@/components/project/ProjectEditor'
 
 export default async function ViewProjectPage({ params }: { params: { id: string } }) {
   const supabase = await createServerSupabase()
-  if (!supabase) notFound()
   const { data: { user } } = await supabase.auth.getUser()
 
   const { data: project } = await supabase

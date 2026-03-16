@@ -1,9 +1,12 @@
-import { createServerSupabase } from '@/lib/supabase/server'
+import { createServerSupabase, isSupabaseConfigured } from '@/lib/supabase/server'
 import Link from 'next/link'
 
 export default async function HomePage() {
-  const supabase = await createServerSupabase()
-  const user = supabase ? (await supabase.auth.getUser()).data.user : null
+  let user = null
+  if (isSupabaseConfigured()) {
+    const supabase = await createServerSupabase()
+    user = (await supabase.auth.getUser()).data.user
+  }
 
   if (!user) {
     return (
