@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default async function HomePage() {
   const supabase = await createServerSupabase()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = supabase ? (await supabase.auth.getUser()).data.user : null
 
   if (!user) {
     return (
