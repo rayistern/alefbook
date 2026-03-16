@@ -19,14 +19,24 @@
 
 %%% ---- Fonts ----
 \usepackage{fontspec}
-\setmainfont{FreeSerif}[
-  Ligatures=TeX
+
+%% English: EB Garamond — elegant old-style serif, ideal for liturgical text
+\setmainfont{EBGaramond12-Regular.ttf}[
+  Path=/usr/share/fonts/truetype/ebgaramond/,
+  Ligatures=TeX,
+  BoldFont=EBGaramond12-Bold.ttf,
+  ItalicFont=EBGaramond12-Italic.ttf,
 ]
 \setsansfont{FreeSans}
-\newfontfamily\hebrewfont[Script=Hebrew, Scale=1.15]{FreeSerif}
-\newfontfamily\hebrewfontsans[Script=Hebrew, Scale=1.1]{FreeSans}
-\newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5]{FreeSerif}
-\newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0]{FreeSerif}
+
+%% Hebrew body: EFT Texty — warm, readable body text
+\newfontfamily\hebrewfont[Script=Hebrew, Scale=1.15, Path=templates/fonts/]{EFT_TEXTY OTP.ttf}
+%% Hebrew sans: Secular One — clean modern sans for UI / instructions
+\newfontfamily\hebrewfontsans[Script=Hebrew, Scale=1.1, Path=templates/fonts/]{SecularOne-Regular.ttf}
+%% Hebrew large: SimpleCLM — medium weight for emphasis / larger passages
+\newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5, Path=templates/fonts/]{SimpleCLM-Medium.ttf}
+%% Hebrew titles: Yiddishkeit — bold decorative for section headers
+\newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0, Path=templates/fonts/]{Yiddishkeit 2.0 AAA Bold.otf}
 
 %% Hebrew/RTL: manual {hebrew} and \texthebrew removed — polyglossia provides them
 %% (polyglossia loaded after all other packages, see below)
