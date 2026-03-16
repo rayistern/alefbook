@@ -37,6 +37,8 @@
 \newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5, Path=templates/fonts/]{SimpleCLM-Medium.ttf}
 %% Hebrew titles: Yiddishkeit — bold decorative for section headers
 \newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0, Path=templates/fonts/]{Yiddishkeit 2.0 AAA Bold.otf}
+%% Hebrew display: Yiddishkeit Regular — for large decorative text
+\newfontfamily\hebrewfontdisplay[Script=Hebrew, Scale=2.5, Path=templates/fonts/]{Yiddishkeit 2.0 AAA Regular.otf}
 
 %% Hebrew/RTL: manual {hebrew} and \texthebrew removed — polyglossia provides them
 %% (polyglossia loaded after all other packages, see below)
@@ -132,10 +134,10 @@
     \draw[sedergold, line width=0.4pt]
       ([shift={(0.65in,-0.35in)}]current page.north west) --
       ([shift={(-0.65in,-0.35in)}]current page.north east);
-    %% Gold footer rule (below page number)
+    %% Gold footer rule (above page number)
     \draw[sedergold, line width=0.3pt]
-      ([shift={(0.65in,0.38in)}]current page.south west) --
-      ([shift={(-0.65in,0.38in)}]current page.south east);
+      ([shift={(0.65in,0.58in)}]current page.south west) --
+      ([shift={(-0.65in,0.58in)}]current page.south east);
     %% Corner ornaments (subtle, 18% opacity)
     \node[anchor=north west, opacity=0.18] at
       ([shift={(0.2in,-0.15in)}]current page.north west)
@@ -185,22 +187,20 @@
   \sectionpagetrue
   \markboth{#2\enspace---\enspace#3}{}%
   \par\vspace{12pt}
-  %% decorative header with step number
+  %% decorative header
   \begin{center}
     \begin{tikzpicture}
       \node[inner sep=0pt] (TL) at (-3.0,0) {\pgfornament[width=1.2cm,color=sedergold]{15}};
-      \draw[sedergold, line width=0.6pt] (-2.2,0) -- (-0.7,0);
-      \node[inner sep=5pt, fill=white] (NUM) at (0,0) {%
-        \textcolor{sedergold}{\sffamily\bfseries\small Step~#4}%
-      };
-      \draw[sedergold, line width=0.6pt] (0.7,0) -- (2.2,0);
+      \draw[sedergold, line width=0.6pt] (-2.2,0) -- (-0.15,0);
+      \node[inner sep=0pt] at (0,0) {\textcolor{sedergold}{\tiny$\diamond$}};
+      \draw[sedergold, line width=0.6pt] (0.15,0) -- (2.2,0);
       \node[inner sep=0pt] (TR) at (3.0,0) {\pgfornament[width=1.2cm,color=sedergold,symmetry=v]{15}};
     \end{tikzpicture}
   \end{center}
   \vspace{2pt}
   %% Hebrew title
   \begin{center}
-    {\hebrewfonttitle\textcolor{sederblue}{\beginR #1\endR}}\\[4pt]
+    {\hebrewfontlarge\textcolor{sederblue}{\beginR #1\endR}}\\[4pt]
     {\Large\scshape\textcolor{sederblue}{#2}}\\[2pt]
     {\normalsize\textcolor{sederwine}{\itshape #3}}
   \end{center}
@@ -262,6 +262,7 @@
   \begin{adjustwidth}{0.15in}{0.15in}
   \begingroup
   \RTL
+  \centering
   \hebrewfont\large
   \setstretch{1.4}
   \emergencystretch=3em
@@ -458,10 +459,6 @@
 
   \textcolor{sedergold}{\pgfornament[width=3.5cm, symmetry=h]{75}}
 
-  \vspace{0.3in}
-
-  \haggadahimage{3.2in}{kaarah1a.png}
-
   \vspace*{\fill}
 
   {\large\textcolor{sedergold}{Your Chabad House}}
@@ -492,6 +489,10 @@
   \textcolor{sedergold}{\pgfornament[width=2cm]{11}}
 
   \vspace{0.5in}
+
+  \haggadahimage{3.2in}{kaarah1a.png}
+
+  \vspace{0.3in}
 
   {\normalsize Presented by\\[4pt]
   {\Large\scshape Your Chabad House}\\[8pt]
@@ -793,6 +794,8 @@ Rabbi Elazar ben Azariah said, ``I am like a man of seventy, and I did not appre
 
 \subsedertitle{ארבעה בנים}{The Four Sons}
 
+\haggadahimage{3.5in}{foursons1a.png}
+
 \begin{bilingual}
 \begin{hebrewcol}
 בָּרוּךְ הַמָּקוֹם. בָּרוּךְ הוּא. בָּרוּךְ שֶׁנָּתַן תּוֹרָה לְעַמּוֹ יִשְׂרָאֵל. בָּרוּךְ הוּא. כְּנֶגֶד אַרְבָּעָה בָנִים דִּבְּרָה תוֹרָה. אֶחָד חָכָם. וְאֶחָד רָשָׁע. וְאֶחָד תָּם. וְאֶחָד שֶׁאֵינוֹ יוֹדֵעַ לִשְׁאוֹל:
@@ -841,7 +844,6 @@ Which is the simple child's question? ``What is this?'' you shall answer him by 
 If the child cannot engage with a question, you shall open the subject to him, as it is said, ``And you shall show your child on that day, saying, This is done because of that which the Lord did for me when I came out of Egypt.''
 \end{englishcol}
 \end{bilingual}
-\haggadahimage{3.5in}{foursons1a.png}
 
 \sederdivider
 
@@ -1747,14 +1749,13 @@ Blessed are You, Lord our G-d, Creator of so many diverse beings, for all You ha
 \end{center}
 \vspace{6pt}
 
-\begin{bilingual}
-\begin{hebrewcol}
-לְשָׁנָה הַבָּאָה בִּירוּשָׁלָיִם!
-\end{hebrewcol}
-\begin{englishcol}
-{\Large\scshape\textcolor{sederblue}{Next Year in Jerusalem!}}
-\end{englishcol}
-\end{bilingual}
+\begin{center}
+  {\hebrewfontdisplay\textcolor{sederblue}{\beginR לְשָׁנָה הַבָּאָה בִּירוּשָׁלָיִם!\endR}}
+
+  \vspace{12pt}
+
+  {\LARGE\scshape\textcolor{sederblue}{Next Year in Jerusalem!}}
+\end{center}
 
 \haggadahimage{3.5in}{eliyahu1a.png}
 
