@@ -245,7 +245,7 @@
 }
 
 %%% ---- Hebrew block (for main Hebrew paragraphs) ----
-%%% RTL: flush-right, ragged-left for short lines; justified for full lines
+%%% RTL: fully justified Hebrew block
 \newenvironment{hebrewblock}{%
   \par\vspace{4pt}
   \begin{adjustwidth}{0.15in}{0.2in}
@@ -255,8 +255,6 @@
   \setstretch{1.4}
   \emergencystretch=1em
   \parindent=0pt\relax
-  \leftskip=0pt plus 1fill
-  \parfillskip=0pt\relax
 }{%
   \end{hebrew}
   \endgroup
@@ -315,6 +313,9 @@
   \setstretch{1.4}%
   \emergencystretch=1em
   \parindent=0pt\relax
+  \leftskip=0pt\relax
+  \rightskip=0pt\relax
+  \parfillskip=0pt plus 1fil\relax
 }{%
   \end{hebrew}
   \endgroup
