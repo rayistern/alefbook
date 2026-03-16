@@ -18,15 +18,21 @@
 ]{geometry}
 
 %%% ---- Fonts ----
+%%% Uses project fonts from templates/fonts/ directory
 \usepackage{fontspec}
-\setmainfont{FreeSerif}[
+\setmainfont{MinionPro-Regular.otf}[
+  Path=templates/fonts/,
   Ligatures=TeX
 ]
-\setsansfont{FreeSans}
-\newfontfamily\hebrewfont[Script=Hebrew, Scale=1.15]{FreeSerif}
-\newfontfamily\hebrewfontsans[Script=Hebrew, Scale=1.1]{FreeSans}
-\newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5]{FreeSerif}
-\newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0]{FreeSerif}
+\setsansfont{DINNextLTPro-Bold.otf}[
+  Path=templates/fonts/,
+  BoldFont=DINNextLTPro-Black.otf,
+  ItalicFont=DINNextLTPro-LightItalic.otf
+]
+\newfontfamily\hebrewfont[Path=templates/fonts/, Script=Hebrew, Scale=1.15]{SimpleCLM-Medium.ttf}
+\newfontfamily\hebrewfontsans[Path=templates/fonts/, Script=Hebrew, Scale=1.1]{SecularOne-Regular.ttf}
+\newfontfamily\hebrewfontlarge[Path=templates/fonts/, Script=Hebrew, Scale=1.5]{Yiddishkeit 2.0 AAA Bold.otf}
+\newfontfamily\hebrewfonttitle[Path=templates/fonts/, Script=Hebrew, Scale=2.0]{Yiddishkeit 2.0 AAA Black.otf}
 
 %% Hebrew/RTL: manual {hebrew} and \texthebrew removed — polyglossia provides them
 %% (polyglossia loaded after all other packages, see below)
