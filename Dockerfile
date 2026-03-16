@@ -3,7 +3,7 @@ FROM node:20-slim
 # Install TeX Live (XeLaTeX + Hebrew support + extras) and cleanup
 RUN apt-get update && apt-get install -y --no-install-recommends \
   texlive-xetex \
-  texlive-lang-hebrew \
+  texlive-lang-other \
   texlive-latex-extra \
   texlive-fonts-extra \
   texlive-latex-recommended \
