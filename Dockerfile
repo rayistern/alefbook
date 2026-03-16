@@ -3,16 +3,18 @@ FROM node:22-slim
 # Install TeX Live (XeLaTeX + Hebrew support + extras) and cleanup
 RUN apt-get update && apt-get install -y --no-install-recommends \
   texlive-xetex \
-  texlive-lang-other \
-  texlive-biditex \
+  texlive-latex-base \
   texlive-latex-extra \
-  texlive-fonts-extra \
-  texlive-fonts-recommended \
   texlive-latex-recommended \
-  texlive-plain-generic \
+  texlive-fonts-recommended \
+  texlive-fonts-extra \
   texlive-pictures \
+  texlive-plain-generic \
+  texlive-lang-arabic \
+  texlive-lang-other \
   latexmk \
   fonts-freefont-ttf \
+  fonts-ebgaramond \
   fontconfig \
   ca-certificates \
   && rm -rf /var/lib/apt/lists/*
