@@ -4,6 +4,7 @@ FROM node:22-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
   texlive-xetex \
   texlive-lang-other \
+  texlive-biditex \
   texlive-latex-extra \
   texlive-fonts-extra \
   texlive-fonts-recommended \
