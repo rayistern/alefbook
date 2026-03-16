@@ -12,7 +12,6 @@ interface Message {
 
 interface TaskEvent {
   type: string
-  task?: { type: string; status: string; pageNumber?: number; description?: string }
   message?: string
   error?: string
 }
@@ -29,14 +28,6 @@ const IMAGE_MODELS = [
   { id: 'openai/dall-e-3', label: 'DALL-E 3' },
   { id: 'stability/stable-diffusion-xl', label: 'SDXL' },
 ]
-
-// Map internal status messages to user-friendly ones
-function friendlyStatus(status: string): string {
-  if (status.includes('Compiling LaTeX')) return 'Building your book...'
-  if (status.includes('Compile error')) return 'Fixing an issue, one moment...'
-  if (status.includes('PDF ready')) return 'Your book is ready!'
-  return status
-}
 
 export function ChatPanel({
   projectId,
@@ -114,21 +105,15 @@ export function ChatPanel({
           try {
             const event: TaskEvent = JSON.parse(data)
 
-            if (event.type === 'plan' || event.type === 'message') {
-              setTaskStatus(event.message ? friendlyStatus(event.message) : null)
+            if (event.type === 'status' || event.type === 'message') {
+              setTaskStatus(event.message ?? null)
               if (event.message) assistantContent = event.message
-            } else if (event.type === 'task_start') {
-              setTaskStatus(`${event.task?.description ?? 'Working'}...`)
-            } else if (event.type === 'task_done') {
-              setTaskStatus(`Done: ${event.task?.description ?? ''}`)
-            } else if (event.type === 'task_error') {
-              setTaskStatus(`Error: ${event.error ?? 'Unknown'}`)
             } else if (event.type === 'compile_start') {
               setTaskStatus('Building your book...')
             } else if (event.type === 'compile_done') {
               setTaskStatus('Your book is ready!')
             } else if (event.type === 'compile_error') {
-              setTaskStatus('Fixing an issue, one moment...')
+              setTaskStatus(event.error ?? 'Compilation failed')
             } else if (event.type === 'done') {
               if (event.message) assistantContent = event.message
             }

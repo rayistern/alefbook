@@ -32,9 +32,7 @@ export async function POST(request: NextRequest) {
 
   const { name, templateId, pageCount } = await request.json()
 
-  // Generate template files first (haggadah has fixed page count)
   const template = getTemplate(templateId || 'blank', pageCount || 10)
-  const actualPageCount = Object.keys(template.pages).length
 
   // Create project record
   const { data: project, error } = await supabase
@@ -43,7 +41,7 @@ export async function POST(request: NextRequest) {
       user_id: user.id,
       name: name || 'Untitled Book',
       template_id: templateId || 'blank',
-      page_count: actualPageCount,
+      page_count: pageCount || 0,
     })
     .select()
     .single()
@@ -52,14 +50,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error?.message ?? 'Failed to create project' }, { status: 500 })
   }
 
-  // Upload main.tex
+  // Upload the single main.tex document
   await uploadProjectFile(project.id, 'main.tex', template.main)
-  // Upload preamble.tex
-  await uploadProjectFile(project.id, 'preamble.tex', template.preamble)
-  // Upload page files
-  for (const [filename, content] of Object.entries(template.pages)) {
-    await uploadProjectFile(project.id, `pages/${filename}`, content)
-  }
 
   return NextResponse.json(project, { status: 201 })
 }
