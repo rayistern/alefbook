@@ -5,8 +5,8 @@ import './globals.css'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'AlefBook — Create LaTeX Books with AI',
-  description: 'Create and customize LaTeX books with AI assistance. Share and fork community creations.',
+  title: 'AlefBook — AI Book Creator',
+  description: 'Create and customize beautiful books with AI. Choose a template, describe your vision, and watch it come to life.',
 }
 
 export default function RootLayout({
