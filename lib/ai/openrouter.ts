@@ -107,21 +107,37 @@ async function tryGenerateImage(
   }
 
   const data = await response.json()
-  const content = data.choices?.[0]?.message?.content
+  const message = data.choices?.[0]?.message
+  const content = message?.content
 
-  // Response contains base64 data URL: "data:image/png;base64,..."
+  // String content: "data:image/png;base64,..."
   if (typeof content === 'string' && content.startsWith('data:image')) {
     const b64 = content.replace(/^data:image\/\w+;base64,/, '')
     return { b64 }
   }
 
-  // Some models return images array
-  const images = data.choices?.[0]?.message?.images
-  if (images?.length) {
-    const img = images[0]
-    const b64 = img.startsWith('data:') ? img.replace(/^data:image\/\w+;base64,/, '') : img
-    return { b64 }
+  // Array content: [{type: "image_url", image_url: {url: "data:..."}}]
+  if (Array.isArray(content)) {
+    for (const part of content) {
+      const url = part?.image_url?.url || (typeof part === 'string' && part.startsWith('data:image') ? part : null)
+      if (url) {
+        const b64 = url.replace(/^data:image\/\w+;base64,/, '')
+        return { b64 }
+      }
+    }
   }
 
+  // Some models return images array on the message
+  const images = message?.images
+  if (Array.isArray(images) && images.length) {
+    const img = images[0]
+    const url = typeof img === 'string' ? img : img?.url || img?.b64
+    if (url) {
+      const b64 = typeof url === 'string' && url.startsWith('data:') ? url.replace(/^data:image\/\w+;base64,/, '') : url
+      return { b64 }
+    }
+  }
+
+  console.error('[Image] Unexpected response shape:', JSON.stringify(data.choices?.[0]?.message).slice(0, 500))
   throw new Error('No image data in response')
 }
