@@ -12,7 +12,8 @@ export async function middleware(request: NextRequest) {
     const isPublicRoute = request.nextUrl.pathname === '/' ||
       request.nextUrl.pathname === '/gallery' ||
       request.nextUrl.pathname.startsWith('/view/') ||
-      request.nextUrl.pathname === '/api/health'
+      request.nextUrl.pathname === '/api/health' ||
+      request.nextUrl.pathname === '/api/admin/compile-templates'
     if (isPublicRoute) return response
     return NextResponse.json({ error: 'Service not configured' }, { status: 503 })
   }
@@ -45,7 +46,8 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = request.nextUrl.pathname === '/' ||
     request.nextUrl.pathname === '/gallery' ||
     request.nextUrl.pathname.startsWith('/view/') ||
-    request.nextUrl.pathname === '/api/health'
+    request.nextUrl.pathname === '/api/health' ||
+    request.nextUrl.pathname === '/api/admin/compile-templates'
 
   if (isPublicRoute || isAuthRoute) {
     return response
