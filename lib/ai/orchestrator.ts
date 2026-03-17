@@ -27,6 +27,11 @@ export interface OrchestratorParams {
 async function classifyIntent(message: string): Promise<'chat' | 'question' | 'edit'> {
   const msg = message.toLowerCase().trim()
 
+  // File attachments always route to edit (user is providing content)
+  if (msg.includes('[file:') || msg.includes('[uploaded:')) {
+    return 'edit'
+  }
+
   // Very short or clearly not an edit
   if (msg.length < 15 && !/\b(add|change|edit|remove|delete|replace|update|make|fix|insert|move|swap|set)\b/.test(msg)) {
     return 'chat'
@@ -329,10 +334,10 @@ async function editDocument(params: {
 - Preserve all existing macros, packages, and definitions exactly as-is
 - If the instruction is unclear, make your best interpretation and apply it
 
-## Image uploads:
-- When you see \`[Uploaded: filename.png]\` in a message, it means the user uploaded that image to the project. It is NOT a message from the user — it is a system notification.
-- To use an uploaded image in the document, reference it as: \\includegraphics{images/filename.png}
-- Only insert the image if the user's actual message asks for it (e.g. "add this image to the title page").
+## File uploads:
+- \`[Uploaded: filename.png]\` means an image was uploaded to project storage. To use it: \\includegraphics{images/filename.png}. Only insert if the user asks.
+- \`[File: filename.txt]...[/File]\` means the user attached a text file. The content between the tags IS the file content. Use it to fulfill the user's request (e.g. if they say "replace the English with this Spanish" and attach a file, use the file content as the replacement text).
+- These tags are system-generated, not typed by the user. The user's actual request is the text outside these tags.
 
 ## Chat history:
 - You have access to the conversation history. Messages from the user are their requests; messages from the assistant are your prior replies. Use context from earlier messages to understand follow-up requests like "try again" or "undo that".`

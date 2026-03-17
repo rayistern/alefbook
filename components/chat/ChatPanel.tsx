@@ -196,18 +196,45 @@ export function ChatPanel({
     }
   }
 
+  const TEXT_EXTENSIONS = ['.txt', '.md', '.csv', '.json', '.tex', '.html', '.xml', '.rtf', '.srt', '.sub', '.log']
+
+  function isTextFile(file: File): boolean {
+    if (file.type.startsWith('text/')) return true
+    if (file.type === 'application/json') return true
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase()
+    return TEXT_EXTENSIONS.includes(ext)
+  }
+
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
 
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('projectId', projectId)
+    if (isTextFile(file)) {
+      // Text files: read content and inject into the message
+      try {
+        const text = await file.text()
+        const truncated = text.length > 100_000 ? text.slice(0, 100_000) + '\n...(truncated)' : text
+        setInput(prev => {
+          const prefix = prev.trim() ? prev.trim() + '\n\n' : ''
+          return prefix + `[File: ${file.name}]\n${truncated}\n[/File]`
+        })
+        inputRef.current?.focus()
+      } catch {
+        alert('Could not read file')
+      }
+    } else {
+      // Images: upload to storage
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('projectId', projectId)
 
-    const res = await fetch('/api/upload', { method: 'POST', body: formData })
-    if (res.ok) {
-      setInput(prev => prev + `\n[Uploaded: ${file.name}]`)
-      inputRef.current?.focus()
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      if (res.ok) {
+        setInput(prev => prev + `\n[Uploaded: ${file.name}]`)
+        inputRef.current?.focus()
+      }
     }
   }
 
@@ -343,10 +370,10 @@ export function ChatPanel({
             className="w-full px-4 pt-3 pb-1 text-sm resize-none border-0 bg-transparent focus:outline-none disabled:opacity-50 placeholder:text-muted-foreground/60"
           />
           <div className="flex justify-between items-center px-3 pb-2">
-            <label className="cursor-pointer rounded-lg p-1.5 hover:bg-purple-50 transition-colors text-muted-foreground hover:text-purple-600">
-              <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+            <label className="cursor-pointer rounded-lg p-1.5 hover:bg-purple-50 transition-colors text-muted-foreground hover:text-purple-600" title="Attach file (image or text)">
+              <input type="file" accept="image/*,.txt,.md,.csv,.json,.tex,.html,.xml,.rtf,.srt,.log" onChange={handleFileUpload} className="hidden" />
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
               </svg>
             </label>
             {isLoading ? (
