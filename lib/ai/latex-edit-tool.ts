@@ -49,7 +49,7 @@ the replacement text
 
 Rules for SEARCH/REPLACE blocks:
 - The SEARCH text must be an EXACT substring of the document (including whitespace and newlines).
-- The SEARCH text must be UNIQUE in the document. If a short snippet appears more than once (e.g. a color definition used on multiple pages), include enough surrounding lines to make it unambiguous. When in doubt, include 3-5 extra lines of context.
+- The SEARCH text must be UNIQUE in the document. If a short snippet appears more than once (e.g. a color definition used on multiple pages), include enough surrounding lines to make it unambiguous. Always include 5+ lines of context around the change — more context is always better than less.
 - You can return multiple SEARCH/REPLACE blocks for multiple changes.
 - Only change what the user asked for. Do NOT refactor, reorganize, or "improve" unrelated code.
 - Preserve all existing formatting, spacing, and comments exactly as-is for untouched sections.
@@ -256,7 +256,18 @@ export async function editDocumentWithTool(params: {
   }
 
   // Apply edits to the document
-  const { result, applied, failed } = applyEdits(params.currentDocument, edits)
+  let { result, applied, failed } = applyEdits(params.currentDocument, edits)
+
+  // Auto-retry failed edits once — ask the LLM to fix its search strings
+  if (failed.length > 0 && applied.length >= 0) {
+    console.log(`[EditTool] ${failed.length} edits failed, retrying with error feedback...`)
+    const retryResult = await retryFailedEdits(result, failed, params.model)
+    if (retryResult) {
+      result = retryResult.result
+      applied = [...applied, ...retryResult.applied]
+      failed = retryResult.failed
+    }
+  }
 
   // Sanitize and validate
   const sanitized = sanitizeLatex(result)
@@ -274,9 +285,9 @@ export async function editDocumentWithTool(params: {
 
   // Log results
   if (failed.length > 0) {
-    console.warn('[EditTool] Some edits failed:', failed.map(f => f.error))
+    console.warn('[EditTool] Some edits still failed after retry:', failed.map(f => f.error))
   }
-  console.log(`[EditTool] Applied ${applied.length}/${edits.length} edits`)
+  console.log(`[EditTool] Final: ${applied.length}/${edits.length} edits applied`)
 
   return {
     latex: sanitized,
@@ -285,6 +296,67 @@ export async function editDocumentWithTool(params: {
       : reply,
     edits: applied,
     failedEdits: failed,
+  }
+}
+
+/**
+ * Retry failed edits by showing the LLM what went wrong and the surrounding
+ * document context so it can produce more specific SEARCH strings.
+ */
+async function retryFailedEdits(
+  document: string,
+  failed: { edit: SearchReplaceEdit; error: string }[],
+  model?: string
+): Promise<{
+  result: string
+  applied: SearchReplaceEdit[]
+  failed: { edit: SearchReplaceEdit; error: string }[]
+} | null> {
+  const failureDescriptions = failed.map(f => {
+    // For "found N times" errors, show nearby context to help the LLM disambiguate
+    let context = ''
+    if (f.error.includes('found') && f.error.includes('times')) {
+      const idx = document.indexOf(f.edit.search.slice(0, 40))
+      if (idx !== -1) {
+        const start = Math.max(0, idx - 200)
+        const end = Math.min(document.length, idx + f.edit.search.length + 200)
+        context = `\n\nFirst occurrence context (chars ${start}-${end}):\n\`\`\`\n${document.slice(start, end)}\n\`\`\``
+      }
+    }
+    return `FAILED EDIT:\nSearch: ${JSON.stringify(f.edit.search.slice(0, 200))}\nReplace with: ${JSON.stringify(f.edit.replace.slice(0, 200))}\nError: ${f.error}${context}`
+  }).join('\n\n---\n\n')
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- chat message role types
+    const response = await callLLM(
+      [
+        {
+          role: 'system',
+          content: `You are a LaTeX editor. Some SEARCH/REPLACE edits failed. Fix them by providing corrected SEARCH/REPLACE blocks.
+
+Rules:
+- The SEARCH text must be UNIQUE in the document. Include MORE surrounding lines (5-10 lines of context) to ensure uniqueness.
+- The REPLACE text should achieve the same edit as originally intended.
+- Use the <<<SEARCH ... >>> <<<REPLACE ... >>> format.
+- Do NOT add commentary — just return the corrected SEARCH/REPLACE blocks.`,
+        },
+        {
+          role: 'user',
+          content: `The following edits failed. Please provide corrected versions with more context in the SEARCH strings.\n\n${failureDescriptions}\n\n## Current document:\n\`\`\`latex\n${document}\n\`\`\``,
+        },
+      ] as any,
+      { model, maxTokens: 8192, temperature: 0.1 }
+    )
+
+    const { edits: retryEdits } = parseSearchReplaceBlocks(response)
+    if (retryEdits.length === 0) return null
+
+    const retryResult = applyEdits(document, retryEdits)
+    console.log(`[EditTool] Retry: ${retryResult.applied.length}/${retryEdits.length} edits applied`)
+    return retryResult
+  } catch (err) {
+    console.warn('[EditTool] Retry failed:', err)
+    return null
   }
 }
 
