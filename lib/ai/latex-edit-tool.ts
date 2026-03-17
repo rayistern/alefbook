@@ -327,11 +327,10 @@ async function retryFailedEdits(
   }).join('\n\n---\n\n')
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- chat message role types
     const response = await callLLM(
       [
         {
-          role: 'system',
+          role: 'system' as const,
           content: `You are a LaTeX editor. Some SEARCH/REPLACE edits failed. Fix them by providing corrected SEARCH/REPLACE blocks.
 
 Rules:
@@ -341,10 +340,10 @@ Rules:
 - Do NOT add commentary — just return the corrected SEARCH/REPLACE blocks.`,
         },
         {
-          role: 'user',
+          role: 'user' as const,
           content: `The following edits failed. Please provide corrected versions with more context in the SEARCH strings.\n\n${failureDescriptions}\n\n## Current document:\n\`\`\`latex\n${document}\n\`\`\``,
         },
-      ] as any,
+      ],
       { model, maxTokens: 8192, temperature: 0.1 }
     )
 

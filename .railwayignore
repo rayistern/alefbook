@@ -1,0 +1,8 @@
+node_modules
+.next
+.git
+newImages_final
+*.bak
+*.py
+*.sh
+coverage
