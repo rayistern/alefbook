@@ -134,6 +134,19 @@ async function downloadFolder(
 }
 
 function runLatexmk(workDir: string): Promise<CompileResult> {
+  // Tell TeX where to find template images (bundled in Docker at /app/)
+  const appDir = process.cwd()
+  const texInputs = [
+    workDir,
+    path.join(appDir, 'newImages_whitebg') + '//',
+    path.join(appDir, 'newImages') + '//',
+    path.join(appDir, 'newImages_notext') + '//',
+    '', // trailing colon = include default search paths
+  ].join(':')
+
+  console.log(`[Compiler] TEXINPUTS=${texInputs}`)
+  console.log(`[Compiler] workDir=${workDir}`)
+
   return new Promise((resolve) => {
     execFile(
       'latexmk',
@@ -148,6 +161,7 @@ function runLatexmk(workDir: string): Promise<CompileResult> {
         cwd: workDir,
         timeout: 120_000, // 2 minutes max
         maxBuffer: 10 * 1024 * 1024, // 10MB log buffer
+        env: { ...process.env, TEXINPUTS: texInputs },
       },
       (error, stdout, stderr) => {
         const log = stdout + '\n' + stderr
