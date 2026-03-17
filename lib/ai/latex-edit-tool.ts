@@ -49,7 +49,7 @@ the replacement text
 
 Rules for SEARCH/REPLACE blocks:
 - The SEARCH text must be an EXACT substring of the document (including whitespace and newlines).
-- The SEARCH text must be long enough to be unique — include surrounding lines if needed.
+- The SEARCH text must be UNIQUE in the document. If a short snippet appears more than once (e.g. a color definition used on multiple pages), include enough surrounding lines to make it unambiguous. When in doubt, include 3-5 extra lines of context.
 - You can return multiple SEARCH/REPLACE blocks for multiple changes.
 - Only change what the user asked for. Do NOT refactor, reorganize, or "improve" unrelated code.
 - Preserve all existing formatting, spacing, and comments exactly as-is for untouched sections.
@@ -64,6 +64,10 @@ Rules for SEARCH/REPLACE blocks:
 - Hebrew text is RTL. Be careful with bidi commands (\\\\beginR, \\\\endR, \\\\texthebrew{}).
 - Do not remove or modify \\\\usepackage declarations unless explicitly asked.
 - The user's request always takes priority over style guidelines.
+
+## Image generation
+- You CAN generate images. If the user asks you to create, generate, or draw an image, the system will generate it automatically and provide it as \`[Uploaded: filename.png]\`. You just need to insert it into the document using \\\\includegraphics{images/filename.png}.
+- If the message includes \`[System: An image has been generated...]\`, follow those instructions to insert the image.
 
 ## File uploads
 - \`[Uploaded: filename.png]\` means an image was uploaded to project storage. To use it: \\\\includegraphics{images/filename.png}. Only insert if the user asks.
