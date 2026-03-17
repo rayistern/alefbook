@@ -53,13 +53,11 @@ async function classifyIntent(message: string): Promise<'chat' | 'question' | 'e
       { model: INTENT_MODEL, maxTokens: 4, temperature: 0 }
     )
 
-    const label = response.trim().toLowerCase()
-    if (label === 'chat' || label === 'question' || label === 'edit' || label === 'image') {
-      return label
-    }
-    // If the model returned something unexpected, default to edit
-    console.warn(`[Intent] Unexpected label "${label}", defaulting to edit`)
-    return 'edit'
+    // Extract just the label — model might return extra text or punctuation
+    const raw = response.trim().toLowerCase().replace(/[^a-z]/g, '')
+    const label = (['image', 'chat', 'question', 'edit'] as const).find(l => raw.startsWith(l))
+    console.log(`[Intent] "${message.slice(0, 60)}" → raw="${response.trim()}" → ${label || 'edit (fallback)'}`)
+    return label || 'edit'
   } catch (err) {
     console.warn('[Intent] Classification failed, defaulting to edit:', err)
     return 'edit'
