@@ -38,10 +38,12 @@ export function ChatPanel({
   projectId,
   initialMessages,
   onDone,
+  onFocus,
 }: {
   projectId: string
   initialMessages: Message[]
   onDone?: () => void
+  onFocus?: () => void
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState('')
@@ -364,6 +366,7 @@ export function ChatPanel({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={onFocus}
             placeholder="Describe what you'd like to change..."
             rows={2}
             disabled={isLoading}

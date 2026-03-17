@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { PdfViewer } from '@/components/pdf/PdfViewer'
 import { ShareDialog } from '@/components/project/ShareDialog'
@@ -38,7 +38,17 @@ export function ProjectEditor({
   const [pdfKey, setPdfKey] = useState(0)
   const [compiling, setCompiling] = useState(false)
   const [showShare, setShowShare] = useState(false)
+  const [mobilePanel, setMobilePanel] = useState<'book' | 'chat'>('book')
+  const [isMobile, setIsMobile] = useState(false)
   const texUploadRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)')
+    setIsMobile(mql.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener('change', handler)
+    return () => mql.removeEventListener('change', handler)
+  }, [])
 
   const refreshPdf = useCallback(async () => {
     const res = await fetch(`/api/project/${project.id}`)
@@ -128,7 +138,7 @@ export function ProjectEditor({
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="bg-white border-b px-4 py-2.5 flex items-center justify-between shrink-0">
+      <header className="bg-white border-b px-2 md:px-4 py-2.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center">
@@ -147,15 +157,16 @@ export function ProjectEditor({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2 overflow-x-auto">
           {isOwner && (
             <>
               <button
                 onClick={handleCompile}
                 disabled={compiling}
-                className="rounded-lg border border-purple-100 px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 disabled:opacity-50 transition-colors"
+                className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 disabled:opacity-50 transition-colors whitespace-nowrap"
               >
-                Regenerate PDF
+                <span className="hidden md:inline">Regenerate PDF</span>
+                <span className="md:hidden">Regen</span>
               </button>
               <button
                 onClick={() => setShowShare(true)}
@@ -225,22 +236,41 @@ export function ProjectEditor({
       </header>
 
       {/* Main content: Chat + PDF */}
-      <div className="flex-1 flex min-h-0">
-        {/* Chat Panel (left) */}
+      <div className="flex-1 flex flex-col md:flex-row min-h-0">
+        {/* PDF Canvas — on mobile: top, on desktop: right */}
+        <div
+          className={`bg-gradient-to-br from-slate-50 to-purple-50/30 transition-all duration-300 ease-in-out order-1 md:order-2 md:flex-1 ${
+            isMobile
+              ? mobilePanel === 'book'
+                ? 'flex-[3]'
+                : 'flex-[1] min-h-[120px]'
+              : 'flex-1'
+          }`}
+          onClick={() => isMobile && setMobilePanel('book')}
+        >
+          <PdfViewer key={pdfKey} url={pdfUrl} />
+        </div>
+
+        {/* Chat Panel — on mobile: bottom, on desktop: left */}
         {isOwner && (
-          <div className="w-[420px] border-r border-purple-100 flex flex-col shrink-0 bg-white">
+          <div
+            className={`border-purple-100 flex flex-col bg-white transition-all duration-300 ease-in-out order-2 md:order-1 md:w-[420px] md:shrink-0 md:border-r ${
+              isMobile
+                ? mobilePanel === 'chat'
+                  ? 'flex-[3] border-t'
+                  : 'flex-[1] min-h-[80px] border-t'
+                : ''
+            }`}
+            onClick={() => isMobile && setMobilePanel('chat')}
+          >
             <ChatPanel
               projectId={project.id}
               initialMessages={initialMessages}
               onDone={handleChatDone}
+              onFocus={() => isMobile && setMobilePanel('chat')}
             />
           </div>
         )}
-
-        {/* PDF Canvas (right) */}
-        <div className="flex-1 bg-gradient-to-br from-slate-50 to-purple-50/30">
-          <PdfViewer key={pdfKey} url={pdfUrl} />
-        </div>
       </div>
 
       {showShare && (
