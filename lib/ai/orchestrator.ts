@@ -87,16 +87,24 @@ export async function* runOrchestrator(
     : params.userMessage
 
   let edited: string
+  let aiReply: string
   try {
-    edited = await editDocument({
+    const result = await editDocument({
       currentDocument: document,
       instruction: editInstruction,
       chatHistory: params.chatHistory,
       model: params.model,
     })
+    edited = result.latex
+    aiReply = result.reply
   } catch (err) {
     yield { type: 'done', error: `Edit failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
     return
+  }
+
+  // Show the AI's conversational reply immediately
+  if (aiReply) {
+    yield { type: 'message', message: aiReply }
   }
 
   // Upload modified document
@@ -142,10 +150,11 @@ export async function* runOrchestrator(
     }
   }
 
-  // Save assistant message
-  const summary = compileSuccess
-    ? 'Done! Your changes have been applied and the book has been compiled.'
-    : 'I made the changes, but there were some compilation issues. The PDF may not reflect all changes.'
+  // Save assistant message (use AI's actual reply, with compile status appended)
+  const compileNote = compileSuccess
+    ? ''
+    : '\n\n⚠️ There were some compilation issues — the PDF may not reflect all changes.'
+  const summary = (aiReply || 'Your changes have been applied.') + compileNote
 
   await supabase.from('messages').insert({
     project_id: params.projectId,
@@ -163,16 +172,19 @@ async function editDocument(params: {
   instruction: string
   chatHistory: { role: string; content: string }[]
   model?: string
-}): Promise<string> {
-  const systemPrompt = `You are a LaTeX document editor. The user will give you a complete LaTeX document and an instruction for how to modify it.
+}): Promise<{ latex: string; reply: string }> {
+  const systemPrompt = `You are a LaTeX document editor and helpful assistant. The user will give you a complete LaTeX document and a message (which may be an edit instruction, a question, or both).
+
+## Response format:
+1. First, write a brief conversational reply (1-3 sentences) addressing what the user said — explain what you changed, answer their question, etc. Be natural and specific.
+2. Then return the COMPLETE modified LaTeX document in a \`\`\`latex code block.
 
 ## Rules:
-- Return the COMPLETE modified LaTeX document (from \\documentclass to \\end{document})
+- If the user asks a question without requesting changes, still return the full document unchanged in the code block, but answer their question in your reply.
 - ONLY modify the parts relevant to the user's request
 - Do NOT change any other content, formatting, or structure
 - Preserve all existing macros, packages, and definitions exactly as-is
 - For images, use \\includegraphics{images/filename.png}
-- Wrap your output in a \`\`\`latex code block
 - If the instruction is unclear, make your best interpretation and apply it`
 
   const messages = [
@@ -183,7 +195,7 @@ async function editDocument(params: {
     })),
     {
       role: 'user' as const,
-      content: `## Current document:\n\`\`\`latex\n${params.currentDocument}\n\`\`\`\n\n## Instruction: ${params.instruction}\n\nReturn the complete modified LaTeX document.`,
+      content: `## Current document:\n\`\`\`latex\n${params.currentDocument}\n\`\`\`\n\n## User message: ${params.instruction}\n\nReply to the user, then return the complete LaTeX document.`,
     },
   ]
 
@@ -194,13 +206,14 @@ async function editDocument(params: {
   })
 
   const latex = extractLatexBlock(response)
+  const reply = extractReply(response)
 
   // Sanity check: must have \documentclass and \end{document}
   if (!latex.includes('\\documentclass') || !latex.includes('\\end{document}')) {
     throw new Error('AI returned incomplete document (missing \\documentclass or \\end{document})')
   }
 
-  return latex
+  return { latex, reply }
 }
 
 // --- Self-correction ---
@@ -298,6 +311,15 @@ ${pageContents.join('\n\n')}
 }
 
 // --- Helpers ---
+
+function extractReply(text: string): string {
+  // Everything before the first code block is the conversational reply
+  const codeBlockStart = text.indexOf('```')
+  if (codeBlockStart > 0) {
+    return text.slice(0, codeBlockStart).trim()
+  }
+  return ''
+}
 
 function extractLatexBlock(text: string): string {
   const match = text.match(/```latex\n([\s\S]*?)```/)
