@@ -131,7 +131,7 @@ async function tryGenerateImage(
   const images = message?.images
   if (Array.isArray(images) && images.length) {
     const img = images[0]
-    const url = typeof img === 'string' ? img : img?.url || img?.b64
+    const url = typeof img === 'string' ? img : img?.image_url?.url || img?.url || img?.b64
     if (url) {
       const b64 = typeof url === 'string' && url.startsWith('data:') ? url.replace(/^data:image\/\w+;base64,/, '') : url
       return { b64 }
