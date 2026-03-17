@@ -19,14 +19,28 @@
 
 %%% ---- Fonts ----
 \usepackage{fontspec}
-\setmainfont{FreeSerif}[
-  Ligatures=TeX
+
+%% English: EB Garamond — elegant old-style serif, ideal for liturgical text
+\setmainfont{EBGaramond12-Regular.ttf}[
+  Path=/usr/share/fonts/truetype/ebgaramond/,
+  Ligatures=TeX,
+  BoldFont=EBGaramond12-Bold.ttf,
+  ItalicFont=EBGaramond12-Italic.ttf,
 ]
 \setsansfont{FreeSans}
-\newfontfamily\hebrewfont[Script=Hebrew, Scale=1.15]{FreeSerif}
-\newfontfamily\hebrewfontsans[Script=Hebrew, Scale=1.1]{FreeSans}
-\newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5]{FreeSerif}
-\newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0]{FreeSerif}
+
+%% Hebrew body: EFT Texty — warm, readable body text
+\newfontfamily\hebrewfont[Script=Hebrew, Scale=1.15, Path=templates/fonts/]{EFT_TEXTY OTP.ttf}
+%% Hebrew sans: Secular One — clean modern sans for UI / instructions
+\newfontfamily\hebrewfontsans[Script=Hebrew, Scale=1.1, Path=templates/fonts/]{SecularOne-Regular.ttf}
+%% Hebrew sans large: Secular One at title scale — for sub-section headings
+\newfontfamily\hebrewfontsanslarge[Script=Hebrew, Scale=1.5, Path=templates/fonts/]{SecularOne-Regular.ttf}
+%% Hebrew large: SimpleCLM — medium weight for emphasis / larger passages
+\newfontfamily\hebrewfontlarge[Script=Hebrew, Scale=1.5, Path=templates/fonts/]{SimpleCLM-Medium.ttf}
+%% Hebrew titles: Yiddishkeit — bold decorative for section headers
+\newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=2.0, Path=templates/fonts/]{Yiddishkeit 2.0 AAA Bold.otf}
+%% Hebrew display: Yiddishkeit Regular — for large decorative text
+\newfontfamily\hebrewfontdisplay[Script=Hebrew, Scale=2.5, Path=templates/fonts/]{Yiddishkeit 2.0 AAA Regular.otf}
 
 %% Hebrew/RTL: manual {hebrew} and \texthebrew removed — polyglossia provides them
 %% (polyglossia loaded after all other packages, see below)
@@ -41,6 +55,7 @@
 
 %%% ---- Graphics & Decorations ----
 \usepackage{graphicx}
+\graphicspath{{newImages_notext/}}
 \usepackage{tikz}
 \usetikzlibrary{calc, decorations.pathmorphing}
 \usepackage{pgfornament}
@@ -74,7 +89,7 @@
 \usepackage{polyglossia}
 \setdefaultlanguage{english}
 \setotherlanguage{hebrew}
-%% Provide a manual \texthebrew for inline use (polyglossia may provide one too)
+%% Provide a manual \texthebrew for inline use (uses body Hebrew font)
 \providecommand{\texthebrew}[1]{{\hebrewfont\beginR #1\endR}}
 
 %%% ---- Spacing ----
@@ -121,10 +136,10 @@
     \draw[sedergold, line width=0.4pt]
       ([shift={(0.65in,-0.35in)}]current page.north west) --
       ([shift={(-0.65in,-0.35in)}]current page.north east);
-    %% Gold footer rule (below page number)
+    %% Gold footer rule (above page number)
     \draw[sedergold, line width=0.3pt]
-      ([shift={(0.65in,0.38in)}]current page.south west) --
-      ([shift={(-0.65in,0.38in)}]current page.south east);
+      ([shift={(0.65in,0.72in)}]current page.south west) --
+      ([shift={(-0.65in,0.72in)}]current page.south east);
     %% Corner ornaments (subtle, 18% opacity)
     \node[anchor=north west, opacity=0.18] at
       ([shift={(0.2in,-0.15in)}]current page.north west)
@@ -174,22 +189,20 @@
   \sectionpagetrue
   \markboth{#2\enspace---\enspace#3}{}%
   \par\vspace{12pt}
-  %% decorative header with step number
+  %% decorative header
   \begin{center}
     \begin{tikzpicture}
       \node[inner sep=0pt] (TL) at (-3.0,0) {\pgfornament[width=1.2cm,color=sedergold]{15}};
-      \draw[sedergold, line width=0.6pt] (-2.2,0) -- (-0.7,0);
-      \node[inner sep=5pt, fill=white] (NUM) at (0,0) {%
-        \textcolor{sedergold}{\sffamily\bfseries\small Step~#4}%
-      };
-      \draw[sedergold, line width=0.6pt] (0.7,0) -- (2.2,0);
+      \draw[sedergold, line width=0.6pt] (-2.2,0) -- (-0.15,0);
+      \node[inner sep=0pt] at (0,0) {\textcolor{sedergold}{\tiny$\diamond$}};
+      \draw[sedergold, line width=0.6pt] (0.15,0) -- (2.2,0);
       \node[inner sep=0pt] (TR) at (3.0,0) {\pgfornament[width=1.2cm,color=sedergold,symmetry=v]{15}};
     \end{tikzpicture}
   \end{center}
   \vspace{2pt}
   %% Hebrew title
   \begin{center}
-    {\hebrewfonttitle\textcolor{sederblue}{\texthebrew{#1}}}\\[4pt]
+    {\hebrewfontsanslarge\textcolor{sederblue}{\beginR #1\endR}}\\[4pt]
     {\Large\scshape\textcolor{sederblue}{#2}}\\[2pt]
     {\normalsize\textcolor{sederwine}{\itshape #3}}
   \end{center}
@@ -213,19 +226,11 @@
 %%% ---- Seder-step chapter (for the TOC page) ----
 \newcommand{\sederchapterformat}{}
 
-%%% ---- Image placeholder command ----
-\newcommand{\haggadahimagefixed}[3]{%
+%%% ---- Actual image inclusion command ----
+\newcommand{\haggadahimage}[2]{%  #1=width, #2=filename
   \par\vspace{10pt}
   \begin{center}
-    \begin{tikzpicture}
-      \draw[sederborder, line width=1pt, rounded corners=4pt]
-        (0,0) rectangle (#1, #2);
-      \node[text=sederborder, font=\sffamily\small, text width=0.7*#1, align=center]
-        at (0.5*#1, 0.5*#2)
-        {\textcolor{sedergold}{\Large$\diamondsuit$}\\[4pt]
-         IMAGE PLACEHOLDER\\[2pt]
-         \footnotesize\itshape #3};
-    \end{tikzpicture}
+    \includegraphics[width=#1]{#2}
   \end{center}
   \par\vspace{10pt}
 }
@@ -354,7 +359,7 @@
 \newcommand{\subsedertitle}[2]{%
   \par\vspace{8pt}
   \begin{center}
-    {\hebrewfontlarge\textcolor{sederblue}{\texthebrew{#1}}}\\[3pt]
+    {\hebrewfontlarge\textcolor{sederblue}{\beginR #1\endR}}\\[3pt]
     {\normalsize\scshape\textcolor{sederblue}{#2}}
   \end{center}
   \par\vspace{3pt}
@@ -369,8 +374,8 @@
     colback=sederblue!6,
     colframe=sederblue!6,
     boxrule=0pt,
-    left=10pt,
-    right=10pt,
+    left=18pt,
+    right=18pt,
     top=6pt,
     bottom=6pt,
     borderline north={0.5pt}{0pt}{sederblue!25},
@@ -393,8 +398,8 @@
     colback=sederwine!5,
     colframe=sederwine!5,
     boxrule=0pt,
-    left=10pt,
-    right=10pt,
+    left=18pt,
+    right=18pt,
     top=6pt,
     bottom=6pt,
     borderline north={0.5pt}{0pt}{sederwine!25},
@@ -439,7 +444,7 @@
 \vspace*{0.5in}
 
 \begin{center}
-  \textcolor{sedergold}{\hebrewfonttitle\fontsize{36pt}{42pt}\selectfont\texthebrew{הַגָּדָה שֶׁל פֶּסַח}}
+  \textcolor{sedergold}{\hebrewfonttitle\fontsize{36pt}{42pt}\selectfont\beginR הַגָּדָה שֶׁל פֶּסַח\endR}
 
   \vspace{0.5in}
 
@@ -454,10 +459,6 @@
   \vspace{0.4in}
 
   \textcolor{sedergold}{\pgfornament[width=3.5cm, symmetry=h]{75}}
-
-  \vspace{0.3in}
-
-  \haggadahimagefixed{3.2in}{1.8in}{Cover illustration --- Seder table scene}
 
   \vspace*{\fill}
 
@@ -477,7 +478,7 @@
 \vspace*{1.5in}
 
 \begin{center}
-  {\hebrewfontlarge\textcolor{sederblue}{\texthebrew{הַגָּדָה שֶׁל פֶּסַח}}}
+  {\hebrewfontlarge\textcolor{sederblue}{\beginR הַגָּדָה שֶׁל פֶּסַח\endR}}
 
   \vspace{0.4in}
 
@@ -489,6 +490,10 @@
   \textcolor{sedergold}{\pgfornament[width=2cm]{11}}
 
   \vspace{0.5in}
+
+  \haggadahimage{3.2in}{kaarah1a.png}
+
+  \vspace{0.3in}
 
   {\normalsize Presented by\\[4pt]
   {\Large\scshape Your Chabad House}\\[8pt]
@@ -559,7 +564,7 @@
     \textsc{Berach} --- Grace After Meals \\
   \textcolor{sedergold}{\sffamily\bfseries 14.} &
     \texthebrew{הלל נרצה} &
-    \textsc{Hallel -- Nirtzah} --- Psalms of Praise \& Conclusion \\
+    \textsc{Hallel, Nirtzah} --- Psalms of Praise \& Conclusion \\
 \end{tabular}
 \end{center}
 
@@ -651,14 +656,14 @@ Blessed are You, Lord our G-d, King of the Universe, who has preserved us in lif
 \end{englishcol}
 \end{bilingual}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Kiddush cup and wine}
+\haggadahimage{3.5in}{kadeish1a.png}
 
 %% ---- 2. URCHATZ ----
 \sedersection{ורחץ}{Urchatz}{Washing Hands for the Vegetable}{2}
 
 \instruction{We wash our hands, without saying a blessing.}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Washing hands}
+\haggadahimage{3.5in}{urchatz1a.png}
 
 %% ---- 3. KARPAS ----
 \sedersection{כרפס}{Karpas}{Vegetable}{3}
@@ -674,14 +679,14 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 \end{englishcol}
 \end{bilingual}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Dipping the vegetable}
+\haggadahimage{3.5in}{karpas1a.png}
 
 %% ---- 4. YACHATZ ----
 \sedersection{יחץ}{Yachatz}{Breaking the Middle Matzah}{4}
 
 \instruction{We break the middle matzah, and we put away the bigger piece for the Afikoman.}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Breaking the matzah}
+\haggadahimage{3.5in}{yachatz1a.png}
 
 %% ---- 5. MAGGID ----
 \sedersectionbreak{מגיד}{Maggid}{Retelling the Passover Story}{5}
@@ -698,7 +703,7 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 This is the bread of affliction which our fathers did eat in the land of Egypt. Let all who are hungry come in and eat; let all who need come in and celebrate Passover. This year we celebrate it here, may we celebrate it next year in the land of Israel. This year we are in exile, next year may we be free.
 \end{englishcol}
 \end{bilingual}
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Hei Lachma Anya}
+\haggadahimage{3.5in}{maror1a.png}
 
 \subsedertitle{מה נשתנה}{Mah Nishtanah --- The Four Questions}
 
@@ -754,7 +759,7 @@ On all other nights we eat either sitting or reclining, but on this night we all
 \end{bilingual}
 \parasep
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The Four Questions}
+\haggadahimage{3.5in}{fourcups1a.png}
 
 \subsedertitle{עבדים היינו}{Avadim Hayinu}
 
@@ -789,6 +794,8 @@ Rabbi Elazar ben Azariah said, ``I am like a man of seventy, and I did not appre
 \sederdivider
 
 \subsedertitle{ארבעה בנים}{The Four Sons}
+
+\haggadahimage{3.5in}{foursons1a.png}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -838,7 +845,6 @@ Which is the simple child's question? ``What is this?'' you shall answer him by 
 If the child cannot engage with a question, you shall open the subject to him, as it is said, ``And you shall show your child on that day, saying, This is done because of that which the Lord did for me when I came out of Egypt.''
 \end{englishcol}
 \end{bilingual}
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The Four Sons}
 
 \sederdivider
 
@@ -1016,7 +1022,7 @@ Rabbi Akiva said, From where may we say  that each plague that the Holy One, ble
 
 \subsedertitle{דינו}{Dayeinu}
 
-\haggadahimagefixed{4.5in}{2.0in}{Illustration --- Dayeinu}
+% No Dayeinu image available yet
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1249,7 +1255,7 @@ Blessed are You, Lord our G-d, King of the Universe, who hast sanctified us with
 \end{bilingual}
 \instruction{We eat a piece (about half a matzah) from the top two matzot, leaning to the left.}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Matzah}
+\haggadahimage{3.5in}{motzimatza1a.png}
 
 %% ---- 9. MAROR ----
 \sedersection{מרור}{Maror}{Bitter Herbs}{9}
@@ -1280,23 +1286,28 @@ So did Hillel do in the time when the Temple stood: He used to take a piece of t
 \end{englishcol}
 \end{bilingual}
 
+\haggadahimage{3.5in}{korech1a.png}
 
 %% ---- 11. SHULCHAN ORECH ----
 \sedersection{שלחן עורך}{Shulchan Orech}{Feast}{11}
 
 \instruction{We eat the meal.}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- The festive meal}
+\haggadahimage{3.5in}{shulchanorech1a.png}
 
 %% ---- 12. TZAFUN ----
 \sedersection{צפון}{Tzafun}{Eating the Afikoman}{12}
 
 \instruction{We finish the meal with the afikoman.}
 
+\haggadahimage{3.5in}{tzafun1a.png}
+
 %% ---- 13. BERACH ----
 \sedersection{ברך}{Berach}{Grace After Meals}{13}
 
 \instruction{The grace after meals. We fill the third cup.}
+
+\haggadahimage{3.5in}{beirach1a.png}
 
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1428,6 +1439,12 @@ The All-merciful shall reign over us forever and ever. The All-merciful shall be
 \begin{hebrewblock}
 הָרַחֲמָן הוּא יַנְחִילֵנוּ לְיוֹם שֶׁכֻּלוֹ שַׁבָּת וּמְנוּחָה לְחַיֵּי הָעוֹלָמִים:
 \end{hebrewblock}
+
+\hebrewenglishsep
+
+\begin{englishblock}
+May the All-merciful let us inherit the day which will be wholly a Sabbath and rest day for life everlasting.
+\end{englishblock}
 \end{shabbatadd}
 \begin{bilingual}
 \begin{hebrewcol}
@@ -1461,7 +1478,7 @@ Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the
 \instruction{We fill the fourth cup and also the cup of Elijah. The door is opened as we say:}
 
 %% ---- 14. HALLEL NIRTZAH ----
-\sedersectionbreak{הלל -- נרצה}{Hallel -- Nirtzah}{Psalms of Praise \& Conclusion}{14}
+\sedersectionbreak{הלל, נרצה}{Hallel, Nirtzah}{Psalms of Praise \& Conclusion}{14}
 
 
 \subsedertitle{שפוך חמתך}{Shfoch Chamatcha}
@@ -1548,9 +1565,14 @@ In my constraint I called upon the Lord: the Lord answered me in abundance. The 
 \end{bilingual}
 \parasep
 
-\begin{englishblock}
+\begin{bilingual}
+\begin{hebrewcol}
+\mbox{}
+\end{hebrewcol}
+\begin{englishcol}
 I will give thanks unto You, for You have answered me, and have become my salvation. \textit{(Repeat this verse.)} The stone which the builders rejected has become the cornerstone. \textit{(Repeat.)} This is the Lord’s doing; it is marvelous in our eyes. \textit{(Repeat.)} This is the day which the Lord has made, we will rejoice and be glad in it. \textit{(Repeat.)}
-\end{englishblock}
+\end{englishcol}
+\end{bilingual}
 \parasep
 
 \begin{bilingual}
@@ -1707,7 +1729,7 @@ And so praised be Your Name forever, our King, the Almighty, the King,  the Grea
 Blessed are You, Lord our G-d, King of the Universe, Creator of the fruit of the vine.
 \end{englishcol}
 \end{bilingual}
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Songs of praise}
+\haggadahimage{3.5in}{hallel1a.png}
 
 \sederdivider
 
@@ -1739,16 +1761,15 @@ Blessed are You, Lord our G-d, Creator of so many diverse beings, for all You ha
 \end{center}
 \vspace{6pt}
 
-\begin{bilingual}
-\begin{hebrewcol}
-לְשָׁנָה הַבָּאָה בִּירוּשָׁלָיִם!
-\end{hebrewcol}
-\begin{englishcol}
-{\Large\scshape\textcolor{sederblue}{Next Year in Jerusalem!}}
-\end{englishcol}
-\end{bilingual}
+\begin{center}
+  {\hebrewfontdisplay\textcolor{sederblue}{\beginR לְשָׁנָה הַבָּאָה בִּירוּשָׁלָיִם!\endR}}
 
-\haggadahimagefixed{3.5in}{1.8in}{Illustration --- Next year in Jerusalem}
+  \vspace{12pt}
+
+  {\LARGE\scshape\textcolor{sederblue}{Next Year in Jerusalem!}}
+\end{center}
+
+\haggadahimage{3.5in}{eliyahu1a.png}
 
 %%% ---- BACK COVER ----
 \clearpage
@@ -1817,7 +1838,7 @@ Blessed are You, Lord our G-d, Creator of so many diverse beings, for all You ha
 
   \vspace{0.3in}
 
-  \textcolor{sedergold}{\hebrewfontlarge\texthebrew{חַג כָּשֵׁר וְשָׂמֵחַ!}}
+  \textcolor{sedergold}{\hebrewfontlarge\beginR חַג כָּשֵׁר וְשָׂמֵחַ!\endR}
 \end{center}
 
 \vspace*{\fill}
