@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { PdfViewer } from '@/components/pdf/PdfViewer'
 import { ShareDialog } from '@/components/project/ShareDialog'
@@ -38,6 +38,7 @@ export function ProjectEditor({
   const [pdfKey, setPdfKey] = useState(0)
   const [compiling, setCompiling] = useState(false)
   const [showShare, setShowShare] = useState(false)
+  const texUploadRef = useRef<HTMLInputElement>(null)
 
   const refreshPdf = useCallback(async () => {
     const res = await fetch(`/api/project/${project.id}`)
@@ -81,6 +82,48 @@ export function ProjectEditor({
       window.location.href = `/project/${fork.id}`
     }
   }, [project.id])
+
+  const handleDownloadTex = useCallback(async () => {
+    const res = await fetch(`/api/project/${project.id}/tex`)
+    if (res.ok) {
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = res.headers.get('Content-Disposition')?.match(/filename="(.+)"/)?.[1] || 'document.tex'
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+  }, [project.id])
+
+  const handleUploadTex = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = '' // reset so same file can be re-selected
+
+    const text = await file.text()
+    if (!confirm(`Replace the current document with "${file.name}" (${text.length.toLocaleString()} chars)? This will overwrite your current LaTeX.`)) {
+      return
+    }
+
+    const res = await fetch(`/api/project/${project.id}/tex`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'text/plain' },
+      body: text,
+    })
+
+    if (res.ok) {
+      const data = await res.json()
+      if (data.warnings?.length) {
+        alert(`LaTeX uploaded with warnings:\n${data.warnings.join('\n')}`)
+      }
+      // Recompile to generate new PDF
+      handleCompile()
+    } else {
+      const data = await res.json().catch(() => ({ error: 'Upload failed' }))
+      alert(data.error || 'Upload failed')
+    }
+  }, [project.id, handleCompile])
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -146,8 +189,37 @@ export function ProjectEditor({
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              Download
+              PDF
             </a>
+          )}
+          <button
+            onClick={handleDownloadTex}
+            className="rounded-lg border border-purple-100 px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            LaTeX
+          </button>
+          {isOwner && (
+            <>
+              <button
+                onClick={() => texUploadRef.current?.click()}
+                className="rounded-lg border border-purple-100 px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
+                </svg>
+                Upload LaTeX
+              </button>
+              <input
+                ref={texUploadRef}
+                type="file"
+                accept=".tex,.latex,.txt"
+                onChange={handleUploadTex}
+                className="hidden"
+              />
+            </>
           )}
         </div>
       </header>
