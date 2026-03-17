@@ -28,20 +28,9 @@ export async function compileProject(projectId: string): Promise<CompileResult> 
     const storagePath = `projects/${projectId}`
     await downloadFolder(supabase, storagePath, tmpDir, storagePath)
 
-    // Copy template image directories from app filesystem if they exist
-    // (these are bundled in the Docker image, not in Supabase)
-    for (const imgDir of ['newImages_whitebg', 'newImages', 'newImages_notext']) {
-      const srcDir = path.join(process.cwd(), imgDir)
-      const destDir = path.join(tmpDir, imgDir)
-      try {
-        await fs.access(srcDir)
-        await fs.cp(srcDir, destDir, { recursive: true })
-        const files = await fs.readdir(destDir)
-        console.log(`[Compiler] Copied ${imgDir}/ → ${files.length} files`)
-      } catch (err) {
-        console.log(`[Compiler] Skipping ${imgDir}/: ${err instanceof Error ? err.message : err}`)
-      }
-    }
+    // Template images (korech1a.png, etc.) are found via TEXINPUTS which
+    // includes /app/newImages_whitebg// etc. No need to copy them into
+    // the work dir — and doing so would overwrite user-uploaded images.
 
     // Compile
     const result = await runLatexmk(tmpDir)
@@ -137,7 +126,7 @@ function runLatexmk(workDir: string): Promise<CompileResult> {
   // Tell TeX where to find template images (bundled in Docker at /app/)
   const appDir = process.cwd()
   const texInputs = [
-    workDir,
+    workDir + '//',  // recursive so user images in subdirs are found first
     path.join(appDir, 'newImages_whitebg') + '//',
     path.join(appDir, 'newImages') + '//',
     path.join(appDir, 'newImages_notext') + '//',

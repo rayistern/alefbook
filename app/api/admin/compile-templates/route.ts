@@ -87,10 +87,10 @@ export async function POST(request: NextRequest) {
 }
 
 function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: string[] }> {
-  // Set TEXINPUTS so LaTeX can find template images
+  // Set TEXINPUTS so LaTeX can find template images (bundled at /app/)
   const appDir = process.cwd()
   const texInputs = [
-    workDir,
+    workDir + '//',
     path.join(appDir, 'newImages_whitebg') + '//',
     path.join(appDir, 'newImages') + '//',
     '',
