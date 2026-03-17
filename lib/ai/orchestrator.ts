@@ -50,7 +50,7 @@ async function classifyIntent(message: string): Promise<'chat' | 'question' | 'e
         },
         { role: 'user', content: message },
       ],
-      { model: INTENT_MODEL, maxTokens: 4, temperature: 0 }
+      { model: INTENT_MODEL, maxTokens: 16, temperature: 0 }
     )
 
     // Extract just the label — model might return extra text or punctuation
