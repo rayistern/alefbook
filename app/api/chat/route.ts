@@ -44,6 +44,9 @@ export async function POST(request: NextRequest) {
     .order('created_at', { ascending: true })
     .limit(50)
 
+  // Use the request signal to detect client disconnection
+  const requestSignal = request.signal
+
   // Stream the orchestrator events via SSE
   const encoder = new TextEncoder()
   const stream = new ReadableStream({
@@ -61,10 +64,18 @@ export async function POST(request: NextRequest) {
         })
 
         for await (const event of events) {
+          // Check if client has disconnected
+          if (requestSignal.aborted) {
+            break
+          }
           const data = JSON.stringify(event)
           controller.enqueue(encoder.encode(`data: ${data}\n\n`))
         }
       } catch (err) {
+        if (requestSignal.aborted) {
+          // Client disconnected, no need to send error
+          return
+        }
         const errorEvent: TaskEvent = {
           type: 'done',
           error: err instanceof Error ? err.message : 'Unknown error',

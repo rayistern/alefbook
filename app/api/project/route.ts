@@ -1,5 +1,5 @@
 import { createServerSupabase } from '@/lib/supabase/server'
-import { uploadProjectFile } from '@/lib/latex/compiler'
+import { uploadProjectFile, compileProject, getProjectPdfUrl } from '@/lib/latex/compiler'
 import { NextRequest, NextResponse } from 'next/server'
 import { getTemplate } from '@/lib/latex/templates'
 
@@ -22,6 +22,8 @@ export async function GET() {
 }
 
 // POST /api/project — create a new project
+export const maxDuration = 120
+
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
@@ -52,6 +54,17 @@ export async function POST(request: NextRequest) {
 
   // Upload the single main.tex document
   await uploadProjectFile(project.id, 'main.tex', template.main)
+
+  // Auto-compile the template so user sees a PDF immediately
+  try {
+    const result = await compileProject(project.id)
+    if (result.success) {
+      const pdfUrl = await getProjectPdfUrl(project.id)
+      return NextResponse.json({ ...project, status: 'ready', pdfUrl }, { status: 201 })
+    }
+  } catch (err) {
+    console.error('[Project] Auto-compile failed:', err)
+  }
 
   return NextResponse.json(project, { status: 201 })
 }
