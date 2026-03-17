@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { execFile } from 'child_process'
-import { promises as fs, readFileSync } from 'fs'
+import { promises as fs } from 'fs'
 import path from 'path'
 import os from 'os'
 import { createServiceClient } from '@/lib/supabase/server'

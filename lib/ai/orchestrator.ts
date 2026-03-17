@@ -1,5 +1,5 @@
 import { callLLM } from './openrouter'
-import { compileProject, readProjectFile, uploadProjectFile, getProjectPdfUrl } from '@/lib/latex/compiler'
+import { compileProject, readProjectFile, uploadProjectFile } from '@/lib/latex/compiler'
 import { createServiceClient } from '@/lib/supabase/server'
 import { renderPdfPages, getPdfPageCount } from '@/lib/latex/pdf-to-image'
 
@@ -547,6 +547,7 @@ If everything looks good, say "Pages look good." — nothing more.`,
   ]
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- multimodal content type
     const review = await callLLM(messages as any, {
       model: params.model,
       maxTokens: 512,
