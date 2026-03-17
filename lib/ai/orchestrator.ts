@@ -353,33 +353,6 @@ Return the COMPLETE corrected LaTeX document in a \`\`\`latex code block.`
   return latex
 }
 
-// --- Image generation ---
-
-async function handleImageGeneration(params: {
-  projectId: string
-  instruction: string
-  imageModel?: string
-}): Promise<string> {
-  const { generateImage } = await import('./openrouter')
-  const { uploadProjectImage } = await import('@/lib/latex/compiler')
-
-  const result = await generateImage(params.instruction, params.imageModel)
-  const filename = `gen-${Date.now()}.png`
-
-  if (result.url) {
-    const response = await fetch(result.url)
-    const buffer = Buffer.from(await response.arrayBuffer())
-    await uploadProjectImage(params.projectId, filename, buffer)
-  } else if (result.b64) {
-    const buffer = Buffer.from(result.b64, 'base64')
-    await uploadProjectImage(params.projectId, filename, buffer)
-  } else {
-    throw new Error('No image data returned')
-  }
-
-  return filename
-}
-
 // --- Migration helper for old split-file projects ---
 
 async function assembleOldProject(projectId: string, mainTex: string): Promise<string | null> {
