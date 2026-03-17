@@ -16,8 +16,8 @@ export function getOpenRouterClient(): OpenAI {
   return _client
 }
 
-const DEFAULT_MODEL = 'anthropic/claude-sonnet-4'
-const FALLBACK_MODEL = 'openai/gpt-4.1'
+const DEFAULT_MODEL = 'openai/gpt-5.1-codex-mini'
+const FALLBACK_MODEL = 'openai/gpt-4.1-mini'
 
 export async function callLLM(
   messages: OpenAI.ChatCompletionMessageParam[],
@@ -59,7 +59,7 @@ export async function callLLM(
  */
 export async function generateImage(
   prompt: string,
-  model: string = 'openai/dall-e-3'
+  model: string = 'google/gemini-flash-3'
 ): Promise<{ url?: string; b64?: string }> {
   const client = getOpenRouterClient()
 

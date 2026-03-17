@@ -41,6 +41,8 @@ export async function* runOrchestrator(
     return
   }
 
+  yield { type: 'status', message: 'Loading your document...' }
+
   // Read the full document
   let document = await readProjectFile(params.projectId, 'main.tex')
 
@@ -98,6 +100,7 @@ export async function* runOrchestrator(
   }
 
   // Upload modified document
+  yield { type: 'status', message: 'Saving changes...' }
   await uploadProjectFile(params.projectId, 'main.tex', edited)
 
   // Compile with self-correction loop

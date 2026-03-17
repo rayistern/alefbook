@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
@@ -10,9 +10,11 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 export function PdfViewer({ url }: { url: string | null }) {
   const [numPages, setNumPages] = useState(0)
-  const [currentPage, setCurrentPage] = useState(1)
   const [scale, setScale] = useState(1.0)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const pageRefs = useRef<Map<number, HTMLDivElement>>(new Map())
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages)
@@ -22,6 +24,43 @@ export function PdfViewer({ url }: { url: string | null }) {
 
   const onDocumentLoadError = useCallback((error: Error) => {
     setError(error.message)
+  }, [])
+
+  // Track which page is currently visible via scroll position
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container || numPages === 0) return
+
+    const handleScroll = () => {
+      const containerRect = container.getBoundingClientRect()
+      const containerMid = containerRect.top + containerRect.height / 2
+
+      let closestPage = 1
+      let closestDist = Infinity
+
+      pageRefs.current.forEach((el, pageNum) => {
+        const rect = el.getBoundingClientRect()
+        const pageMid = rect.top + rect.height / 2
+        const dist = Math.abs(pageMid - containerMid)
+        if (dist < closestDist) {
+          closestDist = dist
+          closestPage = pageNum
+        }
+      })
+
+      setCurrentPage(closestPage)
+    }
+
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [numPages])
+
+  const setPageRef = useCallback((pageNum: number, el: HTMLDivElement | null) => {
+    if (el) {
+      pageRefs.current.set(pageNum, el)
+    } else {
+      pageRefs.current.delete(pageNum)
+    }
   }, [])
 
   if (!url) {
@@ -57,31 +96,9 @@ export function PdfViewer({ url }: { url: string | null }) {
     <div className="h-full flex flex-col">
       {/* Controls */}
       <div className="flex items-center justify-between px-4 py-2 border-b bg-white/80 backdrop-blur-sm">
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-            disabled={currentPage <= 1}
-            className="rounded-lg p-1.5 hover:bg-purple-50 disabled:opacity-30 transition-colors"
-            title="Previous page"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <span className="text-xs text-muted-foreground min-w-[60px] text-center">
-            {currentPage} of {numPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage(p => Math.min(numPages, p + 1))}
-            disabled={currentPage >= numPages}
-            className="rounded-lg p-1.5 hover:bg-purple-50 disabled:opacity-30 transition-colors"
-            title="Next page"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+        <span className="text-xs text-muted-foreground min-w-[60px]">
+          {numPages > 0 ? `${currentPage} of ${numPages}` : ''}
+        </span>
         <div className="flex items-center gap-1">
           <button
             onClick={() => setScale(s => Math.max(0.5, s - 0.25))}
@@ -113,52 +130,41 @@ export function PdfViewer({ url }: { url: string | null }) {
         </div>
       </div>
 
-      {/* PDF */}
-      <div className="flex-1 overflow-auto flex justify-center p-6">
-        <Document
-          file={url}
-          onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
-          loading={
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <svg className="animate-spin w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-              Loading preview...
-            </div>
-          }
-        >
-          <Page
-            pageNumber={currentPage}
-            scale={scale}
-            renderTextLayer={true}
-            renderAnnotationLayer={true}
-            className="shadow-xl rounded-sm"
-          />
-        </Document>
-      </div>
-
-      {/* Page thumbnail strip */}
-      {numPages > 1 && (
-        <div className="border-t bg-white/80 backdrop-blur-sm px-4 py-2 overflow-x-auto">
-          <div className="flex gap-1.5">
+      {/* Scrollable PDF canvas — all pages rendered continuously */}
+      <div ref={containerRef} className="flex-1 overflow-auto">
+        <div className="flex flex-col items-center py-6 gap-4">
+          <Document
+            file={url}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
+            loading={
+              <div className="flex items-center gap-2 text-sm text-muted-foreground py-20">
+                <svg className="animate-spin w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Loading preview...
+              </div>
+            }
+          >
             {Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (
-              <button
+              <div
                 key={pageNum}
-                onClick={() => setCurrentPage(pageNum)}
-                className={`shrink-0 w-10 h-14 rounded-lg text-xs flex items-center justify-center transition-all ${
-                  pageNum === currentPage
-                    ? 'gradient-bg text-white font-medium shadow-md shadow-purple-500/20'
-                    : 'border border-purple-100 hover:border-purple-300 hover:bg-purple-50 text-muted-foreground'
-                }`}
+                ref={(el) => setPageRef(pageNum, el)}
+                className="mb-2"
               >
-                {pageNum}
-              </button>
+                <Page
+                  pageNumber={pageNum}
+                  scale={scale}
+                  renderTextLayer={true}
+                  renderAnnotationLayer={true}
+                  className="shadow-xl rounded-sm"
+                />
+              </div>
             ))}
-          </div>
+          </Document>
         </div>
-      )}
+      </div>
     </div>
   )
 }
