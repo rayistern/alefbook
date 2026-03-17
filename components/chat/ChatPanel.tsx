@@ -29,9 +29,9 @@ const MODELS = [
 ]
 
 const IMAGE_MODELS = [
-  { id: 'google/gemini-flash-3', label: 'Gemini Flash 3' },
-  { id: 'openai/dall-e-3', label: 'DALL-E 3' },
-  { id: 'stability/stable-diffusion-xl', label: 'SDXL' },
+  { id: 'google/gemini-2.5-flash-image-preview', label: 'Gemini 2.5 Flash' },
+  { id: 'google/gemini-3.1-flash-image-preview', label: 'Gemini 3.1 Flash' },
+  { id: 'black-forest-labs/flux.2-pro', label: 'Flux 2 Pro' },
 ]
 
 export function ChatPanel({

@@ -55,21 +55,49 @@ export async function callLLM(
 }
 
 /**
- * Call an image generation model via OpenRouter
+ * Generate an image via OpenRouter's chat completions endpoint.
+ * Uses the modalities parameter to request image output.
  */
 export async function generateImage(
   prompt: string,
-  model: string = 'google/gemini-flash-3'
-): Promise<{ url?: string; b64?: string }> {
-  const client = getOpenRouterClient()
-
-  const response = await client.images.generate({
-    model,
-    prompt,
-    n: 1,
-    size: '1024x1024',
+  model: string = 'google/gemini-2.5-flash-image-preview'
+): Promise<{ b64: string }> {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://alefbook.org',
+      'X-Title': 'AlefBook',
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      modalities: ['image'],
+    }),
   })
 
-  const data = response.data?.[0]
-  return { url: data?.url, b64: data?.b64_json }
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(`Image generation failed (${response.status}): ${text.slice(0, 200)}`)
+  }
+
+  const data = await response.json()
+  const content = data.choices?.[0]?.message?.content
+
+  // Response contains base64 data URL: "data:image/png;base64,..."
+  if (typeof content === 'string' && content.startsWith('data:image')) {
+    const b64 = content.replace(/^data:image\/\w+;base64,/, '')
+    return { b64 }
+  }
+
+  // Some models return images array
+  const images = data.choices?.[0]?.message?.images
+  if (images?.length) {
+    const img = images[0]
+    const b64 = img.startsWith('data:') ? img.replace(/^data:image\/\w+;base64,/, '') : img
+    return { b64 }
+  }
+
+  throw new Error('No image data in response')
 }
