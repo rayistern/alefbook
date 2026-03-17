@@ -1,7 +1,7 @@
 import { callLLM } from './openrouter'
 import { compileProject, readProjectFile, uploadProjectFile, getProjectPdfUrl } from '@/lib/latex/compiler'
 import { createServiceClient } from '@/lib/supabase/server'
-import { renderPdfPages } from '@/lib/latex/pdf-to-image'
+import { renderPdfPages, getPdfPageCount } from '@/lib/latex/pdf-to-image'
 
 export interface TaskEvent {
   type: 'status' | 'compile_start' | 'compile_done' | 'compile_error' | 'message' | 'done'
@@ -429,6 +429,11 @@ async function handleImageGeneration(params: {
 
 // --- PDF visual review ---
 
+/**
+ * Two-step review:
+ * 1. Ask the AI (cheaply, text-only) which pages it expects its edit to affect
+ * 2. Render those pages + page 1 (always), send images back for visual QA
+ */
 async function reviewCompiledPdf(params: {
   projectId: string
   userMessage: string
@@ -453,11 +458,59 @@ async function reviewCompiledPdf(params: {
 
   const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer())
 
-  // Render first few pages to images
-  const pages = await renderPdfPages(pdfBuffer, [1, 2, 3], 150)
+  // Get total page count
+  let totalPages = 0
+  try {
+    totalPages = await getPdfPageCount(pdfBuffer)
+  } catch {
+    totalPages = 40 // fallback estimate
+  }
+
+  // Step 1: Ask the AI which pages to check
+  let pagesToRender: number[]
+  try {
+    const pagePickResponse = await callLLM(
+      [
+        {
+          role: 'system' as const,
+          content: `You are an assistant that helps pick which PDF pages to visually review after an edit. Given the user's edit request and the LaTeX document, estimate which compiled PDF pages were most likely affected by the changes.
+
+The PDF has ${totalPages} total pages. Return ONLY a JSON array of page numbers (integers), e.g. [3, 7, 12]. Pick 3-5 pages max that are most likely to show the edit results. Always include the first page and the last page of the document.
+
+Common reference: The cover is page 1, TOC is ~page 3, Kadesh starts ~page 5, Maggid ~page 7, the Seder steps continue through the middle, and Hallel/Nirtzah are near the end.`,
+        },
+        {
+          role: 'user' as const,
+          content: `Edit request: "${params.userMessage}"\n\nWhich ${totalPages}-page PDF pages should I render to visually check the edit? Return ONLY a JSON array.`,
+        },
+      ],
+      { model: params.model, maxTokens: 64, temperature: 0.1 }
+    )
+
+    // Parse the JSON array from response
+    const match = pagePickResponse.match(/\[[\d\s,]+\]/)
+    if (match) {
+      pagesToRender = JSON.parse(match[0])
+        .filter((n: number) => n >= 1 && n <= totalPages)
+        .slice(0, 6)
+    } else {
+      pagesToRender = [1, Math.ceil(totalPages / 2), totalPages]
+    }
+  } catch {
+    // Fallback: first, middle, last
+    pagesToRender = [1, Math.ceil(totalPages / 2), totalPages]
+  }
+
+  // Always include page 1
+  if (!pagesToRender.includes(1)) pagesToRender.unshift(1)
+  pagesToRender = Array.from(new Set(pagesToRender)).sort((a, b) => a - b).slice(0, 6)
+
+  console.log(`[AI Review] PDF has ${totalPages} pages, AI chose to inspect: ${pagesToRender.join(', ')}`)
+
+  const pages = await renderPdfPages(pdfBuffer, pagesToRender, 150)
   if (pages.length === 0) return null
 
-  // Build multimodal message with page images
+  // Step 2: Send rendered pages for visual review
   const imageContent = pages.map(p => ({
     type: 'image_url' as const,
     image_url: { url: `data:image/png;base64,${p.base64}` },
@@ -466,22 +519,37 @@ async function reviewCompiledPdf(params: {
   const messages = [
     {
       role: 'system' as const,
-      content: `You are reviewing a compiled PDF of a book the user is editing. The user asked: "${params.userMessage}". Look at the rendered pages and briefly note if anything looks wrong (layout issues, missing images shown as empty boxes, overlapping text, etc.). If everything looks good, just say so in one sentence. Keep it very brief (1-2 sentences max).`,
+      content: `You are the visual QA reviewer for AlefBook, a Hebrew/English Haggadah. You just edited the document based on the user's request. Now check the rendered PDF pages to make sure your edit looks correct.
+
+The user asked: "${params.userMessage}"
+
+Check for:
+- Did the edit actually appear in the output? (e.g. if user asked to add an image, is it visible?)
+- Missing or broken images (empty boxes, "[image]" placeholders)
+- Text overflowing into margins or overlapping the gold decorative lines
+- Hebrew text that looks garbled or reversed
+- Blank pages that shouldn't be blank
+- Layout issues (text too cramped, huge gaps, etc.)
+
+If you see a specific problem, describe it briefly (1-2 sentences).
+If everything looks good, say "Pages look good." — nothing more.`,
     },
     {
       role: 'user' as const,
       content: [
-        { type: 'text' as const, text: 'Here are the first pages of the compiled PDF. Do they look correct?' },
+        {
+          type: 'text' as const,
+          text: `Here are ${pages.length} rendered pages from the ${totalPages}-page PDF (pages ${pages.map(p => p.page).join(', ')}). Visually verify the edit looks right.`,
+        },
         ...imageContent,
       ],
     },
   ]
 
   try {
-    // Use a vision-capable model
     const review = await callLLM(messages as any, {
       model: params.model,
-      maxTokens: 256,
+      maxTokens: 512,
       temperature: 0.2,
     })
     return review
