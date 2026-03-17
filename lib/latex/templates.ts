@@ -1,8 +1,16 @@
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync } from 'fs'
 import path from 'path'
+
+export interface TemplateImage {
+  /** Path relative to project storage, e.g. "newImages_whitebg/kaarah1a.png" */
+  storagePath: string
+  /** Absolute path on disk */
+  diskPath: string
+}
 
 export interface TemplateFiles {
   main: string
+  images?: TemplateImage[]
 }
 
 export function getTemplate(templateId: string, pageCount: number): TemplateFiles {
@@ -19,10 +27,32 @@ export function getTemplate(templateId: string, pageCount: number): TemplateFile
 
 /**
  * Haggadah template — reads the complete source.tex as a single document.
+ * Also returns all template images so they can be uploaded to Supabase.
  */
 function haggadahTemplate(): TemplateFiles {
   const sourcePath = path.join(process.cwd(), 'templates/haggadah-latex/source.tex')
-  return { main: readFileSync(sourcePath, 'utf-8') }
+  const main = readFileSync(sourcePath, 'utf-8')
+
+  // Collect images from both directories
+  const images: TemplateImage[] = []
+  for (const dir of ['newImages_whitebg', 'newImages']) {
+    const dirPath = path.join(process.cwd(), dir)
+    try {
+      const files = readdirSync(dirPath)
+      for (const file of files) {
+        if (/\.(png|jpg|jpeg|pdf)$/i.test(file)) {
+          images.push({
+            storagePath: `${dir}/${file}`,
+            diskPath: path.join(dirPath, file),
+          })
+        }
+      }
+    } catch {
+      // Directory doesn't exist
+    }
+  }
+
+  return { main, images }
 }
 
 function blankDoc(pageCount: number): string {
