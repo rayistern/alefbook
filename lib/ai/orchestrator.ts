@@ -1,6 +1,7 @@
 import { callLLM } from './openrouter'
-import { compileProject, readProjectFile, uploadProjectFile } from '@/lib/latex/compiler'
+import { compileProject, readProjectFile, uploadProjectFile, getProjectPdfUrl } from '@/lib/latex/compiler'
 import { createServiceClient } from '@/lib/supabase/server'
+import { renderPdfPages } from '@/lib/latex/pdf-to-image'
 
 export interface TaskEvent {
   type: 'status' | 'compile_start' | 'compile_done' | 'compile_error' | 'message' | 'done'
@@ -212,11 +213,29 @@ export async function* runOrchestrator(
     }
   }
 
+  // After successful compile, let the AI review the rendered PDF
+  let reviewNote = ''
+  if (compileSuccess) {
+    try {
+      yield { type: 'status', message: 'Reviewing the output...' }
+      const pdfReview = await reviewCompiledPdf({
+        projectId: params.projectId,
+        userMessage: params.userMessage,
+        model: params.model,
+      })
+      if (pdfReview) {
+        reviewNote = '\n\n' + pdfReview
+      }
+    } catch (err) {
+      console.warn('[Orchestrator] PDF review failed:', err)
+    }
+  }
+
   // Save assistant message
   const compileNote = compileSuccess
     ? ''
     : '\n\n⚠️ There were some compilation issues — the PDF may not reflect all changes.'
-  const summary = (aiReply || 'Your changes have been applied.') + compileNote
+  const summary = (aiReply || 'Your changes have been applied.') + compileNote + reviewNote
 
   await supabase.from('messages').insert({
     project_id: params.projectId,
@@ -406,6 +425,70 @@ async function handleImageGeneration(params: {
   await uploadProjectImage(params.projectId, filename, buffer)
 
   return filename
+}
+
+// --- PDF visual review ---
+
+async function reviewCompiledPdf(params: {
+  projectId: string
+  userMessage: string
+  model?: string
+}): Promise<string | null> {
+  const supabase = createServiceClient()
+
+  // Download the compiled PDF
+  const { data: project } = await supabase
+    .from('projects')
+    .select('pdf_path')
+    .eq('id', params.projectId)
+    .single()
+
+  if (!project?.pdf_path) return null
+
+  const { data: pdfBlob, error } = await supabase.storage
+    .from('projects')
+    .download(project.pdf_path)
+
+  if (error || !pdfBlob) return null
+
+  const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer())
+
+  // Render first few pages to images
+  const pages = await renderPdfPages(pdfBuffer, [1, 2, 3], 150)
+  if (pages.length === 0) return null
+
+  // Build multimodal message with page images
+  const imageContent = pages.map(p => ({
+    type: 'image_url' as const,
+    image_url: { url: `data:image/png;base64,${p.base64}` },
+  }))
+
+  const messages = [
+    {
+      role: 'system' as const,
+      content: `You are reviewing a compiled PDF of a book the user is editing. The user asked: "${params.userMessage}". Look at the rendered pages and briefly note if anything looks wrong (layout issues, missing images shown as empty boxes, overlapping text, etc.). If everything looks good, just say so in one sentence. Keep it very brief (1-2 sentences max).`,
+    },
+    {
+      role: 'user' as const,
+      content: [
+        { type: 'text' as const, text: 'Here are the first pages of the compiled PDF. Do they look correct?' },
+        ...imageContent,
+      ],
+    },
+  ]
+
+  try {
+    // Use a vision-capable model
+    const review = await callLLM(messages as any, {
+      model: params.model,
+      maxTokens: 256,
+      temperature: 0.2,
+    })
+    return review
+  } catch (err) {
+    console.warn('[AI] PDF review LLM call failed:', err)
+    return null
+  }
 }
 
 // --- Migration helper for old split-file projects ---

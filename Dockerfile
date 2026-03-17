@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   fonts-ebgaramond \
   fontconfig \
   ca-certificates \
+  poppler-utils \
   && rm -rf /var/lib/apt/lists/*
 
 # Install custom fonts if any
