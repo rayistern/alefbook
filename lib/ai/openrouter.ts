@@ -58,9 +58,33 @@ export async function callLLM(
  * Generate an image via OpenRouter's chat completions endpoint.
  * Uses the modalities parameter to request image output.
  */
+const IMAGE_MODELS = [
+  'openai/gpt-5-image-mini',
+  'google/gemini-2.5-flash-image',
+  'black-forest-labs/flux.2-flex',
+]
+
 export async function generateImage(
   prompt: string,
-  model: string = 'google/gemini-2.5-flash-image-preview'
+  model?: string
+): Promise<{ b64: string }> {
+  if (model) {
+    return tryGenerateImage(prompt, model)
+  }
+  // Try each model in order until one works
+  for (const m of IMAGE_MODELS) {
+    try {
+      return await tryGenerateImage(prompt, m)
+    } catch (err) {
+      console.warn(`[Image] ${m} failed:`, err instanceof Error ? err.message : err)
+    }
+  }
+  throw new Error(`All image models failed: ${IMAGE_MODELS.join(', ')}`)
+}
+
+async function tryGenerateImage(
+  prompt: string,
+  model: string
 ): Promise<{ b64: string }> {
   const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',

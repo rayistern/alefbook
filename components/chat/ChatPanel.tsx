@@ -232,7 +232,10 @@ export function ChatPanel({
 
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
       if (res.ok) {
-        setInput(prev => prev + `\n[Uploaded: ${file.name}]`)
+        const data = await res.json()
+        // Use the actual stored filename (includes upload-{timestamp} prefix)
+        const storedName = data.storage_path?.split('/').pop() || file.name
+        setInput(prev => prev + `\n[Uploaded: ${storedName}]`)
         inputRef.current?.focus()
       }
     }
