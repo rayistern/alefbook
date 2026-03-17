@@ -160,7 +160,7 @@ async function editDocument(params: {
   chatHistory: { role: string; content: string }[]
   model?: string
 }): Promise<{ latex: string; reply: string }> {
-  const systemPrompt = `You are a LaTeX document editor and helpful assistant. The user will give you a complete LaTeX document and a message (which may be an edit instruction, a question, or both).
+  const systemPrompt = `You are a LaTeX document editor and helpful assistant for AlefBook, a Hebrew/English book creation platform. The user will give you a complete LaTeX document and a message.
 
 ## Response format:
 1. First, write a brief conversational reply (1-3 sentences) addressing what the user said — explain what you changed, answer their question, etc. Be natural and specific.
@@ -171,12 +171,19 @@ async function editDocument(params: {
 - ONLY modify the parts relevant to the user's request
 - Do NOT change any other content, formatting, or structure
 - Preserve all existing macros, packages, and definitions exactly as-is
-- For images, use \\includegraphics{images/filename.png}
-- If the instruction is unclear, make your best interpretation and apply it`
+- If the instruction is unclear, make your best interpretation and apply it
+
+## Image uploads:
+- When you see \`[Uploaded: filename.png]\` in a message, it means the user uploaded that image to the project. It is NOT a message from the user — it is a system notification.
+- To use an uploaded image in the document, reference it as: \\includegraphics{images/filename.png}
+- Only insert the image if the user's actual message asks for it (e.g. "add this image to the title page").
+
+## Chat history:
+- You have access to the conversation history. Messages from the user are their requests; messages from the assistant are your prior replies. Use context from earlier messages to understand follow-up requests like "try again" or "undo that".`
 
   const messages = [
     { role: 'system' as const, content: systemPrompt },
-    ...params.chatHistory.slice(-6).map(m => ({
+    ...params.chatHistory.slice(-20).map(m => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     })),
