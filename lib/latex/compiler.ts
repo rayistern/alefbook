@@ -281,7 +281,10 @@ export async function copyTemplatePdf(
     .from('projects')
     .download(sourcePath)
 
-  if (error || !data) return false
+  if (error || !data) {
+    console.warn(`[Compiler] No cached PDF for template "${templateId}": ${error?.message ?? 'not found'}`)
+    return false
+  }
 
   const buffer = Buffer.from(await data.arrayBuffer())
   const destPath = `projects/${projectId}/output/main.pdf`
