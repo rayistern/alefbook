@@ -32,11 +32,14 @@ export async function compileProject(projectId: string): Promise<CompileResult> 
     // (these are bundled in the Docker image, not in Supabase)
     for (const imgDir of ['newImages_whitebg', 'newImages', 'newImages_notext']) {
       const srcDir = path.join(process.cwd(), imgDir)
+      const destDir = path.join(tmpDir, imgDir)
       try {
         await fs.access(srcDir)
-        await fs.symlink(srcDir, path.join(tmpDir, imgDir), 'dir')
-      } catch {
-        // Directory doesn't exist, skip
+        await fs.cp(srcDir, destDir, { recursive: true })
+        const files = await fs.readdir(destDir)
+        console.log(`[Compiler] Copied ${imgDir}/ → ${files.length} files`)
+      } catch (err) {
+        console.log(`[Compiler] Skipping ${imgDir}/: ${err instanceof Error ? err.message : err}`)
       }
     }
 
