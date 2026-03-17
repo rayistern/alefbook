@@ -28,6 +28,18 @@ export async function compileProject(projectId: string): Promise<CompileResult> 
     const storagePath = `projects/${projectId}`
     await downloadFolder(supabase, storagePath, tmpDir, storagePath)
 
+    // Copy template image directories from app filesystem if they exist
+    // (these are bundled in the Docker image, not in Supabase)
+    for (const imgDir of ['newImages_whitebg', 'newImages', 'newImages_notext']) {
+      const srcDir = path.join(process.cwd(), imgDir)
+      try {
+        await fs.access(srcDir)
+        await fs.symlink(srcDir, path.join(tmpDir, imgDir), 'dir')
+      } catch {
+        // Directory doesn't exist, skip
+      }
+    }
+
     // Compile
     const result = await runLatexmk(tmpDir)
 
