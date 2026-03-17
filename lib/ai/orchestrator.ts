@@ -62,22 +62,9 @@ export async function* runOrchestrator(
     }
   }
 
-  // Check if image generation is needed
-  const needsImage = /\b(image|picture|photo|illustration|drawing|artwork|generate.*image|create.*image|add.*image)\b/i.test(params.userMessage)
-  let imageFilename: string | null = null
-
-  if (needsImage) {
-    yield { type: 'status', message: 'Generating an image...' }
-    try {
-      imageFilename = await handleImageGeneration({
-        projectId: params.projectId,
-        instruction: params.userMessage,
-        imageModel: params.imageModel,
-      })
-    } catch (err) {
-      yield { type: 'message', message: `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}. Continuing with document edit.` }
-    }
-  }
+  // Image generation disabled — OpenRouter doesn't support /images/generations
+  // TODO: re-enable when we have a working image generation approach
+  const imageFilename: string | null = null
 
   // Edit the document
   yield { type: 'status', message: 'Editing your document...' }
