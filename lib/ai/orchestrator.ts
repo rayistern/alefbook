@@ -123,14 +123,37 @@ export async function* runOrchestrator(
   }
 
   // --- EDIT: full edit + compile loop ---
+
+  // Check if user explicitly wants an image generated
+  const wantsImage = /\b(generate|create|make|draw)\s+(an?\s+)?(image|picture|illustration|artwork)\b/i.test(params.userMessage)
+  let imageFilename: string | null = null
+
+  if (wantsImage) {
+    yield { type: 'status', message: 'Generating an image...' }
+    try {
+      imageFilename = await handleImageGeneration({
+        projectId: params.projectId,
+        instruction: params.userMessage,
+        imageModel: params.imageModel,
+      })
+      yield { type: 'message', message: `Image generated: ${imageFilename}` }
+    } catch (err) {
+      yield { type: 'message', message: `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}. Continuing with edit.` }
+    }
+  }
+
   yield { type: 'status', message: 'Editing your document...' }
 
   let edited: string
   let aiReply: string
+  const editInstruction = imageFilename
+    ? `${params.userMessage}\n\n[System: An image has been generated and saved as images/${imageFilename}. Insert it using \\includegraphics{images/${imageFilename}} at the appropriate location.]`
+    : params.userMessage
+
   try {
     const result = await editDocument({
       currentDocument: document,
-      instruction: params.userMessage,
+      instruction: editInstruction,
       chatHistory: params.chatHistory,
       model: params.model,
     })
@@ -274,6 +297,12 @@ async function editDocument(params: {
 1. First, write a brief conversational reply (1-3 sentences) addressing what the user said — explain what you changed, answer their question, etc. Be natural and specific.
 2. Then return the COMPLETE modified LaTeX document in a \`\`\`latex code block.
 
+## CRITICAL — DO NOT TRUNCATE:
+- You MUST return the ENTIRE document from \\documentclass to \\end{document}.
+- NEVER use shortcuts like "... remaining content unchanged ...", "% rest of document", or similar placeholders.
+- NEVER skip or summarize sections. Every single line of the original document must appear in your output (with only the requested modifications applied).
+- The document may be very long (1800+ lines). You MUST output all of it. If you truncate, the user's book will be destroyed.
+
 ## Rules:
 - If the user asks a question without requesting changes, still return the full document unchanged in the code block, but answer their question in your reply.
 - ONLY modify the parts relevant to the user's request
@@ -303,7 +332,7 @@ async function editDocument(params: {
 
   const response = await callLLM(messages, {
     model: params.model,
-    maxTokens: 16384,
+    maxTokens: 65536,
     temperature: 0.2,
   })
 
@@ -313,6 +342,13 @@ async function editDocument(params: {
   // Sanity check: must have \documentclass and \end{document}
   if (!latex.includes('\\documentclass') || !latex.includes('\\end{document}')) {
     throw new Error('AI returned incomplete document (missing \\documentclass or \\end{document})')
+  }
+
+  // Sanity check: reject if AI truncated the document (returned <70% of original length)
+  const originalLen = params.currentDocument.length
+  if (latex.length < originalLen * 0.7) {
+    console.error(`[AI] Document truncated: ${latex.length} chars vs ${originalLen} original`)
+    throw new Error('AI truncated the document. Please try again with a simpler edit request.')
   }
 
   return { latex, reply }
@@ -351,6 +387,25 @@ Return the COMPLETE corrected LaTeX document in a \`\`\`latex code block.`
   }
 
   return latex
+}
+
+// --- Image generation ---
+
+async function handleImageGeneration(params: {
+  projectId: string
+  instruction: string
+  imageModel?: string
+}): Promise<string> {
+  const { generateImage } = await import('./openrouter')
+  const { uploadProjectImage } = await import('@/lib/latex/compiler')
+
+  const result = await generateImage(params.instruction, params.imageModel)
+  const filename = `gen-${Date.now()}.png`
+
+  const buffer = Buffer.from(result.b64, 'base64')
+  await uploadProjectImage(params.projectId, filename, buffer)
+
+  return filename
 }
 
 // --- Migration helper for old split-file projects ---
