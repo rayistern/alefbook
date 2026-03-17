@@ -18,12 +18,33 @@ export interface OrchestratorParams {
 }
 
 /**
- * Simplified orchestration loop:
- * 1. Read the full main.tex
- * 2. Send it + user request to the AI
- * 3. AI returns modified document
- * 4. Compile (with self-correction on failure)
+ * Route user messages to the right handler:
+ * - "chat": simple messages, greetings, questions → quick LLM reply, no doc loading
+ * - "question": questions about the document → load doc, answer, no compile
+ * - "edit": edit requests → load doc, edit, compile
  */
+async function classifyIntent(message: string): Promise<'chat' | 'question' | 'edit'> {
+  const msg = message.toLowerCase().trim()
+
+  // Very short or clearly not an edit
+  if (msg.length < 15 && !/\b(add|change|edit|remove|delete|replace|update|make|fix|insert|move|swap|set)\b/.test(msg)) {
+    return 'chat'
+  }
+
+  // Explicit edit keywords
+  if (/\b(add|change|edit|remove|delete|replace|update|make|fix|insert|move|swap|set|rewrite|translate|put|create|write)\b/i.test(msg)) {
+    return 'edit'
+  }
+
+  // Question patterns
+  if (/^(what|how|why|where|when|which|who|is|are|does|do|can|could|would|tell me|explain|show me|list)\b/i.test(msg)) {
+    return 'question'
+  }
+
+  // Default to edit for anything ambiguous
+  return 'edit'
+}
+
 export async function* runOrchestrator(
   params: OrchestratorParams
 ): AsyncGenerator<TaskEvent> {
@@ -41,9 +62,29 @@ export async function* runOrchestrator(
     return
   }
 
+  const intent = await classifyIntent(params.userMessage)
+
+  // --- CHAT: quick reply, no document needed ---
+  if (intent === 'chat') {
+    const reply = await quickChat({
+      message: params.userMessage,
+      chatHistory: params.chatHistory,
+      model: params.model,
+    })
+
+    await supabase.from('messages').insert({
+      project_id: params.projectId,
+      role: 'assistant',
+      content: reply,
+    })
+
+    yield { type: 'done', message: reply }
+    return
+  }
+
+  // --- QUESTION or EDIT: need to load the document ---
   yield { type: 'status', message: 'Loading your document...' }
 
-  // Read the full document
   let document = await readProjectFile(params.projectId, 'main.tex')
 
   if (!document) {
@@ -51,7 +92,7 @@ export async function* runOrchestrator(
     return
   }
 
-  // Migrate old split-file projects: if main.tex is just \input stubs, assemble it
+  // Migrate old split-file projects
   if (document.includes('\\input{preamble}') && !document.includes('\\usepackage')) {
     document = await assembleOldProject(params.projectId, document)
     if (document) {
@@ -62,23 +103,34 @@ export async function* runOrchestrator(
     }
   }
 
-  // Image generation disabled — OpenRouter doesn't support /images/generations
-  // TODO: re-enable when we have a working image generation approach
-  const imageFilename: string | null = null
+  // --- QUESTION: answer about the doc, no edit/compile ---
+  if (intent === 'question') {
+    const reply = await answerQuestion({
+      document,
+      message: params.userMessage,
+      chatHistory: params.chatHistory,
+      model: params.model,
+    })
 
-  // Edit the document
+    await supabase.from('messages').insert({
+      project_id: params.projectId,
+      role: 'assistant',
+      content: reply,
+    })
+
+    yield { type: 'done', message: reply }
+    return
+  }
+
+  // --- EDIT: full edit + compile loop ---
   yield { type: 'status', message: 'Editing your document...' }
-
-  const editInstruction = imageFilename
-    ? `${params.userMessage}\n\n[An image has been generated and saved as images/${imageFilename}. Insert it using \\includegraphics{images/${imageFilename}} at the appropriate location.]`
-    : params.userMessage
 
   let edited: string
   let aiReply: string
   try {
     const result = await editDocument({
       currentDocument: document,
-      instruction: editInstruction,
+      instruction: params.userMessage,
       chatHistory: params.chatHistory,
       model: params.model,
     })
@@ -137,7 +189,7 @@ export async function* runOrchestrator(
     }
   }
 
-  // Save assistant message (use AI's actual reply, with compile status appended)
+  // Save assistant message
   const compileNote = compileSuccess
     ? ''
     : '\n\n⚠️ There were some compilation issues — the PDF may not reflect all changes.'
@@ -150,6 +202,62 @@ export async function* runOrchestrator(
   })
 
   yield { type: 'done', message: summary }
+}
+
+// --- Quick chat (no document needed) ---
+
+async function quickChat(params: {
+  message: string
+  chatHistory: { role: string; content: string }[]
+  model?: string
+}): Promise<string> {
+  const messages = [
+    {
+      role: 'system' as const,
+      content: 'You are AlefBook\'s AI assistant for a Hebrew/English book creation platform. Respond briefly and helpfully. If the user seems to want to edit their document, let them know you can help — just tell you what to change.',
+    },
+    ...params.chatHistory.slice(-20).map(m => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    })),
+    { role: 'user' as const, content: params.message },
+  ]
+
+  return callLLM(messages, {
+    model: params.model,
+    maxTokens: 512,
+    temperature: 0.5,
+  })
+}
+
+// --- Document Q&A (read doc, no edit/compile) ---
+
+async function answerQuestion(params: {
+  document: string
+  message: string
+  chatHistory: { role: string; content: string }[]
+  model?: string
+}): Promise<string> {
+  const messages = [
+    {
+      role: 'system' as const,
+      content: `You are AlefBook's AI assistant. The user is asking a question about their LaTeX document. Answer concisely based on the document content. Do NOT return the full document — just answer the question.`,
+    },
+    ...params.chatHistory.slice(-20).map(m => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    })),
+    {
+      role: 'user' as const,
+      content: `## Document:\n\`\`\`latex\n${params.document}\n\`\`\`\n\n## Question: ${params.message}`,
+    },
+  ]
+
+  return callLLM(messages, {
+    model: params.model,
+    maxTokens: 1024,
+    temperature: 0.3,
+  })
 }
 
 // --- Document editing ---
