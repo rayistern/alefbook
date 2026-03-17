@@ -1,9 +1,7 @@
 import { createServerSupabase } from '@/lib/supabase/server'
 import { uploadProjectFile, copyTemplatePdf, getProjectPdfUrl } from '@/lib/latex/compiler'
-import { createServiceClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getTemplate } from '@/lib/latex/templates'
-import { readFileSync } from 'fs'
 
 // GET /api/project — list user's projects
 export async function GET() {
@@ -56,24 +54,9 @@ export async function POST(request: NextRequest) {
   // Upload the single main.tex document
   await uploadProjectFile(project.id, 'main.tex', template.main)
 
-  // Upload template images (if any) so they're available during compilation
-  if (template.images?.length) {
-    const supa = createServiceClient()
-    console.log(`[Project] Uploading ${template.images.length} template images...`)
-    for (const img of template.images) {
-      try {
-        const buffer = readFileSync(img.diskPath)
-        const storagePath = `projects/${project.id}/${img.storagePath}`
-        await supa.storage.from('projects').upload(storagePath, buffer, {
-          contentType: 'image/png',
-          upsert: true,
-        })
-      } catch (err) {
-        console.warn(`[Project] Failed to upload ${img.storagePath}:`, err)
-      }
-    }
-    console.log(`[Project] Template images uploaded`)
-  }
+  // Template images (korech1a.png, etc.) are NOT uploaded to Supabase.
+  // They live on the Docker filesystem and are found via TEXINPUTS during
+  // compilation. This avoids stale copies when images are updated.
 
   // Copy the pre-compiled template PDF so user sees it immediately
   const copied = await copyTemplatePdf(project.id, tid)
