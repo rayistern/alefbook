@@ -2,6 +2,7 @@ import { callLLM } from './openrouter'
 import { compileProject, readProjectFile, uploadProjectFile } from '@/lib/latex/compiler'
 import { createServiceClient } from '@/lib/supabase/server'
 import { renderPdfPages, getPdfPageCount } from '@/lib/latex/pdf-to-image'
+import { editDocumentWithTool, selfCorrectWithTool } from './latex-edit-tool'
 
 export interface TaskEvent {
   type: 'status' | 'compile_start' | 'compile_done' | 'compile_error' | 'message' | 'done'
@@ -38,7 +39,7 @@ async function classifyIntent(message: string): Promise<'chat' | 'question' | 'e
   }
 
   // Explicit edit keywords
-  if (/\b(add|change|edit|remove|delete|replace|update|make|fix|insert|move|swap|set|rewrite|translate|put|create|write)\b/i.test(msg)) {
+  if (/\b(add|change|edit|remove|delete|replace|update|make|fix|insert|move|swap|set|rewrite|translate|put|create|write|generate|draw)\b/i.test(msg)) {
     return 'edit'
   }
 
@@ -150,30 +151,42 @@ export async function* runOrchestrator(
 
   yield { type: 'status', message: 'Editing your document...' }
 
-  let edited: string
-  let aiReply: string
   const editInstruction = imageFilename
     ? `${params.userMessage}\n\n[System: An image has been generated and saved as images/${imageFilename}. Insert it using \\includegraphics{images/${imageFilename}} at the appropriate location.]`
     : params.userMessage
 
+  let editResult
   try {
-    const result = await editDocument({
+    editResult = await editDocumentWithTool({
       currentDocument: document,
       instruction: editInstruction,
       chatHistory: params.chatHistory,
       model: params.model,
     })
-    edited = result.latex
-    aiReply = result.reply
   } catch (err) {
     yield { type: 'done', error: `Edit failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
     return
   }
 
+  const { latex: edited, reply: aiReply, edits, failedEdits } = editResult
+
   // Show the AI's conversational reply immediately
   if (aiReply) {
     yield { type: 'message', message: aiReply }
   }
+
+  // If the LLM didn't produce any edits (just a conversational reply), skip compile
+  if (edits.length === 0 && failedEdits.length === 0) {
+    await supabase.from('messages').insert({
+      project_id: params.projectId,
+      role: 'assistant',
+      content: aiReply || 'No changes were needed.',
+    })
+    yield { type: 'done', message: aiReply || 'No changes were needed.' }
+    return
+  }
+
+  console.log(`[Orchestrator] Applied ${edits.length} edits, ${failedEdits.length} failed`)
 
   // Upload modified document
   yield { type: 'status', message: 'Saving changes...' }
@@ -200,7 +213,7 @@ export async function* runOrchestrator(
       yield { type: 'message', message: `Fixing a compile issue (attempt ${attempt}/${maxRetries})...` }
 
       try {
-        currentDoc = await selfCorrectDocument({
+        currentDoc = await selfCorrectWithTool({
           document: currentDoc,
           errors: result.errors ?? [],
           log: result.log ?? '',
@@ -305,112 +318,6 @@ async function answerQuestion(params: {
     maxTokens: 1024,
     temperature: 0.3,
   })
-}
-
-// --- Document editing ---
-
-async function editDocument(params: {
-  currentDocument: string
-  instruction: string
-  chatHistory: { role: string; content: string }[]
-  model?: string
-}): Promise<{ latex: string; reply: string }> {
-  const systemPrompt = `You are a LaTeX document editor and helpful assistant for AlefBook, a Hebrew/English book creation platform. The user will give you a complete LaTeX document and a message.
-
-## Response format:
-1. First, write a brief conversational reply (1-3 sentences) addressing what the user said — explain what you changed, answer their question, etc. Be natural and specific.
-2. Then return the COMPLETE modified LaTeX document in a \`\`\`latex code block.
-
-## CRITICAL — DO NOT TRUNCATE:
-- You MUST return the ENTIRE document from \\documentclass to \\end{document}.
-- NEVER use shortcuts like "... remaining content unchanged ...", "% rest of document", or similar placeholders.
-- NEVER skip or summarize sections. Every single line of the original document must appear in your output (with only the requested modifications applied).
-- The document may be very long (1800+ lines). You MUST output all of it. If you truncate, the user's book will be destroyed.
-
-## Rules:
-- If the user asks a question without requesting changes, still return the full document unchanged in the code block, but answer their question in your reply.
-- ONLY modify the parts relevant to the user's request
-- Do NOT change any other content, formatting, or structure
-- Preserve all existing macros, packages, and definitions exactly as-is
-- If the instruction is unclear, make your best interpretation and apply it
-
-## File uploads:
-- \`[Uploaded: filename.png]\` means an image was uploaded to project storage. To use it: \\includegraphics{images/filename.png}. Only insert if the user asks.
-- \`[File: filename.txt]...[/File]\` means the user attached a text file. The content between the tags IS the file content. Use it to fulfill the user's request (e.g. if they say "replace the English with this Spanish" and attach a file, use the file content as the replacement text).
-- These tags are system-generated, not typed by the user. The user's actual request is the text outside these tags.
-
-## Chat history:
-- You have access to the conversation history. Messages from the user are their requests; messages from the assistant are your prior replies. Use context from earlier messages to understand follow-up requests like "try again" or "undo that".`
-
-  const messages = [
-    { role: 'system' as const, content: systemPrompt },
-    ...params.chatHistory.slice(-20).map(m => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    })),
-    {
-      role: 'user' as const,
-      content: `## Current document:\n\`\`\`latex\n${params.currentDocument}\n\`\`\`\n\n## User message: ${params.instruction}\n\nReply to the user, then return the complete LaTeX document.`,
-    },
-  ]
-
-  const response = await callLLM(messages, {
-    model: params.model,
-    maxTokens: 65536,
-    temperature: 0.2,
-  })
-
-  const latex = extractLatexBlock(response)
-  const reply = extractReply(response)
-
-  // Sanity check: must have \documentclass and \end{document}
-  if (!latex.includes('\\documentclass') || !latex.includes('\\end{document}')) {
-    throw new Error('AI returned incomplete document (missing \\documentclass or \\end{document})')
-  }
-
-  // Sanity check: reject if AI truncated the document (returned <70% of original length)
-  const originalLen = params.currentDocument.length
-  if (latex.length < originalLen * 0.7) {
-    console.error(`[AI] Document truncated: ${latex.length} chars vs ${originalLen} original`)
-    throw new Error('AI truncated the document. Please try again with a simpler edit request.')
-  }
-
-  return { latex, reply }
-}
-
-// --- Self-correction ---
-
-async function selfCorrectDocument(params: {
-  document: string
-  errors: string[]
-  log: string
-  model?: string
-}): Promise<string> {
-  const systemPrompt = `You are a LaTeX debugger. A document failed to compile. Fix ONLY the errors — do not change anything else.
-
-## Errors:
-${params.errors.join('\n\n')}
-
-## Log excerpt (last 2000 chars):
-${params.log.slice(-2000)}
-
-Return the COMPLETE corrected LaTeX document in a \`\`\`latex code block.`
-
-  const response = await callLLM(
-    [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: `\`\`\`latex\n${params.document}\n\`\`\`\n\nFix the compilation errors and return the complete corrected document.` },
-    ],
-    { model: params.model, maxTokens: 16384, temperature: 0.1 }
-  )
-
-  const latex = extractLatexBlock(response)
-
-  if (!latex.includes('\\documentclass') || !latex.includes('\\end{document}')) {
-    throw new Error('Self-correction returned incomplete document')
-  }
-
-  return latex
 }
 
 // --- Image generation ---
@@ -597,24 +504,3 @@ ${pageContents.join('\n\n')}
 `
 }
 
-// --- Helpers ---
-
-function extractReply(text: string): string {
-  // Everything before the first code block is the conversational reply
-  const codeBlockStart = text.indexOf('```')
-  if (codeBlockStart > 0) {
-    return text.slice(0, codeBlockStart).trim()
-  }
-  return ''
-}
-
-function extractLatexBlock(text: string): string {
-  const match = text.match(/```latex\n([\s\S]*?)```/)
-  if (match) return match[1].trim()
-
-  const genericMatch = text.match(/```\n([\s\S]*?)```/)
-  if (genericMatch) return genericMatch[1].trim()
-
-  // Return as-is (might be raw LaTeX)
-  return text.trim()
-}
