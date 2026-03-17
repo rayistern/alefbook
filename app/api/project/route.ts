@@ -1,5 +1,5 @@
 import { createServerSupabase } from '@/lib/supabase/server'
-import { uploadProjectFile, compileProject, getProjectPdfUrl } from '@/lib/latex/compiler'
+import { uploadProjectFile, copyTemplatePdf, getProjectPdfUrl } from '@/lib/latex/compiler'
 import { NextRequest, NextResponse } from 'next/server'
 import { getTemplate } from '@/lib/latex/templates'
 
@@ -22,8 +22,6 @@ export async function GET() {
 }
 
 // POST /api/project — create a new project
-export const maxDuration = 120
-
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
@@ -34,7 +32,8 @@ export async function POST(request: NextRequest) {
 
   const { name, templateId, pageCount } = await request.json()
 
-  const template = getTemplate(templateId || 'blank', pageCount || 10)
+  const tid = templateId || 'blank'
+  const template = getTemplate(tid, pageCount || 10)
 
   // Create project record
   const { data: project, error } = await supabase
@@ -42,7 +41,7 @@ export async function POST(request: NextRequest) {
     .insert({
       user_id: user.id,
       name: name || 'Untitled Book',
-      template_id: templateId || 'blank',
+      template_id: tid,
       page_count: pageCount || 0,
     })
     .select()
@@ -55,15 +54,11 @@ export async function POST(request: NextRequest) {
   // Upload the single main.tex document
   await uploadProjectFile(project.id, 'main.tex', template.main)
 
-  // Auto-compile the template so user sees a PDF immediately
-  try {
-    const result = await compileProject(project.id)
-    if (result.success) {
-      const pdfUrl = await getProjectPdfUrl(project.id)
-      return NextResponse.json({ ...project, status: 'ready', pdfUrl }, { status: 201 })
-    }
-  } catch (err) {
-    console.error('[Project] Auto-compile failed:', err)
+  // Copy the pre-compiled template PDF so user sees it immediately
+  const copied = await copyTemplatePdf(project.id, tid)
+  if (copied) {
+    const pdfUrl = await getProjectPdfUrl(project.id)
+    return NextResponse.json({ ...project, status: 'ready', pdfUrl }, { status: 201 })
   }
 
   return NextResponse.json(project, { status: 201 })

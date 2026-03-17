@@ -237,6 +237,49 @@ export async function readProjectFile(
 }
 
 /**
+ * Copy a cached template PDF to a project's output folder.
+ * Returns true if a cached PDF existed and was copied successfully.
+ */
+export async function copyTemplatePdf(
+  projectId: string,
+  templateId: string
+): Promise<boolean> {
+  const supabase = createServiceClient()
+  const sourcePath = `templates/${templateId}/main.pdf`
+
+  // Download the cached template PDF
+  const { data, error } = await supabase.storage
+    .from('projects')
+    .download(sourcePath)
+
+  if (error || !data) return false
+
+  const buffer = Buffer.from(await data.arrayBuffer())
+  const destPath = `projects/${projectId}/output/main.pdf`
+
+  const { error: uploadError } = await supabase.storage
+    .from('projects')
+    .upload(destPath, buffer, {
+      contentType: 'application/pdf',
+      upsert: true,
+    })
+
+  if (uploadError) return false
+
+  // Mark project as ready
+  await supabase
+    .from('projects')
+    .update({
+      status: 'ready',
+      pdf_path: destPath,
+      compile_error: null,
+    })
+    .eq('id', projectId)
+
+  return true
+}
+
+/**
  * Upload a binary file (image) to project storage
  */
 export async function uploadProjectImage(
