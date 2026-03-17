@@ -160,9 +160,15 @@ export async function* runOrchestrator(
 
   yield { type: 'status', message: 'Editing your document...' }
 
-  const editInstruction = imageFilename
-    ? `${params.userMessage}\n\n[System: An image has been generated and saved as images/${imageFilename}. Insert it using \\includegraphics{images/${imageFilename}} at the appropriate location.]`
-    : params.userMessage
+  let editInstruction: string
+  if (imageFilename) {
+    editInstruction = `${params.userMessage}\n\n[System: An image has been generated and saved as images/${imageFilename}. Insert it using \\includegraphics{images/${imageFilename}} at the appropriate location.]`
+  } else if (intent === 'image') {
+    // Image was requested but generation failed — tell the LLM not to fake it
+    editInstruction = `${params.userMessage}\n\n[System: Image generation was attempted but failed. Do NOT try to create the image with TikZ or any LaTeX drawing commands. Just make any other requested text/formatting edits and let the user know the image could not be generated.]`
+  } else {
+    editInstruction = params.userMessage
+  }
 
   let editResult
   try {

@@ -66,8 +66,9 @@ Rules for SEARCH/REPLACE blocks:
 - The user's request always takes priority over style guidelines.
 
 ## Image generation
-- You CAN generate images. If the user asks you to create, generate, or draw an image, the system will generate it automatically and provide it as \`[Uploaded: filename.png]\`. You just need to insert it into the document using \\\\includegraphics{images/filename.png}.
-- If the message includes \`[System: An image has been generated...]\`, follow those instructions to insert the image.
+- You CANNOT generate images yourself. Do NOT use TikZ, pgfplots, or any LaTeX drawing to create illustrations.
+- The system generates images externally. When it succeeds, you will see \`[System: An image has been generated and saved as images/filename.png. Insert it using \\includegraphics{images/filename.png}...]\`. Follow those instructions to insert the image.
+- If there is NO [System: An image has been generated...] tag in the message, it means image generation was not attempted or failed. Do NOT try to create the image yourself with TikZ or any other method. Instead, just make any other requested edits and mention that the image could not be generated.
 
 ## File uploads
 - \`[Uploaded: filename.png]\` means an image was uploaded to project storage. To use it: \\\\includegraphics{images/filename.png}. Only insert if the user asks.
