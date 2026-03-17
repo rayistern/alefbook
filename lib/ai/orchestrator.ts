@@ -19,13 +19,16 @@ export interface OrchestratorParams {
   imageModel?: string
 }
 
+const INTENT_MODEL = 'openai/gpt-4.1-nano'
+
 /**
- * Route user messages to the right handler:
+ * Route user messages to the right handler using a cheap LLM call.
  * - "chat": simple messages, greetings, questions → quick LLM reply, no doc loading
  * - "question": questions about the document → load doc, answer, no compile
  * - "edit": edit requests → load doc, edit, compile
+ * - "image": image generation requests → generate image + edit doc + compile
  */
-async function classifyIntent(message: string): Promise<'chat' | 'question' | 'edit'> {
+async function classifyIntent(message: string): Promise<'chat' | 'question' | 'edit' | 'image'> {
   const msg = message.toLowerCase().trim()
 
   // File attachments always route to edit (user is providing content)
@@ -33,23 +36,34 @@ async function classifyIntent(message: string): Promise<'chat' | 'question' | 'e
     return 'edit'
   }
 
-  // Very short or clearly not an edit
-  if (msg.length < 15 && !/\b(add|change|edit|remove|delete|replace|update|make|fix|insert|move|swap|set)\b/.test(msg)) {
-    return 'chat'
-  }
+  try {
+    const response = await callLLM(
+      [
+        {
+          role: 'system',
+          content: `Classify the user message into exactly one category. Return ONLY the label, nothing else.
 
-  // Explicit edit keywords
-  if (/\b(add|change|edit|remove|delete|replace|update|make|fix|insert|move|swap|set|rewrite|translate|put|create|write|generate|draw)\b/i.test(msg)) {
+- chat: greetings, thanks, small talk, off-topic conversation
+- question: asking about the document content without requesting changes
+- edit: requesting changes, additions, or modifications to the document
+- image: requesting image generation or creation of a picture/illustration (even if also requesting an edit)`,
+        },
+        { role: 'user', content: message },
+      ],
+      { model: INTENT_MODEL, maxTokens: 4, temperature: 0 }
+    )
+
+    const label = response.trim().toLowerCase()
+    if (label === 'chat' || label === 'question' || label === 'edit' || label === 'image') {
+      return label
+    }
+    // If the model returned something unexpected, default to edit
+    console.warn(`[Intent] Unexpected label "${label}", defaulting to edit`)
+    return 'edit'
+  } catch (err) {
+    console.warn('[Intent] Classification failed, defaulting to edit:', err)
     return 'edit'
   }
-
-  // Question patterns
-  if (/^(what|how|why|where|when|which|who|is|are|does|do|can|could|would|tell me|explain|show me|list)\b/i.test(msg)) {
-    return 'question'
-  }
-
-  // Default to edit for anything ambiguous
-  return 'edit'
 }
 
 export async function* runOrchestrator(
@@ -89,7 +103,7 @@ export async function* runOrchestrator(
     return
   }
 
-  // --- QUESTION or EDIT: need to load the document ---
+  // --- QUESTION, EDIT, or IMAGE: need to load the document ---
   yield { type: 'status', message: 'Loading your document...' }
 
   let document = await readProjectFile(params.projectId, 'main.tex')
@@ -129,13 +143,10 @@ export async function* runOrchestrator(
     return
   }
 
-  // --- EDIT: full edit + compile loop ---
-
-  // Check if user explicitly wants an image generated
-  const wantsImage = /\b(generate|create|make|draw)\s+(an?\s+)?(image|picture|illustration|artwork)\b/i.test(params.userMessage)
+  // --- EDIT (or IMAGE): full edit + compile loop ---
   let imageFilename: string | null = null
 
-  if (wantsImage) {
+  if (intent === 'image') {
     yield { type: 'status', message: 'Generating an image...' }
     try {
       imageFilename = await handleImageGeneration({
