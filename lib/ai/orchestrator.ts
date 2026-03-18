@@ -344,11 +344,8 @@ export async function* runOrchestrator(
     }
   }
 
-  // ── Post-compile PDF review (DISABLED — too many false positives) ────
-  // TODO: Re-enable once review accuracy improves. Currently the review
-  // AI often claims edits aren't visible and overwrites correct changes.
+  // ── Post-compile PDF review ───────────────────────────────────────────
 
-  /*
   let reviewNote = ''
   if (compileSuccess) {
     try {
@@ -364,57 +361,57 @@ export async function* runOrchestrator(
         yield { type: 'status', message: 'Fixing a visual issue...' }
 
         try {
-          const latestDoc = await readProjectFile(params.projectId, 'main.tex')
-          if (latestDoc) {
-            // One-shot fix via tool calling
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const fixMessages: any[] = [
-              { role: 'system', content: SYSTEM_PROMPT },
-              {
-                role: 'user',
-                content: `## Your LaTeX document:\n\`\`\`latex\n${latestDoc}\n\`\`\`\n\n## Fix this issue:\nThe previous edit was supposed to: "${params.userMessage}"\nBut the visual review found: "${pdfReview}"\nFix the problem now.`,
-              },
-            ]
+          // Use the in-memory document — NOT readProjectFile() which
+          // can return stale data due to Supabase eventual consistency
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const fixMessages: any[] = [
+            { role: 'system', content: SYSTEM_PROMPT },
+            {
+              role: 'user',
+              content: `## Your LaTeX document:\n\`\`\`latex\n${currentDoc}\n\`\`\`\n\n## Fix this issue:\nThe previous edit was supposed to: "${params.userMessage}"\nBut the visual review found: "${pdfReview}"\nFix the problem now.`,
+            },
+          ]
 
-            const fixResponse = await callLLMWithTools(fixMessages, TOOL_DEFINITIONS, {
-              model: params.model,
-              toolChoice: 'required',
-            })
+          const fixResponse = await callLLMWithTools(fixMessages, TOOL_DEFINITIONS, {
+            model: params.model,
+            toolChoice: 'required',
+          })
 
-            let fixedDoc = latestDoc
-            let fixApplied = false
+          let fixedDoc = currentDoc
+          let fixApplied = false
 
-            if (fixResponse.tool_calls) {
-              for (const rawTc of fixResponse.tool_calls) {
-                const tc = rawTc as OpenAI.ChatCompletionMessageToolCall & { function: { name: string; arguments: string } }
-                if (tc.function.name === 'search_replace') {
-                  try {
-                    const args = JSON.parse(tc.function.arguments)
-                    const { result, applied } = applyEdits(fixedDoc, [
-                      { search: args.search, replace: args.replace },
-                    ])
-                    if (applied.length > 0) {
-                      fixedDoc = result
-                      fixApplied = true
-                    }
-                  } catch {
-                    // skip malformed tool call
+          if (fixResponse.tool_calls) {
+            for (const rawTc of fixResponse.tool_calls) {
+              const tc = rawTc as OpenAI.ChatCompletionMessageToolCall & { function: { name: string; arguments: string } }
+              if (tc.function.name === 'search_replace') {
+                try {
+                  const args = JSON.parse(tc.function.arguments)
+                  const { result, applied } = applyEdits(fixedDoc, [
+                    { search: args.search, replace: args.replace },
+                  ])
+                  if (applied.length > 0) {
+                    fixedDoc = result
+                    fixApplied = true
                   }
+                } catch {
+                  // skip malformed tool call
                 }
               }
             }
+          }
 
-            if (fixApplied && fixedDoc !== latestDoc) {
-              await uploadProjectFile(params.projectId, 'main.tex', sanitizeLatex(fixedDoc))
-              const fixCompile = await compileProject(params.projectId)
-              if (fixCompile.success) {
-                yield { type: 'compile_done', message: 'Fixed and recompiled!' }
-              } else {
-                reviewNote = '\n\n' + pdfReview
-              }
+          if (fixApplied && fixedDoc !== currentDoc) {
+            const sanitizedFix = sanitizeLatex(fixedDoc)
+            await uploadProjectFile(params.projectId, 'main.tex', sanitizedFix)
+            const fixCompile = await compileProject(params.projectId, sanitizedFix)
+            if (fixCompile.success) {
+              currentDoc = sanitizedFix
+              yield { type: 'compile_done', message: 'Fixed and recompiled!' }
             } else {
               reviewNote = '\n\n' + pdfReview
             }
+          } else {
+            reviewNote = '\n\n' + pdfReview
           }
         } catch (fixErr) {
           console.warn('[Orchestrator] Review fix failed:', fixErr)
@@ -425,8 +422,6 @@ export async function* runOrchestrator(
       console.warn('[Orchestrator] PDF review failed:', err)
     }
   }
-  */
-  const reviewNote: string = ''
 
   // Save assistant message — if the review found an issue, replace the AI's
   // original reply to avoid contradictory messaging ("I changed it" + "it wasn't changed")
@@ -456,7 +451,6 @@ export async function* runOrchestrator(
 
 // ── PDF visual review ─────────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function reviewCompiledPdf(params: {
   projectId: string
   userMessage: string
