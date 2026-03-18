@@ -19,6 +19,50 @@ export function getOpenRouterClient(): OpenAI {
 const DEFAULT_MODEL = 'openai/gpt-5.1-codex-mini'
 const FALLBACK_MODEL = 'openai/gpt-4.1-mini'
 
+/**
+ * Call LLM with tool/function calling support.
+ * Returns the full message object so callers can inspect tool_calls.
+ */
+export async function callLLMWithTools(
+  messages: OpenAI.ChatCompletionMessageParam[],
+  tools: OpenAI.ChatCompletionTool[],
+  options?: {
+    model?: string
+    maxTokens?: number
+    temperature?: number
+    toolChoice?: 'auto' | 'none' | 'required'
+  }
+): Promise<OpenAI.ChatCompletionMessage> {
+  const model = options?.model ?? DEFAULT_MODEL
+
+  try {
+    const response = await getOpenRouterClient().chat.completions.create({
+      model,
+      messages,
+      tools,
+      tool_choice: options?.toolChoice ?? 'auto',
+      max_tokens: options?.maxTokens ?? 16384,
+      temperature: options?.temperature ?? 0.3,
+    })
+
+    const msg = response.choices[0]?.message
+    if (!msg) throw new Error('No message in response')
+
+    const toolCalls = msg.tool_calls?.length ?? 0
+    const contentLen = msg.content?.length ?? 0
+    console.log(`[AI] ${model}: ${contentLen} chars, ${toolCalls} tool calls`)
+    return msg
+  } catch (error) {
+    console.error(`[AI] Error from ${model}:`, error instanceof Error ? error.message : error)
+
+    if (model !== FALLBACK_MODEL) {
+      console.warn(`[AI] Falling back to ${FALLBACK_MODEL}`)
+      return callLLMWithTools(messages, tools, { ...options, model: FALLBACK_MODEL })
+    }
+    throw error
+  }
+}
+
 export async function callLLM(
   messages: OpenAI.ChatCompletionMessageParam[],
   options?: {

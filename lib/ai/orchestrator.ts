@@ -1,8 +1,10 @@
-import { callLLM } from './openrouter'
-import { compileProject, readProjectFile, uploadProjectFile } from '@/lib/latex/compiler'
+import OpenAI from 'openai'
+import { callLLMWithTools, callLLM, generateImage } from './openrouter'
+import { compileProject, readProjectFile, uploadProjectFile, uploadProjectImage } from '@/lib/latex/compiler'
 import { createServiceClient } from '@/lib/supabase/server'
 import { renderPdfPages, getPdfPageCount } from '@/lib/latex/pdf-to-image'
-import { editDocumentWithTool, selfCorrectWithTool } from './latex-edit-tool'
+import { applyEdits, selfCorrectWithTool } from './latex-edit-tool'
+import { sanitizeLatex, validateLatex } from './latex-editor'
 
 export interface TaskEvent {
   type: 'status' | 'compile_start' | 'compile_done' | 'compile_error' | 'message' | 'done'
@@ -19,50 +21,89 @@ export interface OrchestratorParams {
   imageModel?: string
 }
 
-const INTENT_MODEL = 'openai/gpt-4.1-mini'
+// ── System prompt ───────────────────────────────────────────────────────────
 
-/**
- * Route user messages to the right handler using a cheap LLM call.
- * - "chat": simple messages, greetings, questions → quick LLM reply, no doc loading
- * - "question": questions about the document → load doc, answer, no compile
- * - "edit": edit requests → load doc, edit, compile
- * - "image": image generation requests → generate image + edit doc + compile
- */
-async function classifyIntent(message: string): Promise<'chat' | 'question' | 'edit' | 'image'> {
-  const msg = message.toLowerCase().trim()
+const SYSTEM_PROMPT = `You are AlefBook's AI assistant for a Hebrew/English Haggadah book creation platform.
 
-  // File attachments always route to edit (user is providing content)
-  if (msg.includes('[file:') || msg.includes('[uploaded:')) {
-    return 'edit'
-  }
+You help users edit their LaTeX documents, generate images, and answer questions.
 
-  try {
-    const response = await callLLM(
-      [
-        {
-          role: 'system',
-          content: `Classify the user message into exactly one category. Return ONLY the label, nothing else.
+## When to use tools
+- For text/layout/color changes: use the search_replace tool
+- For creating new images/illustrations: use generate_image, then search_replace to insert it
+- For questions or chat: just respond directly (no tools needed)
 
-- chat: greetings, thanks, small talk, off-topic conversation
-- question: asking about the document content without requesting changes
-- edit: requesting text/color/layout changes to the document (NOT images)
-- image: the user wants a NEW image/picture/illustration/photo created or generated and added to the document. Key words: "picture of", "image of", "illustration of", "draw", "generate", "create an image", "add a picture/photo/image of". Even if they also want it placed somewhere, classify as image.`,
+## search_replace rules
+- The search text must be an EXACT substring that appears EXACTLY ONCE in the document.
+- Include 5+ lines of surrounding context to ensure uniqueness — more context is always better.
+- CRITICAL: The document has section markers like \`%%% ---- COVER PAGE ----\` and \`%%% ---- BACK COVER ----\`. The front and back covers have VERY similar content. ALWAYS include the nearest section marker in your search text. "Cover" or "front cover" = \`%%% ---- COVER PAGE ----\`, NOT the back cover.
+- Only change what was requested. Preserve formatting, spacing, and comments.
+- You can call search_replace multiple times for multiple changes.
+- Hebrew text is RTL — careful with \\\\beginR, \\\\endR, \\\\texthebrew{}.
+- Do not remove \\\\usepackage declarations unless explicitly asked.
+
+## generate_image rules
+- NEVER use TikZ, pgfplots, or LaTeX drawing commands for illustrations.
+- Always use the generate_image tool, then insert with \\\\includegraphics via search_replace.
+- Write a detailed prompt describing the desired image.
+
+## File uploads
+- \`[Uploaded: filename.png]\` → use exactly: \\\\includegraphics{images/filename.png}
+- \`[File: name.txt]...[/File]\` → text file content between the tags
+
+Use conversation history to understand follow-up requests like "try again" or "undo that".`
+
+// ── Tool definitions ────────────────────────────────────────────────────────
+
+const TOOL_DEFINITIONS: OpenAI.ChatCompletionTool[] = [
+  {
+    type: 'function',
+    function: {
+      name: 'search_replace',
+      description:
+        'Make a surgical edit to the LaTeX document. The search string must be an exact, unique substring. Include 5+ lines of context and section markers (e.g. %%% ---- COVER PAGE ----) to ensure uniqueness.',
+      parameters: {
+        type: 'object',
+        properties: {
+          search: {
+            type: 'string',
+            description: 'Exact text to find in the document (must appear exactly once)',
+          },
+          replace: {
+            type: 'string',
+            description: 'The replacement text',
+          },
+          reason: {
+            type: 'string',
+            description: 'Brief explanation of the change',
+          },
         },
-        { role: 'user', content: message },
-      ],
-      { model: INTENT_MODEL, maxTokens: 64, temperature: 0 }
-    )
+        required: ['search', 'replace'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'generate_image',
+      description:
+        'Generate an AI image. Returns the filename. After calling this, use search_replace to insert \\includegraphics{images/FILENAME} at the desired location.',
+      parameters: {
+        type: 'object',
+        properties: {
+          prompt: {
+            type: 'string',
+            description: 'Detailed description of the image to generate',
+          },
+        },
+        required: ['prompt'],
+      },
+    },
+  },
+]
 
-    // Extract just the label — model might return extra text or punctuation
-    const raw = response.trim().toLowerCase().replace(/[^a-z]/g, '')
-    const label = (['image', 'chat', 'question', 'edit'] as const).find(l => raw.startsWith(l))
-    console.log(`[Intent] "${message.slice(0, 60)}" → raw="${response.trim()}" → ${label || 'edit (fallback)'}`)
-    return label || 'edit'
-  } catch (err) {
-    console.warn('[Intent] Classification failed, defaulting to edit:', err)
-    return 'edit'
-  }
-}
+const MAX_TOOL_ROUNDS = 10
+
+// ── Main orchestrator ───────────────────────────────────────────────────────
 
 export async function* runOrchestrator(
   params: OrchestratorParams
@@ -81,137 +122,129 @@ export async function* runOrchestrator(
     return
   }
 
-  const intent = await classifyIntent(params.userMessage)
-
-  // --- CHAT: quick reply, no document needed ---
-  if (intent === 'chat') {
-    const reply = await quickChat({
-      message: params.userMessage,
-      chatHistory: params.chatHistory,
-      model: params.model,
-    })
-
-    await supabase.from('messages').insert({
-      project_id: params.projectId,
-      role: 'assistant',
-      content: reply,
-    })
-
-    yield { type: 'done', message: reply }
-    return
-  }
-
-  // --- QUESTION, EDIT, or IMAGE: need to load the document ---
+  // Always load the document (no intent classification needed)
   yield { type: 'status', message: 'Loading your document...' }
 
-  let document = await readProjectFile(params.projectId, 'main.tex')
+  let doc = await readProjectFile(params.projectId, 'main.tex')
 
-  if (!document) {
+  if (!doc) {
     yield { type: 'done', error: 'No document found. Try creating a new project.' }
     return
   }
 
   // Migrate old split-file projects
-  if (document.includes('\\input{preamble}') && !document.includes('\\usepackage')) {
-    document = await assembleOldProject(params.projectId, document)
-    if (document) {
-      await uploadProjectFile(params.projectId, 'main.tex', document)
-    } else {
+  if (doc.includes('\\input{preamble}') && !doc.includes('\\usepackage')) {
+    const assembled = await assembleOldProject(params.projectId, doc)
+    if (!assembled) {
       yield { type: 'done', error: 'Could not read project files.' }
       return
     }
+    doc = assembled
+    await uploadProjectFile(params.projectId, 'main.tex', doc)
   }
 
-  // --- QUESTION: answer about the doc, no edit/compile ---
-  if (intent === 'question') {
-    const reply = await answerQuestion({
-      document,
-      message: params.userMessage,
-      chatHistory: params.chatHistory,
+  // Build messages for the LLM
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- OpenAI message type union
+  const messages: any[] = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...params.chatHistory.slice(-20).map(m => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content,
+    })),
+    {
+      role: 'user',
+      content: `## Your LaTeX document:\n\`\`\`latex\n${doc}\n\`\`\`\n\n## Request: ${params.userMessage}`,
+    },
+  ]
+
+  // ── Tool-calling loop ───────────────────────────────────────────────────
+
+  let currentDoc = doc
+  let documentChanged = false
+  let aiReply = ''
+
+  yield { type: 'status', message: 'Thinking...' }
+
+  for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
+    const response = await callLLMWithTools(messages, TOOL_DEFINITIONS, {
       model: params.model,
     })
 
-    await supabase.from('messages').insert({
-      project_id: params.projectId,
+    // No tool calls → final response
+    if (!response.tool_calls || response.tool_calls.length === 0) {
+      aiReply = response.content || ''
+      break
+    }
+
+    // Add assistant message (with tool calls) to conversation
+    messages.push({
       role: 'assistant',
-      content: reply,
+      content: response.content || null,
+      tool_calls: response.tool_calls,
     })
 
-    yield { type: 'done', message: reply }
-    return
-  }
+    // Execute each tool call
+    for (const tc of response.tool_calls) {
+      // We only define function tools, so narrow the type
+      const toolCall = tc as OpenAI.ChatCompletionMessageToolCall & { function: { name: string; arguments: string } }
+      let toolResult: string
 
-  // --- EDIT (or IMAGE): full edit + compile loop ---
-  let imageFilename: string | null = null
+      if (toolCall.function.name === 'search_replace') {
+        yield { type: 'status', message: 'Editing your document...' }
+        try {
+          const args = JSON.parse(toolCall.function.arguments)
+          const { result, applied, failed } = applyEdits(currentDoc, [
+            { search: args.search, replace: args.replace, reason: args.reason },
+          ])
 
-  if (intent === 'image') {
-    yield { type: 'status', message: 'Generating an image...' }
-    try {
-      imageFilename = await handleImageGeneration({
-        projectId: params.projectId,
-        instruction: params.userMessage,
-        imageModel: params.imageModel,
-      })
-      yield { type: 'message', message: `Image generated: ${imageFilename}` }
-    } catch (err) {
-      yield { type: 'message', message: `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}. Continuing with edit.` }
-    }
-  }
-
-  yield { type: 'status', message: 'Editing your document...' }
-
-  let editInstruction: string
-  if (imageFilename) {
-    editInstruction = `${params.userMessage}\n\n[System: An image has been generated and saved as images/${imageFilename}. You MUST insert it using EXACTLY this command: \\includegraphics[width=3in]{images/${imageFilename}} — do NOT use TikZ, pgfplots, tikzpicture, or any drawing commands. Use \\includegraphics ONLY. Place it at the appropriate location in the document.]`
-  } else if (intent === 'image') {
-    editInstruction = `${params.userMessage}\n\n[System: Image generation was attempted but failed. Do NOT try to create the image with TikZ or any LaTeX drawing commands. Just make any other requested text/formatting edits and let the user know the image could not be generated.]`
-  } else {
-    editInstruction = params.userMessage
-  }
-
-  let editResult
-  try {
-    editResult = await editDocumentWithTool({
-      currentDocument: document,
-      instruction: editInstruction,
-      chatHistory: params.chatHistory,
-      model: params.model,
-    })
-  } catch (err) {
-    yield { type: 'done', error: `Edit failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
-    return
-  }
-
-  let { latex: edited, reply: aiReply } = editResult
-  const { edits, failedEdits } = editResult
-
-  // Post-edit verification: if an image was generated, make sure \includegraphics actually appears
-  if (imageFilename && !edited.includes(`\\includegraphics`) || (imageFilename && !edited.includes(imageFilename))) {
-    console.warn(`[Orchestrator] Image ${imageFilename} not found in edited document via \\includegraphics — retrying with forced insertion`)
-    try {
-      const retryResult = await editDocumentWithTool({
-        currentDocument: edited,
-        instruction: `[System: CRITICAL — The previous edit did NOT insert the image. You MUST add this EXACT line: \\includegraphics[width=3in]{images/${imageFilename}} — place it where the user requested ("${params.userMessage}"). Use a SEARCH/REPLACE block to find the right location and insert ONLY \\includegraphics. Do NOT use TikZ or any drawing commands.]`,
-        chatHistory: [],
-        model: params.model,
-      })
-      if (retryResult.latex.includes(imageFilename) && retryResult.edits.length > 0) {
-        edited = retryResult.latex
-        aiReply = (aiReply || '') + '\n\n(Image placement was corrected.)'
-        console.log(`[Orchestrator] Image insertion retry succeeded`)
+          if (applied.length > 0) {
+            currentDoc = result
+            documentChanged = true
+            toolResult = 'Edit applied successfully.'
+          } else {
+            toolResult = `Edit FAILED: ${failed[0]?.error}. Try including more surrounding context in your search string, especially section markers like %%% ---- COVER PAGE ----.`
+          }
+        } catch (err) {
+          toolResult = `Edit error: ${err instanceof Error ? err.message : 'Invalid arguments'}`
+        }
+      } else if (toolCall.function.name === 'generate_image') {
+        yield { type: 'status', message: 'Generating an image...' }
+        try {
+          const args = JSON.parse(toolCall.function.arguments)
+          const imageResult = await generateImage(args.prompt, params.imageModel)
+          const filename = `gen-${Date.now()}.png`
+          const buffer = Buffer.from(imageResult.b64, 'base64')
+          await uploadProjectImage(params.projectId, filename, buffer)
+          toolResult = `Image generated and saved as images/${filename}. Now use search_replace to insert \\includegraphics[width=3in]{images/${filename}} at the desired location in the document.`
+          yield { type: 'message', message: `Image generated: ${filename}` }
+        } catch (err) {
+          toolResult = `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}. Do NOT use TikZ or drawing commands as a fallback.`
+          yield { type: 'message', message: `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
+        }
+      } else {
+        toolResult = `Unknown tool: ${toolCall.function.name}`
       }
-    } catch (err) {
-      console.warn(`[Orchestrator] Image insertion retry failed:`, err)
+
+      messages.push({
+        role: 'tool',
+        tool_call_id: toolCall.id,
+        content: toolResult,
+      })
     }
   }
 
-  // Show the AI's conversational reply immediately
+  // Fallback reply if the LLM never produced a final text response
+  if (!aiReply && documentChanged) {
+    aiReply = 'Your changes have been applied.'
+  }
+
+  // Show the AI's reply
   if (aiReply) {
     yield { type: 'message', message: aiReply }
   }
 
-  // If the LLM didn't produce any edits (just a conversational reply), skip compile
-  if (edits.length === 0 && failedEdits.length === 0) {
+  // If no edits were made, just save the reply and done
+  if (!documentChanged) {
     await supabase.from('messages').insert({
       project_id: params.projectId,
       role: 'assistant',
@@ -221,23 +254,32 @@ export async function* runOrchestrator(
     return
   }
 
-  console.log(`[Orchestrator] Applied ${edits.length} edits, ${failedEdits.length} failed`)
-  const docChanged = edited !== document
-  console.log(`[Orchestrator] Document changed: ${docChanged}, original: ${document.length} chars, edited: ${edited.length} chars`)
-  if (!docChanged && edits.length > 0) {
-    console.error(`[Orchestrator] BUG: ${edits.length} edits reported as applied but document is UNCHANGED!`)
+  // Sanitize and validate the edited document
+  const sanitized = sanitizeLatex(currentDoc)
+  const validation = validateLatex(sanitized)
+
+  if (!validation.valid) {
+    console.error('[Orchestrator] Edits produced invalid LaTeX:', validation.warnings)
+    yield {
+      type: 'done',
+      error: 'The edits produced invalid LaTeX. Please try a simpler request.',
+    }
+    return
   }
+
+  currentDoc = sanitized
+  console.log(`[Orchestrator] Document changed: ${doc.length} -> ${currentDoc.length} chars`)
 
   // Upload modified document
   yield { type: 'status', message: 'Saving changes...' }
-  await uploadProjectFile(params.projectId, 'main.tex', edited)
+  await uploadProjectFile(params.projectId, 'main.tex', currentDoc)
 
-  // Compile with self-correction loop
+  // ── Compile with self-correction loop ─────────────────────────────────
+
   yield { type: 'compile_start', message: 'Building your book...' }
   await supabase.from('projects').update({ status: 'compiling' }).eq('id', params.projectId)
 
   let compileSuccess = false
-  let currentDoc = edited
   const maxRetries = 3
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -261,14 +303,10 @@ export async function* runOrchestrator(
           log: result.log ?? '',
           model: params.model,
         })
-        console.log(`[Orchestrator] Self-correction: ${beforeLen} → ${currentDoc.length} chars`)
-        // Check if self-correction removed any \includegraphics
-        if (beforeLen > currentDoc.length && !currentDoc.includes('\\includegraphics') && edited.includes('\\includegraphics')) {
-          console.error(`[Orchestrator] WARNING: Self-correction removed \\includegraphics!`)
-        }
+        console.log(`[Orchestrator] Self-correction: ${beforeLen} -> ${currentDoc.length} chars`)
         await uploadProjectFile(params.projectId, 'main.tex', currentDoc)
       } catch {
-        // Self-correction failed, try compiling again anyway
+        // Self-correction failed, try compiling again
       }
     } else {
       yield {
@@ -278,7 +316,8 @@ export async function* runOrchestrator(
     }
   }
 
-  // After successful compile, let the AI review the rendered PDF
+  // ── Post-compile PDF review ───────────────────────────────────────────
+
   let reviewNote = ''
   if (compileSuccess) {
     try {
@@ -288,25 +327,57 @@ export async function* runOrchestrator(
         userMessage: params.userMessage,
         model: params.model,
       })
+
       if (pdfReview && !pdfReview.toLowerCase().includes('look good') && !pdfReview.toLowerCase().includes('looks good')) {
         console.warn(`[Orchestrator] Review detected issue: ${pdfReview}`)
-        // Try to fix the issue with one more edit + compile cycle
         yield { type: 'status', message: 'Fixing a visual issue...' }
+
         try {
-          const currentDoc = await readProjectFile(params.projectId, 'main.tex')
-          if (currentDoc) {
-            const fixResult = await editDocumentWithTool({
-              currentDocument: currentDoc,
-              instruction: `[System: The previous edit was supposed to do: "${params.userMessage}" but the visual review found this problem: "${pdfReview}". Fix it now. Make sure any \\includegraphics commands use the EXACT filename from the conversation.]`,
-              chatHistory: [],
+          const latestDoc = await readProjectFile(params.projectId, 'main.tex')
+          if (latestDoc) {
+            // One-shot fix via tool calling
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const fixMessages: any[] = [
+              { role: 'system', content: SYSTEM_PROMPT },
+              {
+                role: 'user',
+                content: `## Your LaTeX document:\n\`\`\`latex\n${latestDoc}\n\`\`\`\n\n## Fix this issue:\nThe previous edit was supposed to: "${params.userMessage}"\nBut the visual review found: "${pdfReview}"\nFix the problem now.`,
+              },
+            ]
+
+            const fixResponse = await callLLMWithTools(fixMessages, TOOL_DEFINITIONS, {
               model: params.model,
+              toolChoice: 'required',
             })
-            if (fixResult.edits.length > 0 && fixResult.latex !== currentDoc) {
-              await uploadProjectFile(params.projectId, 'main.tex', fixResult.latex)
+
+            let fixedDoc = latestDoc
+            let fixApplied = false
+
+            if (fixResponse.tool_calls) {
+              for (const rawTc of fixResponse.tool_calls) {
+                const tc = rawTc as OpenAI.ChatCompletionMessageToolCall & { function: { name: string; arguments: string } }
+                if (tc.function.name === 'search_replace') {
+                  try {
+                    const args = JSON.parse(tc.function.arguments)
+                    const { result, applied } = applyEdits(fixedDoc, [
+                      { search: args.search, replace: args.replace },
+                    ])
+                    if (applied.length > 0) {
+                      fixedDoc = result
+                      fixApplied = true
+                    }
+                  } catch {
+                    // skip malformed tool call
+                  }
+                }
+              }
+            }
+
+            if (fixApplied && fixedDoc !== latestDoc) {
+              await uploadProjectFile(params.projectId, 'main.tex', sanitizeLatex(fixedDoc))
               const fixCompile = await compileProject(params.projectId)
               if (fixCompile.success) {
                 yield { type: 'compile_done', message: 'Fixed and recompiled!' }
-                reviewNote = ''
               } else {
                 reviewNote = '\n\n' + pdfReview
               }
@@ -315,7 +386,7 @@ export async function* runOrchestrator(
             }
           }
         } catch (fixErr) {
-          console.warn('[Orchestrator] Review fix attempt failed:', fixErr)
+          console.warn('[Orchestrator] Review fix failed:', fixErr)
           reviewNote = '\n\n' + pdfReview
         }
       }
@@ -339,88 +410,8 @@ export async function* runOrchestrator(
   yield { type: 'done', message: summary }
 }
 
-// --- Quick chat (no document needed) ---
+// ── PDF visual review ─────────────────────────────────────────────────────
 
-async function quickChat(params: {
-  message: string
-  chatHistory: { role: string; content: string }[]
-  model?: string
-}): Promise<string> {
-  const messages = [
-    {
-      role: 'system' as const,
-      content: 'You are AlefBook\'s AI assistant for a Hebrew/English book creation platform. Respond briefly and helpfully. If the user seems to want to edit their document, let them know you can help — just tell you what to change.',
-    },
-    ...params.chatHistory.slice(-20).map(m => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    })),
-    { role: 'user' as const, content: params.message },
-  ]
-
-  return callLLM(messages, {
-    model: params.model,
-    maxTokens: 512,
-    temperature: 0.5,
-  })
-}
-
-// --- Document Q&A (read doc, no edit/compile) ---
-
-async function answerQuestion(params: {
-  document: string
-  message: string
-  chatHistory: { role: string; content: string }[]
-  model?: string
-}): Promise<string> {
-  const messages = [
-    {
-      role: 'system' as const,
-      content: `You are AlefBook's AI assistant. The user is asking a question about their LaTeX document. Answer concisely based on the document content. Do NOT return the full document — just answer the question.`,
-    },
-    ...params.chatHistory.slice(-20).map(m => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    })),
-    {
-      role: 'user' as const,
-      content: `## Document:\n\`\`\`latex\n${params.document}\n\`\`\`\n\n## Question: ${params.message}`,
-    },
-  ]
-
-  return callLLM(messages, {
-    model: params.model,
-    maxTokens: 1024,
-    temperature: 0.3,
-  })
-}
-
-// --- Image generation ---
-
-async function handleImageGeneration(params: {
-  projectId: string
-  instruction: string
-  imageModel?: string
-}): Promise<string> {
-  const { generateImage } = await import('./openrouter')
-  const { uploadProjectImage } = await import('@/lib/latex/compiler')
-
-  const result = await generateImage(params.instruction, params.imageModel)
-  const filename = `gen-${Date.now()}.png`
-
-  const buffer = Buffer.from(result.b64, 'base64')
-  await uploadProjectImage(params.projectId, filename, buffer)
-
-  return filename
-}
-
-// --- PDF visual review ---
-
-/**
- * Two-step review:
- * 1. Ask the AI (cheaply, text-only) which pages it expects its edit to affect
- * 2. Render those pages + page 1 (always), send images back for visual QA
- */
 async function reviewCompiledPdf(params: {
   projectId: string
   userMessage: string
@@ -428,7 +419,6 @@ async function reviewCompiledPdf(params: {
 }): Promise<string | null> {
   const supabase = createServiceClient()
 
-  // Download the compiled PDF
   const { data: project } = await supabase
     .from('projects')
     .select('pdf_path')
@@ -445,36 +435,32 @@ async function reviewCompiledPdf(params: {
 
   const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer())
 
-  // Get total page count
   let totalPages = 0
   try {
     totalPages = await getPdfPageCount(pdfBuffer)
   } catch {
-    totalPages = 40 // fallback estimate
+    totalPages = 40
   }
 
-  // Step 1: Ask the AI which pages to check
+  // Ask the AI which pages to check
   let pagesToRender: number[]
   try {
     const pagePickResponse = await callLLM(
       [
         {
           role: 'system' as const,
-          content: `You are an assistant that helps pick which PDF pages to visually review after an edit. Given the user's edit request and the LaTeX document, estimate which compiled PDF pages were most likely affected by the changes.
+          content: `You pick which PDF pages to visually review after an edit. The PDF has ${totalPages} pages. Return ONLY a JSON array of 3-5 page numbers, e.g. [1, 3, 7]. Always include page 1 and the last page.
 
-The PDF has ${totalPages} total pages. Return ONLY a JSON array of page numbers (integers), e.g. [3, 7, 12]. Pick 3-5 pages max that are most likely to show the edit results. Always include the first page and the last page of the document.
-
-Common reference: The cover is page 1, TOC is ~page 3, Kadesh starts ~page 5, Maggid ~page 7, the Seder steps continue through the middle, and Hallel/Nirtzah are near the end.`,
+Common reference: Cover=page 1, TOC~page 3, Kadesh~page 5, Maggid~page 7, Hallel/Nirtzah near end.`,
         },
         {
           role: 'user' as const,
-          content: `Edit request: "${params.userMessage}"\n\nWhich ${totalPages}-page PDF pages should I render to visually check the edit? Return ONLY a JSON array.`,
+          content: `Edit request: "${params.userMessage}"\nWhich pages should I render? Return ONLY a JSON array.`,
         },
       ],
       { model: params.model, maxTokens: 64, temperature: 0.1 }
     )
 
-    // Parse the JSON array from response
     const match = pagePickResponse.match(/\[[\d\s,]+\]/)
     if (match) {
       pagesToRender = JSON.parse(match[0])
@@ -484,49 +470,43 @@ Common reference: The cover is page 1, TOC is ~page 3, Kadesh starts ~page 5, Ma
       pagesToRender = [1, Math.ceil(totalPages / 2), totalPages]
     }
   } catch {
-    // Fallback: first, middle, last
     pagesToRender = [1, Math.ceil(totalPages / 2), totalPages]
   }
 
-  // Always include page 1
   if (!pagesToRender.includes(1)) pagesToRender.unshift(1)
   pagesToRender = Array.from(new Set(pagesToRender)).sort((a, b) => a - b).slice(0, 6)
 
-  console.log(`[AI Review] PDF has ${totalPages} pages, AI chose to inspect: ${pagesToRender.join(', ')}`)
+  console.log(`[AI Review] PDF has ${totalPages} pages, inspecting: ${pagesToRender.join(', ')}`)
 
   const pages = await renderPdfPages(pdfBuffer, pagesToRender, 150)
   if (pages.length === 0) return null
 
-  // Step 2: Send rendered pages for visual review
   const imageContent = pages.map(p => ({
     type: 'image_url' as const,
     image_url: { url: `data:image/png;base64,${p.base64}` },
   }))
 
-  const messages = [
+  const reviewMessages = [
     {
       role: 'system' as const,
-      content: `You are the visual QA reviewer for AlefBook, a Hebrew/English Haggadah. You just edited the document based on the user's request. Now check the rendered PDF pages to make sure your edit looks correct.
+      content: `You are the visual QA reviewer for AlefBook. Check the rendered PDF pages against the user's request.
 
 The user asked: "${params.userMessage}"
 
-IMPORTANT — Be strict. Check carefully:
-- If the user asked to ADD AN IMAGE: Is a new image/illustration ACTUALLY VISIBLE on the page? An image should be a distinct graphic element, not just text. If you don't see a new picture/illustration, the edit FAILED.
-- If the user asked to CHANGE A COLOR: Is the color actually different from the standard blue/gold Haggadah theme?
-- If the user asked to ADD TEXT: Is the new text actually visible on the page?
-- Also check for: text overflowing into margins, Hebrew text garbled, blank pages, layout issues.
+Be strict:
+- ADD IMAGE: Is a new image/illustration ACTUALLY VISIBLE? Not just text.
+- CHANGE COLOR: Is the color actually different from the standard blue/gold theme?
+- ADD TEXT: Is the new text actually visible?
+- Check for: text overflow, garbled Hebrew, blank pages, layout issues.
 
-Do NOT say "Pages look good" unless you can clearly see the requested change. When in doubt, say the edit is missing.
-
-If you see a problem, describe it in 1-2 simple sentences (no source code references).
-If everything truly looks correct, say "Pages look good." — nothing more.`,
+If you see a problem, describe it in 1-2 sentences. If everything looks correct, say "Pages look good."`,
     },
     {
       role: 'user' as const,
       content: [
         {
           type: 'text' as const,
-          text: `Here are ${pages.length} rendered pages from the ${totalPages}-page PDF (pages ${pages.map(p => p.page).join(', ')}). Visually verify the edit looks right.`,
+          text: `Here are ${pages.length} rendered pages (pages ${pages.map(p => p.page).join(', ')}). Verify the edit looks right.`,
         },
         ...imageContent,
       ],
@@ -534,26 +514,24 @@ If everything truly looks correct, say "Pages look good." — nothing more.`,
   ]
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- multimodal content type
-    const review = await callLLM(messages as any, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return await callLLM(reviewMessages as any, {
       model: params.model,
       maxTokens: 512,
       temperature: 0.2,
     })
-    return review
   } catch (err) {
-    console.warn('[AI] PDF review LLM call failed:', err)
+    console.warn('[AI] PDF review failed:', err)
     return null
   }
 }
 
-// --- Migration helper for old split-file projects ---
+// ── Migration helper for old split-file projects ──────────────────────────
 
 async function assembleOldProject(projectId: string, mainTex: string): Promise<string | null> {
   const preamble = await readProjectFile(projectId, 'preamble.tex')
   if (!preamble) return null
 
-  // Extract \input{pages/page-NNN} lines from main.tex
   const pagePattern = /\\input\{pages\/(page-\d+)\}/g
   const pageFiles: string[] = []
   let match
@@ -578,4 +556,3 @@ ${pageContents.join('\n\n')}
 \\end{document}
 `
 }
-
