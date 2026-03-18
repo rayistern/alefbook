@@ -157,6 +157,8 @@ export function ChatPanel({
             } else if (event.type === 'compile_done') {
               addStep('Book compiled successfully!')
               completeAllSteps()
+              // Refresh PDF immediately so user sees results without waiting for review
+              onDone?.()
             } else if (event.type === 'compile_error') {
               addStep(event.error ?? 'Compilation failed')
             } else if (event.type === 'done') {
