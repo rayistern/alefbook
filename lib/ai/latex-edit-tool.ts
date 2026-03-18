@@ -144,10 +144,18 @@ export function applyEdits(
         failed.push({ edit, error: 'Search string not found in document' })
       }
     } else if (occurrences === 1) {
-      const before = result.length
-      result = result.replace(edit.search, edit.replace)
-      console.log(`[applyEdits] Exact match applied, length ${before} → ${result.length}`)
-      applied.push(edit)
+      if (edit.search === edit.replace) {
+        console.log(`[applyEdits] SKIPPED: search and replace are identical`)
+        failed.push({ edit, error: 'Search and replace text are identical — no change made' })
+      } else {
+        // Use indexOf + slice instead of String.replace() to avoid $ replacement patterns
+        // (LaTeX is full of $ signs which JS interprets as special replacement patterns)
+        const idx = result.indexOf(edit.search)
+        const before = result.length
+        result = result.slice(0, idx) + edit.replace + result.slice(idx + edit.search.length)
+        console.log(`[applyEdits] Exact match applied at pos ${idx}, length ${before} → ${result.length}`)
+        applied.push(edit)
+      }
     } else {
       console.log(`[applyEdits] FAILED: found ${occurrences} times`)
       failed.push({
