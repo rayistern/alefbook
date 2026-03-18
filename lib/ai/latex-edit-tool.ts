@@ -50,6 +50,7 @@ the replacement text
 Rules for SEARCH/REPLACE blocks:
 - The SEARCH text must be an EXACT substring of the document (including whitespace and newlines).
 - The SEARCH text must be UNIQUE in the document. If a short snippet appears more than once (e.g. a color definition used on multiple pages), include enough surrounding lines to make it unambiguous. Always include 5+ lines of context around the change — more context is always better than less.
+- CRITICAL: The document has section markers like \`%%% ---- COVER PAGE ----\`, \`%%% ---- BACK COVER ----\`, etc. The front cover and back cover have VERY similar content (both have ornaments, "Your Chabad House", etc.). ALWAYS include the section marker comment (e.g. \`%%% ---- COVER PAGE ----\`) in your SEARCH text to ensure you're editing the RIGHT section. When the user says "cover" or "front cover", they mean the section after \`%%% ---- COVER PAGE ----\`, NOT the back cover.
 - You can return multiple SEARCH/REPLACE blocks for multiple changes.
 - Only change what the user asked for. Do NOT refactor, reorganize, or "improve" unrelated code.
 - Preserve all existing formatting, spacing, and comments exactly as-is for untouched sections.
