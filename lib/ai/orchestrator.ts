@@ -456,6 +456,7 @@ export async function* runOrchestrator(
 
 // ── PDF visual review ─────────────────────────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function reviewCompiledPdf(params: {
   projectId: string
   userMessage: string
