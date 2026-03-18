@@ -45,8 +45,8 @@ async function classifyIntent(message: string): Promise<'chat' | 'question' | 'e
 
 - chat: greetings, thanks, small talk, off-topic conversation
 - question: asking about the document content without requesting changes
-- edit: requesting changes, additions, or modifications to the document
-- image: requesting image generation or creation of a picture/illustration (even if also requesting an edit)`,
+- edit: requesting text/color/layout changes to the document (NOT images)
+- image: the user wants a NEW image/picture/illustration/photo created or generated and added to the document. Key words: "picture of", "image of", "illustration of", "draw", "generate", "create an image", "add a picture/photo/image of". Even if they also want it placed somewhere, classify as image.`,
         },
         { role: 'user', content: message },
       ],
