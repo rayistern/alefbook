@@ -344,8 +344,11 @@ export async function* runOrchestrator(
     }
   }
 
-  // ── Post-compile PDF review ───────────────────────────────────────────
+  // ── Post-compile PDF review (DISABLED — too many false positives) ────
+  // TODO: Re-enable once review accuracy improves. Currently the review
+  // AI often claims edits aren't visible and overwrites correct changes.
 
+  /*
   let reviewNote = ''
   if (compileSuccess) {
     try {
@@ -422,6 +425,8 @@ export async function* runOrchestrator(
       console.warn('[Orchestrator] PDF review failed:', err)
     }
   }
+  */
+  const reviewNote: string = ''
 
   // Save assistant message — if the review found an issue, replace the AI's
   // original reply to avoid contradictory messaging ("I changed it" + "it wasn't changed")
