@@ -30,7 +30,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-# Cache bust: 2026-03-17-v2
+# Cache bust: 2026-03-18-v1
 
 # Pass NEXT_PUBLIC vars as build args so Next.js can inline them for client-side code
 ARG NEXT_PUBLIC_SUPABASE_URL
