@@ -295,7 +295,7 @@ export async function* runOrchestrator(
   const maxRetries = 3
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    const result = await compileProject(params.projectId)
+    const result = await compileProject(params.projectId, currentDoc)
 
     if (result.success) {
       compileSuccess = true

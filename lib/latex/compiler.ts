@@ -14,8 +14,15 @@ export interface CompileResult {
 /**
  * Download all project LaTeX files + images from Supabase Storage
  * into a temp directory, compile with latexmk, upload the PDF back.
+ *
+ * If `mainTexContent` is provided, it is written directly to main.tex
+ * instead of relying on the Supabase download (avoids race conditions
+ * with eventual consistency after an upsert).
  */
-export async function compileProject(projectId: string): Promise<CompileResult> {
+export async function compileProject(
+  projectId: string,
+  mainTexContent?: string
+): Promise<CompileResult> {
   const supabase = createServiceClient()
   const tmpDir = path.join(os.tmpdir(), `alefbook-${projectId}-${Date.now()}`)
 
@@ -27,6 +34,12 @@ export async function compileProject(projectId: string): Promise<CompileResult> 
     // List and download all project files from storage
     const storagePath = `projects/${projectId}`
     await downloadFolder(supabase, storagePath, tmpDir, storagePath)
+
+    // Overwrite main.tex with the in-memory version if provided
+    // (avoids Supabase storage eventual consistency issues)
+    if (mainTexContent) {
+      await fs.writeFile(path.join(tmpDir, 'main.tex'), mainTexContent, 'utf-8')
+    }
 
     // Log what files are in the working directory (especially images)
     try {
