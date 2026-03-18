@@ -56,7 +56,9 @@ You help users edit their LaTeX documents, generate images, and answer questions
 - \`[Uploaded: filename.png]\` → use exactly: \\\\includegraphics{images/filename.png}
 - \`[File: name.txt]...[/File]\` → text file content between the tags
 
-Use conversation history to understand follow-up requests like "try again" or "undo that".`
+## Conversation history
+- Use chat history to understand follow-up requests like "try again" or "undo that".
+- Previous assistant messages may contain \`[Changes applied: ...]\` tags that describe exactly what was changed (generated images, edits made). Use this to know which files exist and what was done before. NEVER overwrite or rename files mentioned in prior changes unless the user explicitly asks.`
 
 // ── Tool definitions ────────────────────────────────────────────────────────
 
@@ -168,6 +170,8 @@ export async function* runOrchestrator(
   let currentDoc = doc
   let documentChanged = false
   let aiReply = ''
+  // Track changes for the changelog (persisted in chat history for future requests)
+  const changeLog: string[] = []
 
   yield { type: 'status', message: 'Thinking...' }
 
@@ -207,6 +211,7 @@ export async function* runOrchestrator(
             currentDoc = result
             documentChanged = true
             toolResult = 'Edit applied successfully.'
+            changeLog.push(`edit: ${args.reason || args.replace.slice(0, 80)}`)
           } else {
             toolResult = `Edit FAILED: ${failed[0]?.error}. Try including more surrounding context in your search string, especially section markers like %%% ---- COVER PAGE ----.`
           }
@@ -223,6 +228,7 @@ export async function* runOrchestrator(
           await uploadProjectImage(params.projectId, filename, buffer)
           toolResult = `Image generated and saved as images/${filename}. Now use search_replace to insert \\includegraphics[width=3in]{images/${filename}} at the desired location in the document.`
           yield { type: 'message', message: `Image generated: ${filename}` }
+          changeLog.push(`generated image: images/${filename}`)
         } catch (err) {
           toolResult = `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}. Do NOT use TikZ or drawing commands as a fallback.`
           yield { type: 'message', message: `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
@@ -410,7 +416,13 @@ export async function* runOrchestrator(
   if (reviewNote) {
     finalReply = `I attempted the changes, but the visual review found an issue: ${reviewNote.trim()}`
   }
-  const summary = finalReply + compileNote
+
+  // Build the saved message: user-visible reply + hidden changelog for future context
+  // The changelog is formatted so the AI in future requests knows exactly what was done
+  const changeLogSection = changeLog.length > 0
+    ? `\n\n[Changes applied: ${changeLog.join('; ')}]`
+    : ''
+  const summary = finalReply + compileNote + changeLogSection
 
   await supabase.from('messages').insert({
     project_id: params.projectId,
