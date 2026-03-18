@@ -292,4 +292,137 @@ This is the intro.
     expect(failed[0].edit).toBe(edit)
     expect(failed[0].edit.reason).toBe('testing')
   })
+
+  it('correctly handles $ signs in LaTeX replacement text', () => {
+    const doc = `\\begin{center}
+  \\textcolor{sedergold}{\\pgfornament[width=3.5cm]{75}}
+  \\vspace*{\\fill}
+  {\\large\\textcolor{sedergold}{Your Chabad House}}
+\\end{center}`
+
+    const edits = [{
+      search: `\\textcolor{sedergold}{\\pgfornament[width=3.5cm]{75}}
+  \\vspace*{\\fill}`,
+      replace: `\\textcolor{sedergold}{\\pgfornament[width=3.5cm]{75}}
+  \\vspace{0.3in}
+  \\includegraphics[width=3in]{images/gen-12345.png}
+  \\vspace*{\\fill}`,
+    }]
+
+    const { result, applied, failed } = applyEdits(doc, edits)
+    expect(applied).toHaveLength(1)
+    expect(failed).toHaveLength(0)
+    expect(result).toContain('\\includegraphics[width=3in]{images/gen-12345.png}')
+    expect(result).toContain('Your Chabad House')
+  })
+
+  it('handles $& and $$ in replacement without corruption', () => {
+    // $& in JS String.replace() would insert the matched text
+    // $$ would insert a literal $
+    // Our implementation should NOT interpret these patterns
+    const doc = 'Find this text here.'
+    const edits = [{
+      search: 'this text',
+      replace: '$& and $$ signs $\' work',
+    }]
+
+    const { result, applied } = applyEdits(doc, edits)
+    expect(applied).toHaveLength(1)
+    // The replacement should be EXACTLY what we specified, no $ interpretation
+    expect(result).toBe("Find $& and $$ signs $' work here.")
+  })
+
+  it('handles LaTeX math mode $ in realistic cover edit', () => {
+    const doc = `\\begin{document}
+\\thispagestyle{empty}
+\\begin{center}
+  \\textcolor{white}{\\fontsize{36pt}{42pt}\\selectfont\\scshape Haggadah}\\\\[12pt]
+  \\textcolor{sedergold}{\\LARGE Shel Pesach}\\\\[24pt]
+  \\textcolor{white}{\\Large The Passover Haggadah}
+  \\vspace{0.4in}
+  \\textcolor{sedergold}{\\pgfornament[width=3.5cm, symmetry=h]{75}}
+  \\vspace*{\\fill}
+  {\\large\\textcolor{sedergold}{Your Chabad House}}
+\\end{center}
+\\end{document}`
+
+    const edits = [{
+      search: `\\textcolor{sedergold}{\\pgfornament[width=3.5cm, symmetry=h]{75}}
+  \\vspace*{\\fill}
+  {\\large\\textcolor{sedergold}{Your Chabad House}}`,
+      replace: `\\textcolor{sedergold}{\\pgfornament[width=3.5cm, symmetry=h]{75}}
+  \\vspace{0.3in}
+  \\includegraphics[width=3in]{images/gen-123.png}
+  \\vspace*{\\fill}
+  {\\large\\textcolor{sedergold}{Your Chabad House}}`,
+    }]
+
+    const { result, applied, failed } = applyEdits(doc, edits)
+    expect(applied).toHaveLength(1)
+    expect(failed).toHaveLength(0)
+    expect(result).toContain('\\includegraphics[width=3in]{images/gen-123.png}')
+    // Document structure should be intact
+    expect(result).toContain('\\begin{document}')
+    expect(result).toContain('\\end{document}')
+    expect(result).toContain('Your Chabad House')
+    expect(result).toContain('Haggadah')
+  })
+
+  it('detects identical search and replace as no-op', () => {
+    const doc = 'Hello World'
+    const edits = [{ search: 'Hello', replace: 'Hello' }]
+
+    const { result, applied, failed } = applyEdits(doc, edits)
+    expect(result).toBe('Hello World')
+    expect(applied).toHaveLength(0)
+    expect(failed).toHaveLength(1)
+    expect(failed[0].error).toContain('identical')
+  })
+
+  it('inserts includegraphics into Haggadah cover page', () => {
+    // Simulate the exact cover structure from the template
+    const doc = `\\begin{center}
+  \\textcolor{sedergold}{\\hebrewfonttitle\\fontsize{36pt}{42pt}\\selectfont\\beginR הַגָּדָה שֶׁל פֶּסַח\\endR}
+
+  \\vspace{0.5in}
+
+  \\textcolor{sedergold}{\\pgfornament[width=3.5cm]{75}}
+
+  \\vspace{0.5in}
+
+  \\textcolor{white}{\\fontsize{36pt}{42pt}\\selectfont\\scshape Haggadah}\\\\[12pt]
+  \\textcolor{sedergold}{\\LARGE Shel Pesach}\\\\[24pt]
+  \\textcolor{white}{\\Large The Passover Haggadah}
+
+  \\vspace{0.4in}
+
+  \\textcolor{sedergold}{\\pgfornament[width=3.5cm, symmetry=h]{75}}
+
+  \\vspace*{\\fill}
+
+  {\\large\\textcolor{sedergold}{Your Chabad House}}
+\\end{center}`
+
+    const edits = [{
+      search: `\\textcolor{sedergold}{\\pgfornament[width=3.5cm, symmetry=h]{75}}
+
+  \\vspace*{\\fill}
+
+  {\\large\\textcolor{sedergold}{Your Chabad House}}`,
+      replace: `\\textcolor{sedergold}{\\pgfornament[width=3.5cm, symmetry=h]{75}}
+
+  \\vspace{0.3in}
+  \\includegraphics[width=3in]{images/gen-matzah.png}
+  \\vspace*{\\fill}
+
+  {\\large\\textcolor{sedergold}{Your Chabad House}}`,
+    }]
+
+    const { result, applied, failed } = applyEdits(doc, edits)
+    expect(applied).toHaveLength(1)
+    expect(failed).toHaveLength(0)
+    expect(result).toContain('\\includegraphics[width=3in]{images/gen-matzah.png}')
+    // Hebrew text should be preserved exactly
+    expect(result).toContain('הַגָּדָה שֶׁל פֶּסַח')
+  })
 })

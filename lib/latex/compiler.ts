@@ -28,12 +28,28 @@ export async function compileProject(projectId: string): Promise<CompileResult> 
     const storagePath = `projects/${projectId}`
     await downloadFolder(supabase, storagePath, tmpDir, storagePath)
 
+    // Log what files are in the working directory (especially images)
+    try {
+      const imgDir = path.join(tmpDir, 'images')
+      const imgFiles = await fs.readdir(imgDir).catch(() => [] as string[])
+      console.log(`[Compiler] Images in workdir: ${imgFiles.length} files: ${imgFiles.join(', ')}`)
+
+      // Check if main.tex has any \includegraphics calls
+      const mainTex = await fs.readFile(path.join(tmpDir, 'main.tex'), 'utf-8')
+      const includeMatches = mainTex.match(/\\includegraphics[^}]*\{[^}]+\}/g) || []
+      console.log(`[Compiler] \\includegraphics calls in main.tex: ${includeMatches.join(' | ') || 'none'}`)
+    } catch (e) {
+      console.warn('[Compiler] Could not log working dir contents:', e)
+    }
+
     // Template images (korech1a.png, etc.) are found via TEXINPUTS which
     // includes /app/newImages_whitebg// etc. No need to copy them into
     // the work dir — and doing so would overwrite user-uploaded images.
 
     // Compile
     const result = await runLatexmk(tmpDir)
+
+    console.log(`[Compiler] Compilation ${result.success ? 'SUCCEEDED' : 'FAILED'}${result.errors?.length ? ': ' + result.errors.join('; ') : ''}`)
 
     if (result.success) {
       // Upload compiled PDF to storage

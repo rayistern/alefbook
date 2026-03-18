@@ -250,15 +250,22 @@ export async function* runOrchestrator(
     }
 
     if (attempt < maxRetries) {
+      console.log(`[Orchestrator] Compile failed attempt ${attempt}, errors: ${result.errors?.join('; ')}`)
       yield { type: 'message', message: `Fixing a compile issue (attempt ${attempt}/${maxRetries})...` }
 
       try {
+        const beforeLen = currentDoc.length
         currentDoc = await selfCorrectWithTool({
           document: currentDoc,
           errors: result.errors ?? [],
           log: result.log ?? '',
           model: params.model,
         })
+        console.log(`[Orchestrator] Self-correction: ${beforeLen} → ${currentDoc.length} chars`)
+        // Check if self-correction removed any \includegraphics
+        if (beforeLen > currentDoc.length && !currentDoc.includes('\\includegraphics') && edited.includes('\\includegraphics')) {
+          console.error(`[Orchestrator] WARNING: Self-correction removed \\includegraphics!`)
+        }
         await uploadProjectFile(params.projectId, 'main.tex', currentDoc)
       } catch {
         // Self-correction failed, try compiling again anyway
