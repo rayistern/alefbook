@@ -36,10 +36,16 @@ You help users edit their LaTeX documents, generate images, and answer questions
 - The search text must be an EXACT substring that appears EXACTLY ONCE in the document.
 - Include 5+ lines of surrounding context to ensure uniqueness — more context is always better.
 - CRITICAL: The document has section markers like \`%%% ---- COVER PAGE ----\` and \`%%% ---- BACK COVER ----\`. The front and back covers have VERY similar content. ALWAYS include the nearest section marker in your search text. "Cover" or "front cover" = \`%%% ---- COVER PAGE ----\`, NOT the back cover.
-- Only change what was requested. Preserve formatting, spacing, and comments.
+- **ONLY change what was requested.** Your replacement text must be IDENTICAL to the search text except for the specific thing being changed. Do NOT modify, rename, remove, or replace \\\\includegraphics commands, image filenames, or any other content that the user did NOT ask you to change. If an \\\\includegraphics line appears in your search context, copy it EXACTLY into the replacement.
 - You can call search_replace multiple times for multiple changes.
 - Hebrew text is RTL — careful with \\\\beginR, \\\\endR, \\\\texthebrew{}.
 - Do not remove \\\\usepackage declarations unless explicitly asked.
+- Do NOT reference image filenames that are not already in the document or provided via [Uploaded:] or generate_image. Never invent filenames like "chabad-logo.png" — only use images that exist.
+
+## Page overflow awareness
+- Each page/section of this document has a fixed layout. When adding content (images, text, spacing), be careful not to push existing content onto the next page.
+- For fixed-size sections like the cover page: if you add an image, you may need to REDUCE the size of other elements (ornaments, spacing, \\\\vspace) to keep everything on one page. Never just add content without considering the space it takes.
+- If you use \\\\includegraphics, always include a size parameter like [width=2in] to control the image size.
 
 ## generate_image rules
 - NEVER use TikZ, pgfplots, or LaTeX drawing commands for illustrations.
@@ -395,11 +401,16 @@ export async function* runOrchestrator(
     }
   }
 
-  // Save assistant message
+  // Save assistant message — if the review found an issue, replace the AI's
+  // original reply to avoid contradictory messaging ("I changed it" + "it wasn't changed")
   const compileNote = compileSuccess
     ? ''
     : '\n\n(There were some compilation issues — the PDF may not reflect all changes.)'
-  const summary = (aiReply || 'Your changes have been applied.') + compileNote + reviewNote
+  let finalReply = aiReply || 'Your changes have been applied.'
+  if (reviewNote) {
+    finalReply = `I attempted the changes, but the visual review found an issue: ${reviewNote.trim()}`
+  }
+  const summary = finalReply + compileNote
 
   await supabase.from('messages').insert({
     project_id: params.projectId,
