@@ -19,7 +19,7 @@ export interface OrchestratorParams {
   imageModel?: string
 }
 
-const INTENT_MODEL = 'openai/gpt-5.1-codex-mini'
+const INTENT_MODEL = 'openai/gpt-4.1-mini'
 
 /**
  * Route user messages to the right handler using a cheap LLM call.
@@ -50,7 +50,7 @@ async function classifyIntent(message: string): Promise<'chat' | 'question' | 'e
         },
         { role: 'user', content: message },
       ],
-      { model: INTENT_MODEL, maxTokens: 16, temperature: 0 }
+      { model: INTENT_MODEL, maxTokens: 64, temperature: 0 }
     )
 
     // Extract just the label — model might return extra text or punctuation
