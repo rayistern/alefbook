@@ -281,8 +281,36 @@ export async function* runOrchestrator(
         userMessage: params.userMessage,
         model: params.model,
       })
-      if (pdfReview) {
-        reviewNote = '\n\n' + pdfReview
+      if (pdfReview && !pdfReview.toLowerCase().includes('look good') && !pdfReview.toLowerCase().includes('looks good')) {
+        console.warn(`[Orchestrator] Review detected issue: ${pdfReview}`)
+        // Try to fix the issue with one more edit + compile cycle
+        yield { type: 'status', message: 'Fixing a visual issue...' }
+        try {
+          const currentDoc = await readProjectFile(params.projectId, 'main.tex')
+          if (currentDoc) {
+            const fixResult = await editDocumentWithTool({
+              currentDocument: currentDoc,
+              instruction: `[System: The previous edit was supposed to do: "${params.userMessage}" but the visual review found this problem: "${pdfReview}". Fix it now. Make sure any \\includegraphics commands use the EXACT filename from the conversation.]`,
+              chatHistory: [],
+              model: params.model,
+            })
+            if (fixResult.edits.length > 0 && fixResult.latex !== currentDoc) {
+              await uploadProjectFile(params.projectId, 'main.tex', fixResult.latex)
+              const fixCompile = await compileProject(params.projectId)
+              if (fixCompile.success) {
+                yield { type: 'compile_done', message: 'Fixed and recompiled!' }
+                reviewNote = ''
+              } else {
+                reviewNote = '\n\n' + pdfReview
+              }
+            } else {
+              reviewNote = '\n\n' + pdfReview
+            }
+          }
+        } catch (fixErr) {
+          console.warn('[Orchestrator] Review fix attempt failed:', fixErr)
+          reviewNote = '\n\n' + pdfReview
+        }
       }
     } catch (err) {
       console.warn('[Orchestrator] PDF review failed:', err)
@@ -292,7 +320,7 @@ export async function* runOrchestrator(
   // Save assistant message
   const compileNote = compileSuccess
     ? ''
-    : '\n\n⚠️ There were some compilation issues — the PDF may not reflect all changes.'
+    : '\n\n(There were some compilation issues — the PDF may not reflect all changes.)'
   const summary = (aiReply || 'Your changes have been applied.') + compileNote + reviewNote
 
   await supabase.from('messages').insert({
@@ -475,16 +503,16 @@ Common reference: The cover is page 1, TOC is ~page 3, Kadesh starts ~page 5, Ma
 
 The user asked: "${params.userMessage}"
 
-Check for:
-- Did the edit actually appear in the output? (e.g. if user asked to add an image, is it visible?)
-- Missing or broken images (empty boxes, "[image]" placeholders)
-- Text overflowing into margins or overlapping the gold decorative lines
-- Hebrew text that looks garbled or reversed
-- Blank pages that shouldn't be blank
-- Layout issues (text too cramped, huge gaps, etc.)
+IMPORTANT — Be strict. Check carefully:
+- If the user asked to ADD AN IMAGE: Is a new image/illustration ACTUALLY VISIBLE on the page? An image should be a distinct graphic element, not just text. If you don't see a new picture/illustration, the edit FAILED.
+- If the user asked to CHANGE A COLOR: Is the color actually different from the standard blue/gold Haggadah theme?
+- If the user asked to ADD TEXT: Is the new text actually visible on the page?
+- Also check for: text overflowing into margins, Hebrew text garbled, blank pages, layout issues.
 
-If you see a specific problem, describe it briefly (1-2 sentences).
-If everything looks good, say "Pages look good." — nothing more.`,
+Do NOT say "Pages look good" unless you can clearly see the requested change. When in doubt, say the edit is missing.
+
+If you see a problem, describe it in 1-2 simple sentences (no source code references).
+If everything truly looks correct, say "Pages look good." — nothing more.`,
     },
     {
       role: 'user' as const,

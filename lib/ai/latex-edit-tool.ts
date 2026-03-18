@@ -71,7 +71,7 @@ Rules for SEARCH/REPLACE blocks:
 - If there is NO [System: An image has been generated...] tag in the message, it means image generation was not attempted or failed. Do NOT try to create the image yourself with TikZ or any other method. Instead, just make any other requested edits and mention that the image could not be generated.
 
 ## File uploads
-- \`[Uploaded: filename.png]\` means an image was uploaded to project storage. To use it: \\\\includegraphics{images/filename.png}. Only insert if the user asks.
+- \`[Uploaded: filename.png]\` means an image was uploaded to project storage. To use it: \\\\includegraphics{images/filename.png}. Use the EXACT filename from the tag — do NOT shorten, rename, or strip any prefix. If the tag says \`[Uploaded: upload-12345-photo.jpg]\`, use exactly \`\\\\includegraphics{images/upload-12345-photo.jpg}\`.
 - \`[File: filename.txt]...[/File]\` means the user attached a text file. The content between the tags IS the file content. Use it to fulfill the user's request (e.g. if they say "replace the English with this Spanish" and attach a file, use the file content as the replacement text).
 - These tags are system-generated, not typed by the user. The user's actual request is the text outside these tags.
 
