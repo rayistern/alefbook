@@ -129,20 +129,27 @@ export function applyEdits(
 
   for (const edit of edits) {
     const occurrences = countOccurrences(result, edit.search)
+    console.log(`[applyEdits] Search (${edit.search.length} chars) → ${occurrences} occurrences`)
 
     if (occurrences === 0) {
       // Try a fuzzy match — strip leading/trailing whitespace per line
       const fuzzyResult = fuzzyReplace(result, edit.search, edit.replace)
       if (fuzzyResult) {
+        const changed = fuzzyResult !== result
+        console.log(`[applyEdits] Fuzzy match applied, doc changed: ${changed}`)
         result = fuzzyResult
         applied.push(edit)
       } else {
+        console.log(`[applyEdits] FAILED: not found even with fuzzy matching`)
         failed.push({ edit, error: 'Search string not found in document' })
       }
     } else if (occurrences === 1) {
+      const before = result.length
       result = result.replace(edit.search, edit.replace)
+      console.log(`[applyEdits] Exact match applied, length ${before} → ${result.length}`)
       applied.push(edit)
     } else {
+      console.log(`[applyEdits] FAILED: found ${occurrences} times`)
       failed.push({
         edit,
         error: `Search string found ${occurrences} times (must be unique). Include more surrounding context.`,
@@ -245,6 +252,12 @@ export async function editDocumentWithTool(params: {
 
   // Parse the search/replace blocks
   const { reply, edits } = parseSearchReplaceBlocks(response)
+
+  // Log the actual edits for debugging
+  for (const edit of edits) {
+    console.log(`[EditTool] SEARCH (${edit.search.length} chars): ${edit.search.slice(0, 120).replace(/\n/g, '\\n')}...`)
+    console.log(`[EditTool] REPLACE (${edit.replace.length} chars): ${edit.replace.slice(0, 120).replace(/\n/g, '\\n')}...`)
+  }
 
   if (edits.length === 0) {
     // No edits — just a conversational reply (question, greeting, etc.)

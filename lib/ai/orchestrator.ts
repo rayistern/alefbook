@@ -162,9 +162,8 @@ export async function* runOrchestrator(
 
   let editInstruction: string
   if (imageFilename) {
-    editInstruction = `${params.userMessage}\n\n[System: An image has been generated and saved as images/${imageFilename}. Insert it using \\includegraphics{images/${imageFilename}} at the appropriate location.]`
+    editInstruction = `${params.userMessage}\n\n[System: An image has been generated and saved as images/${imageFilename}. You MUST insert it using EXACTLY this command: \\includegraphics[width=3in]{images/${imageFilename}} — do NOT use TikZ, pgfplots, tikzpicture, or any drawing commands. Use \\includegraphics ONLY. Place it at the appropriate location in the document.]`
   } else if (intent === 'image') {
-    // Image was requested but generation failed — tell the LLM not to fake it
     editInstruction = `${params.userMessage}\n\n[System: Image generation was attempted but failed. Do NOT try to create the image with TikZ or any LaTeX drawing commands. Just make any other requested text/formatting edits and let the user know the image could not be generated.]`
   } else {
     editInstruction = params.userMessage
@@ -183,7 +182,28 @@ export async function* runOrchestrator(
     return
   }
 
-  const { latex: edited, reply: aiReply, edits, failedEdits } = editResult
+  let { latex: edited, reply: aiReply } = editResult
+  const { edits, failedEdits } = editResult
+
+  // Post-edit verification: if an image was generated, make sure \includegraphics actually appears
+  if (imageFilename && !edited.includes(`\\includegraphics`) || (imageFilename && !edited.includes(imageFilename))) {
+    console.warn(`[Orchestrator] Image ${imageFilename} not found in edited document via \\includegraphics — retrying with forced insertion`)
+    try {
+      const retryResult = await editDocumentWithTool({
+        currentDocument: edited,
+        instruction: `[System: CRITICAL — The previous edit did NOT insert the image. You MUST add this EXACT line: \\includegraphics[width=3in]{images/${imageFilename}} — place it where the user requested ("${params.userMessage}"). Use a SEARCH/REPLACE block to find the right location and insert ONLY \\includegraphics. Do NOT use TikZ or any drawing commands.]`,
+        chatHistory: [],
+        model: params.model,
+      })
+      if (retryResult.latex.includes(imageFilename) && retryResult.edits.length > 0) {
+        edited = retryResult.latex
+        aiReply = (aiReply || '') + '\n\n(Image placement was corrected.)'
+        console.log(`[Orchestrator] Image insertion retry succeeded`)
+      }
+    } catch (err) {
+      console.warn(`[Orchestrator] Image insertion retry failed:`, err)
+    }
+  }
 
   // Show the AI's conversational reply immediately
   if (aiReply) {
@@ -202,6 +222,11 @@ export async function* runOrchestrator(
   }
 
   console.log(`[Orchestrator] Applied ${edits.length} edits, ${failedEdits.length} failed`)
+  const docChanged = edited !== document
+  console.log(`[Orchestrator] Document changed: ${docChanged}, original: ${document.length} chars, edited: ${edited.length} chars`)
+  if (!docChanged && edits.length > 0) {
+    console.error(`[Orchestrator] BUG: ${edits.length} edits reported as applied but document is UNCHANGED!`)
+  }
 
   // Upload modified document
   yield { type: 'status', message: 'Saving changes...' }
