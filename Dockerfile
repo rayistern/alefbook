@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   texlive-lang-arabic \
   texlive-lang-other \
   latexmk \
+  ghostscript \
   fonts-freefont-ttf \
   fonts-ebgaramond \
   fontconfig \

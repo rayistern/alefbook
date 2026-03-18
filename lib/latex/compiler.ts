@@ -51,6 +51,11 @@ export async function compileProject(projectId: string): Promise<CompileResult> 
 
     console.log(`[Compiler] Compilation ${result.success ? 'SUCCEEDED' : 'FAILED'}${result.errors?.length ? ': ' + result.errors.join('; ') : ''}`)
 
+    // Compress only if the PDF exceeds Supabase's 50MB upload limit
+    if (result.success) {
+      await compressPdfIfNeeded(path.join(tmpDir, 'main.pdf'))
+    }
+
     if (result.success) {
       // Upload compiled PDF to storage
       const pdfFile = await fs.readFile(path.join(tmpDir, 'main.pdf'))
@@ -186,6 +191,57 @@ function runLatexmk(workDir: string): Promise<CompileResult> {
       }
     )
   })
+}
+
+/**
+ * Compress a PDF with ghostscript if it exceeds a configurable threshold.
+ * Set PDF_COMPRESS_THRESHOLD_MB env var to enable (e.g. "50" for 50MB).
+ * Defaults to 0 (disabled).
+ * Uses /prepress quality (300 DPI, colour-accurate) so output is still print-ready.
+ */
+async function compressPdfIfNeeded(pdfPath: string): Promise<void> {
+  const thresholdMB = parseInt(process.env.PDF_COMPRESS_THRESHOLD_MB || '0', 10)
+  if (thresholdMB <= 0) return // compression disabled
+
+  const compressedPath = pdfPath.replace('.pdf', '-compressed.pdf')
+
+  try {
+    const size = (await fs.stat(pdfPath)).size
+    const sizeMB = size / 1024 / 1024
+    console.log(`[Compiler] PDF size: ${sizeMB.toFixed(1)}MB`)
+
+    if (sizeMB < thresholdMB) return
+
+    console.log(`[Compiler] PDF exceeds ${thresholdMB}MB threshold, compressing (prepress/300dpi)...`)
+
+    await new Promise<void>((resolve, reject) => {
+      execFile(
+        'gs',
+        [
+          '-sDEVICE=pdfwrite',
+          '-dCompatibilityLevel=1.4',
+          '-dPDFSETTINGS=/prepress', // 300 DPI, highest quality
+          '-dNOPAUSE', '-dQUIET', '-dBATCH',
+          `-sOutputFile=${compressedPath}`,
+          pdfPath,
+        ],
+        { timeout: 120_000, maxBuffer: 5 * 1024 * 1024 },
+        (error) => (error ? reject(error) : resolve())
+      )
+    })
+
+    const compressedSize = (await fs.stat(compressedPath)).size
+    console.log(`[Compiler] Compressed: ${(compressedSize / 1024 / 1024).toFixed(1)}MB (${Math.round((1 - compressedSize / size) * 100)}% reduction)`)
+
+    if (compressedSize < size) {
+      await fs.rename(compressedPath, pdfPath)
+    } else {
+      await fs.unlink(compressedPath).catch(() => {})
+    }
+  } catch (err) {
+    console.warn('[Compiler] PDF compression failed, uploading uncompressed:', err)
+    await fs.unlink(compressedPath).catch(() => {})
+  }
 }
 
 function parseLatexErrors(log: string): string[] {

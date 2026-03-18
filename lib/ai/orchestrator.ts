@@ -303,6 +303,17 @@ export async function* runOrchestrator(
       break
     }
 
+    // If the error is a storage/upload issue (not a LaTeX error), don't retry
+    const isUploadError = result.errors?.some(e => e.includes('PDF upload failed'))
+    if (isUploadError) {
+      console.error(`[Orchestrator] PDF upload failed (storage limit?): ${result.errors?.join('; ')}`)
+      yield {
+        type: 'compile_error',
+        error: 'The compiled PDF was too large to save. Try using smaller images or fewer pages.',
+      }
+      break
+    }
+
     if (attempt < maxRetries) {
       console.log(`[Orchestrator] Compile failed attempt ${attempt}, errors: ${result.errors?.join('; ')}`)
       yield { type: 'message', message: `Fixing a compile issue (attempt ${attempt}/${maxRetries})...` }

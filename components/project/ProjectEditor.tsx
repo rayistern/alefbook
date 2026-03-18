@@ -41,13 +41,20 @@ export function ProjectEditor({
   const texUploadRef = useRef<HTMLInputElement>(null)
 
   const refreshPdf = useCallback(async () => {
-    const res = await fetch(`/api/project/${project.id}`)
-    if (res.ok) {
-      const data = await res.json()
-      if (data.pdfUrl) {
-        setPdfUrl(data.pdfUrl)
-        setPdfKey(k => k + 1)
+    try {
+      const res = await fetch(`/api/project/${project.id}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.pdfUrl) {
+          // Add cache-busting param so browser/CDN doesn't serve stale PDF
+          const url = new URL(data.pdfUrl)
+          url.searchParams.set('_t', Date.now().toString())
+          setPdfUrl(url.toString())
+          setPdfKey(k => k + 1)
+        }
       }
+    } catch (err) {
+      console.warn('[ProjectEditor] PDF refresh failed:', err)
     }
   }, [project.id])
 

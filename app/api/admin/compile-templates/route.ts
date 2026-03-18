@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
       const compileResult = await runLatexmk(tmpDir)
 
       if (compileResult.success) {
+        await compressPdfIfNeeded(path.join(tmpDir, 'main.pdf'))
         const pdfBuffer = await fs.readFile(path.join(tmpDir, 'main.pdf'))
         const storagePath = `templates/${templateId}/main.pdf`
 
@@ -84,6 +85,43 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ results })
+}
+
+async function compressPdfIfNeeded(pdfPath: string): Promise<void> {
+  const thresholdMB = parseInt(process.env.PDF_COMPRESS_THRESHOLD_MB || '0', 10)
+  if (thresholdMB <= 0) return
+
+  const compressedPath = pdfPath.replace('.pdf', '-compressed.pdf')
+  try {
+    const size = (await fs.stat(pdfPath)).size
+    const sizeMB = size / 1024 / 1024
+    console.log(`[Admin] PDF size: ${sizeMB.toFixed(1)}MB`)
+    if (sizeMB < thresholdMB) return
+
+    console.log(`[Admin] PDF exceeds ${thresholdMB}MB, compressing...`)
+    await new Promise<void>((resolve, reject) => {
+      execFile(
+        'gs',
+        [
+          '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.4',
+          '-dPDFSETTINGS=/prepress', '-dNOPAUSE', '-dQUIET', '-dBATCH',
+          `-sOutputFile=${compressedPath}`, pdfPath,
+        ],
+        { timeout: 120_000, maxBuffer: 5 * 1024 * 1024 },
+        (error) => (error ? reject(error) : resolve())
+      )
+    })
+    const compressedSize = (await fs.stat(compressedPath)).size
+    console.log(`[Admin] Compressed: ${(compressedSize / 1024 / 1024).toFixed(1)}MB`)
+    if (compressedSize < size) {
+      await fs.rename(compressedPath, pdfPath)
+    } else {
+      await fs.unlink(compressedPath).catch(() => {})
+    }
+  } catch (err) {
+    console.warn('[Admin] PDF compression failed:', err)
+    await fs.unlink(compressedPath).catch(() => {})
+  }
 }
 
 function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: string[] }> {
