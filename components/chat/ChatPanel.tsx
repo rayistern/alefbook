@@ -120,7 +120,7 @@ export function ChatPanel({
       let assistantContent = ''
 
       // Timeout: if no SSE event arrives for 90 seconds, assume the server is stuck
-      const STREAM_TIMEOUT_MS = 90_000
+      const STREAM_TIMEOUT_MS = 5 * 60_000 // 5 minutes
       let streamTimer: ReturnType<typeof setTimeout> | null = null
       const resetStreamTimer = () => {
         if (streamTimer) clearTimeout(streamTimer)
