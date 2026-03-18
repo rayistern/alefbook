@@ -321,9 +321,14 @@ export async function* runOrchestrator(
         // Self-correction failed, try compiling again
       }
     } else {
+      // All compile attempts failed — revert to the original document
+      console.warn(`[Orchestrator] All ${maxRetries} compile attempts failed, reverting document`)
+      await uploadProjectFile(params.projectId, 'main.tex', doc)
+      await supabase.from('projects').update({ status: 'ready' }).eq('id', params.projectId)
+
       yield {
         type: 'compile_error',
-        error: `Compilation failed after ${maxRetries} attempts: ${result.errors?.join('; ')}`,
+        error: `Compilation failed after ${maxRetries} attempts. Your document has been reverted to the last working version. Error: ${result.errors?.join('; ')}`,
       }
     }
   }
@@ -411,7 +416,7 @@ export async function* runOrchestrator(
   // original reply to avoid contradictory messaging ("I changed it" + "it wasn't changed")
   const compileNote = compileSuccess
     ? ''
-    : '\n\n(There were some compilation issues — the PDF may not reflect all changes.)'
+    : '\n\n(Compilation failed — your document has been reverted to the last working version. Please try a simpler edit.)'
   let finalReply = aiReply || 'Your changes have been applied.'
   if (reviewNote) {
     finalReply = `I attempted the changes, but the visual review found an issue: ${reviewNote.trim()}`

@@ -119,10 +119,23 @@ export function ChatPanel({
       let buffer = ''
       let assistantContent = ''
 
+      // Timeout: if no SSE event arrives for 90 seconds, assume the server is stuck
+      const STREAM_TIMEOUT_MS = 90_000
+      let streamTimer: ReturnType<typeof setTimeout> | null = null
+      const resetStreamTimer = () => {
+        if (streamTimer) clearTimeout(streamTimer)
+        streamTimer = setTimeout(() => {
+          controller.abort()
+        }, STREAM_TIMEOUT_MS)
+      }
+      resetStreamTimer()
+
+      try {
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
 
+        resetStreamTimer()
         buffer += decoder.decode(value, { stream: true })
         const lines = buffer.split('\n')
         buffer = lines.pop() ?? ''
@@ -155,6 +168,9 @@ export function ChatPanel({
           }
         }
       }
+      } finally {
+        if (streamTimer) clearTimeout(streamTimer)
+      }
 
       if (assistantContent) {
         setMessages(prev => [...prev, {
@@ -168,10 +184,14 @@ export function ChatPanel({
       onDone?.()
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
+        // Check if this was a manual stop or a timeout
+        const wasManualStop = abortControllerRef.current === null
         setMessages(prev => [...prev, {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: 'Request stopped.',
+          content: wasManualStop
+            ? 'Request stopped.'
+            : 'The request timed out — the server may still be processing. Please try again with a simpler edit.',
           created_at: new Date().toISOString(),
         }])
       } else {

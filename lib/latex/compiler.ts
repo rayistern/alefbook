@@ -205,6 +205,20 @@ function parseLatexErrors(log: string): string[] {
     }
   }
 
+  // Also catch xdvipdfmx failures (XDV → PDF conversion)
+  // These don't start with ! but appear as "xdvipdfmx:fatal:" or latexmk error summaries
+  if (errors.length === 0) {
+    if (log.includes('xdvipdfmx:fatal:') || log.includes('xdvipdfmx:warning:')) {
+      const xdvLines = lines.filter(l => l.includes('xdvipdfmx:'))
+      errors.push('PDF conversion (xdvipdfmx) failed: ' + xdvLines.join('; ').slice(0, 500))
+    }
+    // Catch generic latexmk failure when xelatex succeeded but xdvipdfmx didn't
+    if (log.includes('gave return code') && !log.includes('Output written on main.pdf')) {
+      const returnCodeLine = lines.find(l => l.includes('gave return code'))
+      if (returnCodeLine) errors.push(returnCodeLine.trim())
+    }
+  }
+
   return errors
 }
 
