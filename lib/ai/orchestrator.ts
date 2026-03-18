@@ -19,7 +19,7 @@ export interface OrchestratorParams {
   imageModel?: string
 }
 
-const INTENT_MODEL = 'openai/gpt-4.1-nano'
+const INTENT_MODEL = 'openai/gpt-5.1-codex-mini'
 
 /**
  * Route user messages to the right handler using a cheap LLM call.
