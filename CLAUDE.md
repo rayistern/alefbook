@@ -73,10 +73,45 @@ projects/{projectId}/
 - `blank` — basic book with title page
 - `hebrew-english` — bilingual paracol layout, Hebrew fonts, RTL support
 
+## Template Compilation
+
+Templates must be compiled after changes to generate cached PDFs shown to new projects.
+
+### How to compile
+Hit the admin endpoint on the deployed site:
+```bash
+curl -s -X POST https://alefbook-production.up.railway.app/api/admin/compile-templates
+```
+
+If `ADMIN_SECRET` env var is set, pass it as a query param:
+```bash
+curl -s -X POST "https://alefbook-production.up.railway.app/api/admin/compile-templates?secret=YOUR_SECRET"
+```
+
+### What it does
+1. For each template (`blank`, `hebrew-english`, `haggadah`):
+   - Generates the `.tex` source via `getTemplate()` from `lib/latex/templates.ts`
+   - Copies template images (from `newImages_whitebg/` and `newImages/`) into a temp dir
+   - Runs `latexmk -xelatex` to compile
+   - Optionally compresses the PDF with Ghostscript (if `PDF_COMPRESS_THRESHOLD_MB` is set)
+   - Uploads the compiled PDF to Supabase Storage at `templates/{templateId}/main.pdf`
+2. These cached PDFs are copied to new projects on creation so users see a PDF immediately
+
+### When to compile
+- After changing any template in `lib/latex/templates.ts`
+- After changing template images in `newImages/` or `newImages_whitebg/`
+- After changing fonts in `templates/fonts/`
+- After a fresh deploy that changes the LaTeX pipeline
+
+### Source code
+`app/api/admin/compile-templates/route.ts`
+
 ## Railway
-- Deploy with `railway up --detach`
+- Deploy via git push to main (Railway auto-deploys from GitHub)
 - Health check: `/api/health`
-- Dockerfile builds with TeX Live (texlive-xetex, texlive-lang-hebrew, etc.)
+- Dockerfile builds with TeX Live (texlive-xetex, texlive-lang-other, etc.)
+- **NEXT_PUBLIC_* env vars**: Must be set as Railway service variables AND declared as `ARG`/`ENV` in Dockerfile so they're available at both build time (for client-side inlining) and runtime
+- **Server-side code** uses `SUPABASE_URL` / `SUPABASE_ANON_KEY` (non-prefixed) to avoid Next.js build-time inlining issues
 
 ## Environment Variables
 ```
@@ -102,3 +137,4 @@ NEXT_PUBLIC_APP_URL=
 | `/api/upload` | POST | Upload image |
 | `/api/gallery` | GET | List public projects |
 | `/api/health` | GET | Health check |
+| `/api/admin/compile-templates` | POST | Compile all templates and cache PDFs |
