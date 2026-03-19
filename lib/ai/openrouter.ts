@@ -9,7 +9,7 @@ export function getOpenRouterClient(): OpenAI {
       apiKey: process.env.OPENROUTER_API_KEY,
       defaultHeaders: {
         'HTTP-Referer': 'https://www.shluchimexchange.ai',
-        'X-Title': 'Shluchim Exchange',
+        'X-Title': 'Shluchim Exchange - AI Book Builder',
       },
     })
   }
@@ -142,7 +142,7 @@ async function tryGenerateImage(
       'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': 'https://www.shluchimexchange.ai',
-      'X-Title': 'Shluchim Exchange',
+      'X-Title': 'Shluchim Exchange - AI Book Builder',
     },
     body: JSON.stringify({
       model,

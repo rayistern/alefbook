@@ -51,7 +51,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 gradient-bg items-center justify-center p-12">
         <div className="max-w-md text-white">
           <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-8">
-            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-10 h-10 object-contain" />
+            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange - AI Book Builder" className="w-10 h-10 object-contain" />
           </div>
           <h1 className="text-4xl font-bold leading-tight">
             Create beautiful books with AI
@@ -80,8 +80,8 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm space-y-6">
           <div className="lg:hidden flex items-center gap-2 justify-center mb-4">
-            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
-            <span className="text-lg font-bold">Shluchim Exchange</span>
+            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange - AI Book Builder" className="w-8 h-8 rounded-lg object-contain" />
+            <span className="text-lg font-bold">Shluchim Exchange - AI Book Builder</span>
           </div>
 
           <div className="text-center">

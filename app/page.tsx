@@ -5,7 +5,7 @@ export default async function HomePage() {
   if (!isSupabaseConfigured()) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gradient-bg-subtle">
-        <h1 className="text-4xl font-bold gradient-text">Shluchim Exchange</h1>
+        <h1 className="text-4xl font-bold gradient-text">Shluchim Exchange - AI Book Builder</h1>
         <p className="text-muted-foreground mt-2">AI-powered book creation</p>
         <p className="text-sm text-muted-foreground mt-4">Service not configured.</p>
       </div>
@@ -36,8 +36,8 @@ function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
-            <span className="text-lg font-bold">Shluchim Exchange</span>
+            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange - AI Book Builder" className="w-8 h-8 rounded-lg object-contain" />
+            <span className="text-lg font-bold">Shluchim Exchange - AI Book Builder</span>
           </div>
           <div className="flex items-center gap-3">
             <Link
@@ -144,8 +144,8 @@ function LandingPage() {
       <footer className="py-8 px-6 border-t">
         <div className="max-w-6xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-5 h-5 rounded object-contain" />
-            <span>Shluchim Exchange</span>
+            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange - AI Book Builder" className="w-5 h-5 rounded object-contain" />
+            <span>Shluchim Exchange - AI Book Builder</span>
           </div>
           <p>Create books with AI</p>
         </div>
@@ -181,8 +181,8 @@ function Dashboard({ projects }: { projects: DashboardProject[] }) {
       <header className="border-b bg-white/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
-            <span className="text-lg font-bold">Shluchim Exchange</span>
+            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange - AI Book Builder" className="w-8 h-8 rounded-lg object-contain" />
+            <span className="text-lg font-bold">Shluchim Exchange - AI Book Builder</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/gallery" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
