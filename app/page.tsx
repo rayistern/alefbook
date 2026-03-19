@@ -36,7 +36,7 @@ function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
+            <img src="/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
             <span className="text-lg font-bold">Shluchim Exchange</span>
           </div>
           <div className="flex items-center gap-3">
@@ -144,7 +144,7 @@ function LandingPage() {
       <footer className="py-8 px-6 border-t">
         <div className="max-w-6xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-5 h-5 rounded object-contain" />
+            <img src="/logo.png" alt="Shluchim Exchange" className="w-5 h-5 rounded object-contain" />
             <span>Shluchim Exchange</span>
           </div>
           <p>Create books with AI</p>
@@ -181,7 +181,7 @@ function Dashboard({ projects }: { projects: DashboardProject[] }) {
       <header className="border-b bg-white/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
+            <img src="/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
             <span className="text-lg font-bold">Shluchim Exchange</span>
           </div>
           <div className="flex items-center gap-4">

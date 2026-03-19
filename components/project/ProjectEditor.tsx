@@ -138,9 +138,7 @@ export function ProjectEditor({
       <header className="bg-white border-b px-4 py-2.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center">
-              <span className="text-white font-bold text-xs">A</span>
-            </div>
+            <img src="/logo.png" alt="Shluchim Exchange" className="w-7 h-7 rounded-lg object-contain" />
           </Link>
           <div className="w-px h-5 bg-purple-100" />
           <span className="text-sm font-medium truncate max-w-[200px]">{project.name}</span>
