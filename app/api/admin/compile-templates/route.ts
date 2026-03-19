@@ -39,6 +39,9 @@ export async function POST(request: NextRequest) {
       await fs.mkdir(path.join(tmpDir, 'images'), { recursive: true })
 
       const template = getTemplate(templateId, DEFAULT_PAGE_COUNT)
+      // Log a fingerprint so we can verify which source is being compiled
+      const srcHash = template.main.length + ':' + template.main.slice(0, 200).replace(/\s+/g, ' ').trim()
+      console.log(`[Admin] ${templateId} source fingerprint: ${srcHash}`)
       await fs.writeFile(path.join(tmpDir, 'main.tex'), template.main, 'utf-8')
 
       // Copy template images into the temp directory
@@ -72,7 +75,7 @@ export async function POST(request: NextRequest) {
           results[templateId] = `upload failed: ${error.message}`
           console.error(`[Admin] Upload failed for ${templateId}:`, error.message)
         } else {
-          results[templateId] = 'ok'
+          results[templateId] = `ok (len=${template.main.length}, images=${template.images?.length ?? 0})`
           console.log(`[Admin] Template ${templateId} compiled and cached successfully`)
         }
       } else {
