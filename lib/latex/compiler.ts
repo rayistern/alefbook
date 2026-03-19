@@ -161,9 +161,7 @@ function runLatexmk(workDir: string): Promise<CompileResult> {
   const appDir = process.cwd()
   const texInputs = [
     workDir + '//',  // recursive so user images in subdirs are found first
-    path.join(appDir, 'newImages_whitebg') + '//',
-    path.join(appDir, 'newImages') + '//',
-    path.join(appDir, 'newImages_notext') + '//',
+    path.join(appDir, 'templates', 'haggadah-images') + '//',
     '', // trailing colon = include default search paths
   ].join(':')
 

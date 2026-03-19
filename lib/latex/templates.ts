@@ -42,7 +42,7 @@ function haggadahTemplate(): TemplateFiles {
   // De-duplicate by filename so only the first (whitebg) version is kept.
   const seen = new Set<string>()
   const images: TemplateImage[] = []
-  for (const dir of ['newImages_whitebg', 'newImages']) {
+  for (const dir of ['templates/haggadah-images']) {
     const dirPath = path.join(process.cwd(), dir)
     try {
       const files = readdirSync(dirPath)
