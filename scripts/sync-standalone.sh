@@ -58,9 +58,18 @@ generate_standalone() {
 
   echo "==> Generating standalone/$TEMPLATE_ID"
 
-  # Clean target
+  # Preserve manually-maintained docs, then clean and rebuild
+  local tmp_docs="/tmp/_standalone_docs_$$"
+  mkdir -p "$tmp_docs"
+  for doc in CLAUDE.md README.md; do
+    [ -f "$STANDALONE_DIR/$doc" ] && cp "$STANDALONE_DIR/$doc" "$tmp_docs/$doc"
+  done
   rm -rf "$STANDALONE_DIR"
   mkdir -p "$STANDALONE_DIR/fonts" "$STANDALONE_DIR/images"
+  for doc in CLAUDE.md README.md; do
+    [ -f "$tmp_docs/$doc" ] && cp "$tmp_docs/$doc" "$STANDALONE_DIR/$doc"
+  done
+  rm -rf "$tmp_docs"
 
   # Transform source.tex:
   #   - Rewrite Docker font paths to local
