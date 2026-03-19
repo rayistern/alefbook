@@ -23,7 +23,7 @@ export interface OrchestratorParams {
 
 // ── System prompt ───────────────────────────────────────────────────────────
 
-const SYSTEM_PROMPT = `You are AlefBook's AI assistant for a Hebrew/English Haggadah book creation platform.
+const SYSTEM_PROMPT = `You are Shluchim Exchange's AI assistant for a Hebrew/English Haggadah book creation platform.
 
 You help users edit their LaTeX documents, generate images, and answer questions.
 
@@ -528,7 +528,7 @@ Common reference: Cover=page 1, TOC~page 3, Kadesh~page 5, Maggid~page 7, Hallel
   const reviewMessages = [
     {
       role: 'system' as const,
-      content: `You are the visual QA reviewer for AlefBook. Check the rendered PDF pages against the user's request.
+      content: `You are the visual QA reviewer for Shluchim Exchange. Check the rendered PDF pages against the user's request.
 
 The user asked: "${params.userMessage}"
 

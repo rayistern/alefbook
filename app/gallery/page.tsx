@@ -36,10 +36,8 @@ export default function GalleryPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-7 h-7 rounded-lg gradient-bg flex items-center justify-center">
-                <span className="text-white font-bold text-xs">A</span>
-              </div>
-              <span className="text-sm font-bold">AlefBook</span>
+              <img src="https://www.shluchimexchange.ai/logo.png" alt="Shluchim Exchange" className="w-7 h-7 rounded-lg object-contain" />
+              <span className="text-sm font-bold">Shluchim Exchange</span>
             </Link>
             <span className="text-muted-foreground text-sm">/</span>
             <span className="text-sm font-medium">Gallery</span>

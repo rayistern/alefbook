@@ -8,8 +8,8 @@ export function getOpenRouterClient(): OpenAI {
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: process.env.OPENROUTER_API_KEY,
       defaultHeaders: {
-        'HTTP-Referer': 'https://alefbook.org',
-        'X-Title': 'AlefBook',
+        'HTTP-Referer': 'https://www.shluchimexchange.ai',
+        'X-Title': 'Shluchim Exchange',
       },
     })
   }
@@ -135,8 +135,8 @@ async function tryGenerateImage(
     headers: {
       'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://alefbook.org',
-      'X-Title': 'AlefBook',
+      'HTTP-Referer': 'https://www.shluchimexchange.ai',
+      'X-Title': 'Shluchim Exchange',
     },
     body: JSON.stringify({
       model,

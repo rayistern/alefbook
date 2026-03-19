@@ -76,7 +76,7 @@ function blankDoc(pageCount: number): string {
 
 \\vfill
 
-{\\small Created with AlefBook}
+{\\small Created with Shluchim Exchange}
 
 \\end{center}
 \\newpage`
@@ -171,7 +171,7 @@ function hebrewEnglishDoc(pageCount: number): string {
 
 \\vfill
 
-{\\small Created with AlefBook}
+{\\small Created with Shluchim Exchange}
 
 \\end{center}
 \\newpage`
