@@ -58,6 +58,9 @@ export async function POST(request: NextRequest) {
         const pdfBuffer = await fs.readFile(path.join(tmpDir, 'main.pdf'))
         const storagePath = `templates/${templateId}/main.pdf`
 
+        // Delete first to bust Supabase CDN cache, then upload fresh
+        await supabase.storage.from('projects').remove([storagePath])
+
         const { error } = await supabase.storage
           .from('projects')
           .upload(storagePath, pdfBuffer, {
