@@ -414,12 +414,15 @@ export async function* runOrchestrator(
             reviewNote = '\n\n' + pdfReview
           }
         } catch (fixErr) {
-          console.warn('[Orchestrator] Review fix failed:', fixErr)
+          const msg = fixErr instanceof Error ? fixErr.message : String(fixErr)
+          console.error(`[Orchestrator] Review fix failed: ${msg}`)
           reviewNote = '\n\n' + pdfReview
         }
       }
     } catch (err) {
-      console.warn('[Orchestrator] PDF review failed:', err)
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`[Orchestrator] PDF review failed: ${msg}`)
+      // Review failure is non-fatal — the edit+compile already succeeded
     }
   }
 

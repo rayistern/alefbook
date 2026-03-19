@@ -53,7 +53,10 @@ export async function callLLMWithTools(
     console.log(`[AI] ${model}: ${contentLen} chars, ${toolCalls} tool calls`)
     return msg
   } catch (error) {
-    console.error(`[AI] Error from ${model}:`, error instanceof Error ? error.message : error)
+    const errMsg = error instanceof Error ? error.message : String(error)
+    const errType = error?.constructor?.name ?? 'Unknown'
+    const status = (error as { status?: number })?.status ?? (error as { statusCode?: number })?.statusCode
+    console.error(`[AI] Error from ${model}: [${errType}] ${status ? `HTTP ${status} — ` : ''}${errMsg}`)
 
     if (model !== FALLBACK_MODEL) {
       console.warn(`[AI] Falling back to ${FALLBACK_MODEL}`)
@@ -87,7 +90,10 @@ export async function callLLM(
     console.log(`[AI] ${model}: ${content.length} chars`)
     return content
   } catch (error) {
-    console.error(`[AI] Error from ${model}:`, error instanceof Error ? error.message : error)
+    const errMsg = error instanceof Error ? error.message : String(error)
+    const errType = error?.constructor?.name ?? 'Unknown'
+    const status = (error as { status?: number })?.status ?? (error as { statusCode?: number })?.statusCode
+    console.error(`[AI] Error from ${model}: [${errType}] ${status ? `HTTP ${status} — ` : ''}${errMsg}`)
 
     // Fallback
     if (model !== FALLBACK_MODEL) {

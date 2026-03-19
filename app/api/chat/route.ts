@@ -72,13 +72,17 @@ export async function POST(request: NextRequest) {
           controller.enqueue(encoder.encode(`data: ${data}\n\n`))
         }
       } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err)
+        const errType = err?.constructor?.name ?? 'Unknown'
+        console.error(`[Chat SSE] Stream error: [${errType}] ${errMsg}`)
+
         if (requestSignal.aborted) {
-          // Client disconnected, no need to send error
+          console.warn('[Chat SSE] Client disconnected during stream')
           return
         }
         const errorEvent: TaskEvent = {
           type: 'done',
-          error: err instanceof Error ? err.message : 'Unknown error',
+          error: `Error: ${errMsg}`,
         }
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(errorEvent)}\n\n`))
       } finally {
