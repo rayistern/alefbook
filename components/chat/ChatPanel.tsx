@@ -111,7 +111,8 @@ export function ChatPanel({
       })
 
       if (!res.ok || !res.body) {
-        throw new Error('Chat request failed')
+        const text = await res.text().catch(() => '')
+        throw new Error(`Chat request failed (HTTP ${res.status}${text ? ': ' + text.slice(0, 200) : ''})`)
       }
 
       const reader = res.body.getReader()

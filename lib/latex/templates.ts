@@ -28,21 +28,29 @@ export function getTemplate(templateId: string, pageCount: number): TemplateFile
 /**
  * Haggadah template — reads the complete source.tex as a single document.
  * Also returns all template images so they can be uploaded to Supabase.
+ *
+ * Image priority: newImages_whitebg > newImages. Images are stored with
+ * a flat "images/" prefix so they end up in one directory — this avoids
+ * non-deterministic TEXINPUTS recursive search order when images exist
+ * in multiple subdirectories.
  */
 function haggadahTemplate(): TemplateFiles {
   const sourcePath = path.join(process.cwd(), 'templates/haggadah-latex/source.tex')
   const main = readFileSync(sourcePath, 'utf-8')
 
-  // Collect images from both directories
+  // Collect images: whitebg first (preferred), then newImages as fallback.
+  // De-duplicate by filename so only the first (whitebg) version is kept.
+  const seen = new Set<string>()
   const images: TemplateImage[] = []
   for (const dir of ['newImages_whitebg', 'newImages']) {
     const dirPath = path.join(process.cwd(), dir)
     try {
       const files = readdirSync(dirPath)
       for (const file of files) {
-        if (/\.(png|jpg|jpeg|pdf)$/i.test(file)) {
+        if (/\.(png|jpg|jpeg|pdf)$/i.test(file) && !seen.has(file)) {
+          seen.add(file)
           images.push({
-            storagePath: `${dir}/${file}`,
+            storagePath: `images/${file}`,  // flat — no subdir ambiguity
             diskPath: path.join(dirPath, file),
           })
         }
