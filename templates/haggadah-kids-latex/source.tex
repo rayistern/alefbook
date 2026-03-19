@@ -34,6 +34,7 @@
 \newfontfamily\kidstitlefont[Path=/usr/local/share/fonts/]{COOPBL.TTF}
 \newfontfamily\kidsinstructionfont[Path=/usr/local/share/fonts/]{ACMESecretAgentBB_Reg.otf}
 \newfontfamily\kidssteptitlefont[Path=/usr/local/share/fonts/]{FredokaOne-Regular.otf}
+\newfontfamily\kidssteptitlefonthebrew[Script=Hebrew, Scale=1.5, Path=/usr/local/share/fonts/]{FredokaOne-Regular.otf}
 
 %% Hebrew body: EFT Texty — warm, readable body text (same as adult)
 \newfontfamily\hebrewfont[Script=Hebrew, Scale=1.15, Path=/usr/local/share/fonts/]{EFT_TEXTY OTP.ttf}
@@ -211,7 +212,7 @@
   \vspace{2pt}
   %% Titles (kids fonts)
   \begin{center}
-    {\hebrewfontsanslarge\textcolor{sederblue}{\beginR #1\endR}}\\[4pt]
+    {\kidssteptitlefonthebrew\textcolor{sederblue}{\beginR #1\endR}}\\[4pt]
     {\kidssteptitlefont\Large\textcolor{sederblue}{#2}}\\[2pt]
     {\kidstitlefont\normalsize\textcolor{sederwine}{#3}}
   \end{center}
@@ -368,7 +369,7 @@
 \newcommand{\subsedertitle}[2]{%
   \par\vspace{8pt}
   \begin{center}
-    {\hebrewfontlarge\textcolor{sederblue}{\beginR #1\endR}}\\[3pt]
+    {\kidssteptitlefonthebrew\textcolor{sederblue}{\beginR #1\endR}}\\[3pt]
     {\kidssteptitlefont\normalsize\textcolor{sederblue}{#2}}
   \end{center}
   \par\vspace{3pt}
