@@ -14,6 +14,14 @@ const templates = [
     fixedPages: true,
   },
   {
+    id: 'haggadah-kids',
+    name: "Children's Haggadah",
+    description: "Kid-friendly Passover Haggadah with cartoon illustrations, playful fonts, and bright colors. Same complete text as the adult version.",
+    icon: '🌟',
+    color: 'from-orange-400 to-purple-500',
+    fixedPages: true,
+  },
+  {
     id: 'hebrew-english',
     name: 'Hebrew-English Bilingual',
     description: 'Side-by-side bilingual layout with built-in Hebrew support and right-to-left formatting.',

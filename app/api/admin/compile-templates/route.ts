@@ -8,7 +8,7 @@ import { getTemplate } from '@/lib/latex/templates'
 
 export const maxDuration = 300
 
-const TEMPLATES = ['blank', 'hebrew-english', 'haggadah']
+const TEMPLATES = ['blank', 'hebrew-english', 'haggadah', 'haggadah-kids']
 const DEFAULT_PAGE_COUNT = 10
 
 /**
@@ -129,6 +129,8 @@ function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: strin
   const appDir = process.cwd()
   const texInputs = [
     workDir + '//',
+    path.join(appDir, 'templates', 'haggadah-images') + '//',
+    path.join(appDir, 'templates', 'haggadah-kids-images') + '//',
     path.join(appDir, 'newImages_whitebg') + '//',
     path.join(appDir, 'newImages') + '//',
     '',
