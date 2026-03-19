@@ -149,7 +149,15 @@ function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: strin
       (error, stdout, stderr) => {
         if (error) {
           const log = stdout + '\n' + stderr
-          const errors = log.split('\n').filter(l => l.startsWith('!')).slice(0, 5)
+          // Capture error lines plus the following line (which has the line number/context)
+          const logLines = log.split('\n')
+          const errors: string[] = []
+          for (let i = 0; i < logLines.length && errors.length < 10; i++) {
+            if (logLines[i].startsWith('!')) {
+              errors.push(logLines[i])
+              if (i + 1 < logLines.length) errors.push(logLines[i + 1])
+            }
+          }
           console.error(`[Admin] LaTeX log (last 2000 chars):`, log.slice(-2000))
           resolve({ success: false, errors: errors.length > 0 ? errors : ['Compilation failed'] })
         } else {
