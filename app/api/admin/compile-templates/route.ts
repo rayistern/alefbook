@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
           console.log(`[Admin] Template ${templateId} compiled and cached successfully`)
         }
       } else {
-        results[templateId] = `compile failed: ${compileResult.errors?.join('; ')}`
+        results[templateId] = `compile failed: ${compileResult.errors?.join('; ')}${compileResult.logTail ? ' | LOG: ' + compileResult.logTail : ''}`
         console.error(`[Admin] Compile failed for ${templateId}:`, compileResult.errors)
       }
     } catch (err) {
@@ -124,7 +124,7 @@ async function compressPdfIfNeeded(pdfPath: string): Promise<void> {
   }
 }
 
-function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: string[] }> {
+function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: string[]; logTail?: string }> {
   // Set TEXINPUTS so LaTeX can find template images (bundled at /app/)
   const appDir = process.cwd()
   const texInputs = [
@@ -159,7 +159,7 @@ function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: strin
             }
           }
           console.error(`[Admin] LaTeX log (last 2000 chars):`, log.slice(-2000))
-          resolve({ success: false, errors: errors.length > 0 ? errors : ['Compilation failed'] })
+          resolve({ success: false, errors: errors.length > 0 ? errors : ['Compilation failed'], logTail: log.slice(-800) })
         } else {
           resolve({ success: true })
         }
