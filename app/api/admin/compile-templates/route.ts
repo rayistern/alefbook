@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
           await fs.mkdir(path.dirname(destPath), { recursive: true })
           await fs.copyFile(img.diskPath, destPath)
         }
-        console.log(`[Admin] Copied ${template.images.length} images for ${templateId}`)
+        const imgSources = template.images.slice(0, 3).map(i => i.diskPath).join(', ')
+        console.log(`[Admin] Copied ${template.images.length} images for ${templateId} from: ${imgSources}...`)
       }
 
       const compileResult = await runLatexmk(tmpDir)
@@ -75,7 +76,8 @@ export async function POST(request: NextRequest) {
           results[templateId] = `upload failed: ${error.message}`
           console.error(`[Admin] Upload failed for ${templateId}:`, error.message)
         } else {
-          results[templateId] = `ok (len=${template.main.length}, images=${template.images?.length ?? 0})`
+          const imgSrc = template.images?.[0]?.diskPath ?? 'none'
+          results[templateId] = `ok (len=${template.main.length}, images=${template.images?.length ?? 0}, src=${imgSrc})`
           console.log(`[Admin] Template ${templateId} compiled and cached successfully`)
         }
       } else {

@@ -120,6 +120,7 @@ curl -s -X POST "https://alefbook-production.up.railway.app/api/admin/compile-te
 - Dockerfile builds with TeX Live (texlive-xetex, texlive-lang-other, etc.)
 - **NEXT_PUBLIC_* env vars**: Must be set as Railway service variables AND declared as `ARG`/`ENV` in Dockerfile so they're available at both build time (for client-side inlining) and runtime
 - **Server-side code** uses `SUPABASE_URL` / `SUPABASE_ANON_KEY` (non-prefixed) to avoid Next.js build-time inlining issues
+- **Docker layer caching**: Railway caches Docker layers aggressively. The `COPY . .` layer may serve stale files even after a git push. If template files or other non-code assets aren't updating on deploy, change the cache-bust comment in the Dockerfile (line after `COPY . .`) to force a fresh copy. Verify with the diagnostic output from `/api/admin/compile-templates` which reports source file lengths.
 
 ## Environment Variables
 ```
