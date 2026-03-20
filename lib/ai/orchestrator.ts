@@ -236,10 +236,10 @@ export async function* runOrchestrator(
         try {
           const args = JSON.parse(toolCall.function.arguments)
           // Prepend Chabad-specific context to every image prompt
-          const chabadImagePrompt = `For a Chabad-Lubavitch Jewish Passover Haggadah. ` +
+          const chabadImagePrompt = `For a Jewish Passover Haggadah. ` +
             `IMPORTANT: Use round hand-made shmurah matzah (NOT square machine matzah). ` +
             `Use maror (romaine lettuce or horseradish, NOT parsley — parsley is for karpas only). ` +
-            `Jewish people should look Orthodox/Chassidic. ` +
+            `Boys/men should wear a yarmulke (kippah) and tzitzit. Girls/women should wear skirts. ` +
             `Style: warm, family-friendly illustration suitable for a religious Jewish text. ` +
             args.prompt
           const imageResult = await generateImage(chabadImagePrompt, params.imageModel)
@@ -392,32 +392,59 @@ export async function* runOrchestrator(
     }
   }
 
-  // ── Post-compile PDF review ───────────────────────────────────────────
+  // ── Post-compile parallel review ─────────────────────────────────────
+  // Run two reviews in parallel:
+  // 1. Visual PDF review (before/after page comparison)
+  // 2. LaTeX structure review (check the document for overflow indicators)
 
   let reviewNote = ''
   if (compileSuccess) {
     try {
       yield { type: 'status', message: 'Reviewing the output...' }
-      const pdfReview = await reviewCompiledPdf({
-        projectId: params.projectId,
-        userMessage: params.userMessage,
-        model: params.model,
-        beforePages,
-      })
 
+      // Launch both reviews in parallel
+      const [pdfReview, structureReview] = await Promise.all([
+        reviewCompiledPdf({
+          projectId: params.projectId,
+          userMessage: params.userMessage,
+          model: params.model,
+          beforePages,
+        }).catch(err => {
+          console.warn('[Review] PDF review failed:', err instanceof Error ? err.message : err)
+          return null
+        }),
+        reviewLatexStructure({
+          beforeDoc: doc,
+          afterDoc: currentDoc,
+          userMessage: params.userMessage,
+          model: params.model,
+        }).catch(err => {
+          console.warn('[Review] Structure review failed:', err instanceof Error ? err.message : err)
+          return null
+        }),
+      ])
+
+      // Combine findings
+      const issues: string[] = []
       if (pdfReview && !pdfReview.toLowerCase().includes('look good') && !pdfReview.toLowerCase().includes('looks good')) {
-        console.warn(`[Orchestrator] Review detected issue: ${pdfReview}`)
+        issues.push(`Visual: ${pdfReview}`)
+      }
+      if (structureReview && !structureReview.toLowerCase().includes('look good') && !structureReview.toLowerCase().includes('looks good')) {
+        issues.push(`Structure: ${structureReview}`)
+      }
+
+      if (issues.length > 0) {
+        const combinedIssues = issues.join('\n')
+        console.warn(`[Orchestrator] Review detected issues: ${combinedIssues}`)
         yield { type: 'status', message: 'Fixing a visual issue...' }
 
         try {
-          // Use the in-memory document — NOT readProjectFile() which
-          // can return stale data due to Supabase eventual consistency
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const fixMessages: any[] = [
             { role: 'system', content: SYSTEM_PROMPT },
             {
               role: 'user',
-              content: `## Your LaTeX document:\n\`\`\`latex\n${currentDoc}\n\`\`\`\n\n## Fix this issue:\nThe previous edit was supposed to: "${params.userMessage}"\nBut the visual review found: "${pdfReview}"\nFix the problem now.`,
+              content: `## Your LaTeX document:\n\`\`\`latex\n${currentDoc}\n\`\`\`\n\n## Fix this issue:\nThe previous edit was supposed to: "${params.userMessage}"\nBut the review found these problems:\n${combinedIssues}\n\nFix the problems now. Pay special attention to page overflow — if content shifted to the next page, you need to shrink or remove elements to fit everything on the correct page.`,
             },
           ]
 
@@ -457,20 +484,20 @@ export async function* runOrchestrator(
               currentDoc = sanitizedFix
               yield { type: 'compile_done', message: 'Fixed and recompiled!' }
             } else {
-              reviewNote = '\n\n' + pdfReview
+              reviewNote = '\n\n' + combinedIssues
             }
           } else {
-            reviewNote = '\n\n' + pdfReview
+            reviewNote = '\n\n' + combinedIssues
           }
         } catch (fixErr) {
           const msg = fixErr instanceof Error ? fixErr.message : String(fixErr)
           console.error(`[Orchestrator] Review fix failed: ${msg}`)
-          reviewNote = '\n\n' + pdfReview
+          reviewNote = '\n\n' + issues.join('\n')
         }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      console.error(`[Orchestrator] PDF review failed: ${msg}`)
+      console.error(`[Orchestrator] Review failed: ${msg}`)
       // Review failure is non-fatal — the edit+compile already succeeded
     }
   }
@@ -666,6 +693,75 @@ If you see a problem, describe it in 1-2 sentences. If everything looks correct,
     })
   } catch (err) {
     console.warn('[AI] PDF review failed:', err)
+    return null
+  }
+}
+
+// ── LaTeX structural review ────────────────────────────────────────────────
+
+async function reviewLatexStructure(params: {
+  beforeDoc: string
+  afterDoc: string
+  userMessage: string
+  model?: string
+}): Promise<string | null> {
+  const { beforeDoc, afterDoc, userMessage, model } = params
+
+  // Quick structural checks before calling the LLM
+  const beforeSections = (beforeDoc.match(/%%% ----.*?----/g) || [])
+  const afterSections = (afterDoc.match(/%%% ----.*?----/g) || [])
+  const beforeNewpages = (beforeDoc.match(/\\newpage|\\clearpage|\\cleardoublepage/g) || []).length
+  const afterNewpages = (afterDoc.match(/\\newpage|\\clearpage|\\cleardoublepage/g) || []).length
+
+  // Build a diff summary of section markers
+  const sectionDiff = beforeSections.length !== afterSections.length
+    ? `Section count changed: ${beforeSections.length} → ${afterSections.length}.`
+    : ''
+  const pageDiff = beforeNewpages !== afterNewpages
+    ? `Page break count changed: ${beforeNewpages} → ${afterNewpages}.`
+    : ''
+
+  const reviewMessages = [
+    {
+      role: 'system' as const,
+      content: `You are a LaTeX structural reviewer for Shluchim Exchange, a Chabad Jewish book platform. You compare BEFORE and AFTER versions of a LaTeX document to catch structural problems that a visual review might miss.
+
+The user asked: "${userMessage}"
+
+Check for ALL of these:
+
+**PAGE OVERFLOW / CONTENT DISPLACEMENT (most critical):**
+- Compare the section markers (%%% ---- ... ----) in both versions. Are they the same?
+- Count \\newpage / \\clearpage commands. If the AFTER has MORE, content likely overflowed.
+- Look at sections that should NOT have changed. If content appeared or disappeared in untouched sections, that's displacement.
+${sectionDiff ? `DETECTED: ${sectionDiff}` : ''}
+${pageDiff ? `DETECTED: ${pageDiff}` : ''}
+
+**STRUCTURAL INTEGRITY:**
+- Are all \\begin{...} matched with \\end{...}?
+- Are section markers intact and not duplicated?
+- Is \\begin{document} and \\end{document} present exactly once?
+
+**IMAGE REFERENCES:**
+- Does every \\includegraphics reference a plausible filename (not invented)?
+- Are image size parameters present (e.g., [width=...])? Missing sizes cause overflow.
+
+If you find a problem, describe it concisely (1-2 sentences). If the structure looks correct, say "Pages look good."`,
+    },
+    {
+      role: 'user' as const,
+      content: `## BEFORE document (${beforeDoc.length} chars):\n\`\`\`latex\n${beforeDoc.slice(0, 12000)}\n\`\`\`\n\n## AFTER document (${afterDoc.length} chars):\n\`\`\`latex\n${afterDoc.slice(0, 12000)}\n\`\`\`\n\nCompare the two and report any structural issues.`,
+    },
+  ]
+
+  try {
+    return await callLLM(reviewMessages, {
+      model,
+      maxTokens: 512,
+      temperature: 0.2,
+    })
+  } catch (err) {
+    console.warn('[AI] Structure review failed:', err)
     return null
   }
 }
