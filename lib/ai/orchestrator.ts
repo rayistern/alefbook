@@ -235,7 +235,14 @@ export async function* runOrchestrator(
         yield { type: 'status', message: 'Generating an image...' }
         try {
           const args = JSON.parse(toolCall.function.arguments)
-          const imageResult = await generateImage(args.prompt, params.imageModel)
+          // Prepend Chabad-specific context to every image prompt
+          const chabadImagePrompt = `For a Chabad-Lubavitch Jewish Passover Haggadah. ` +
+            `IMPORTANT: Use round hand-made shmurah matzah (NOT square machine matzah). ` +
+            `Use maror (romaine lettuce or horseradish, NOT parsley — parsley is for karpas only). ` +
+            `Jewish people should look Orthodox/Chassidic. ` +
+            `Style: warm, family-friendly illustration suitable for a religious Jewish text. ` +
+            args.prompt
+          const imageResult = await generateImage(chabadImagePrompt, params.imageModel)
           const filename = `gen-${Date.now()}.png`
           const buffer = Buffer.from(imageResult.b64, 'base64')
           await uploadProjectImage(params.projectId, filename, buffer)
@@ -298,6 +305,34 @@ export async function* runOrchestrator(
   // Upload modified document
   yield { type: 'status', message: 'Saving changes...' }
   await uploadProjectFile(params.projectId, 'main.tex', currentDoc)
+
+  // ── Capture "before" PDF pages for comparison ─────────────────────────
+  // Render pages from the existing PDF before we overwrite it with the new compile
+  let beforePages: { page: number; base64: string }[] = []
+  try {
+    const { data: proj } = await supabase
+      .from('projects')
+      .select('pdf_path')
+      .eq('id', params.projectId)
+      .single()
+
+    if (proj?.pdf_path) {
+      const { data: pdfBlob } = await supabase.storage
+        .from('projects')
+        .download(proj.pdf_path)
+
+      if (pdfBlob) {
+        const pdfBuf = Buffer.from(await pdfBlob.arrayBuffer())
+        const totalPages = await getPdfPageCount(pdfBuf).catch(() => 40)
+        // Render all pages (at low res) so we can compare any page after
+        const allPageNums = Array.from({ length: Math.min(totalPages, 50) }, (_, i) => i + 1)
+        beforePages = await renderPdfPages(pdfBuf, allPageNums, 100)
+        console.log(`[Review] Captured ${beforePages.length} "before" pages for comparison`)
+      }
+    }
+  } catch (err) {
+    console.warn('[Review] Could not capture before pages:', err instanceof Error ? err.message : err)
+  }
 
   // ── Compile with self-correction loop ─────────────────────────────────
 
@@ -367,6 +402,7 @@ export async function* runOrchestrator(
         projectId: params.projectId,
         userMessage: params.userMessage,
         model: params.model,
+        beforePages,
       })
 
       if (pdfReview && !pdfReview.toLowerCase().includes('look good') && !pdfReview.toLowerCase().includes('looks good')) {
@@ -471,6 +507,7 @@ async function reviewCompiledPdf(params: {
   projectId: string
   userMessage: string
   model?: string
+  beforePages?: { page: number; base64: string }[]
 }): Promise<string | null> {
   const supabase = createServiceClient()
 
@@ -535,29 +572,76 @@ Common reference: Cover=page 1, TOC~page 3, Kadesh~page 5, Maggid~page 7, Hallel
 
   console.log(`[AI Review] PDF has ${totalPages} pages, inspecting: ${pagesToRender.join(', ')}`)
 
-  const pages = await renderPdfPages(pdfBuffer, pagesToRender, 150)
-  if (pages.length === 0) return null
+  const afterPages = await renderPdfPages(pdfBuffer, pagesToRender, 150)
+  if (afterPages.length === 0) return null
 
-  const imageContent = pages.map(p => ({
-    type: 'image_url' as const,
-    image_url: { url: `data:image/png;base64,${p.base64}` },
-  }))
+  // Build image content: interleave before/after for each page if we have before pages
+  const hasBeforePages = params.beforePages && params.beforePages.length > 0
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const imageContent: any[] = []
+  const pageDescriptions: string[] = []
+
+  for (const afterPage of afterPages) {
+    const beforePage = hasBeforePages
+      ? params.beforePages!.find(p => p.page === afterPage.page)
+      : null
+
+    if (beforePage) {
+      imageContent.push({
+        type: 'text' as const,
+        text: `--- Page ${afterPage.page} BEFORE edit: ---`,
+      })
+      imageContent.push({
+        type: 'image_url' as const,
+        image_url: { url: `data:image/png;base64,${beforePage.base64}` },
+      })
+      imageContent.push({
+        type: 'text' as const,
+        text: `--- Page ${afterPage.page} AFTER edit: ---`,
+      })
+      pageDescriptions.push(`page ${afterPage.page} (before + after)`)
+    } else {
+      imageContent.push({
+        type: 'text' as const,
+        text: `--- Page ${afterPage.page} (after edit): ---`,
+      })
+      pageDescriptions.push(`page ${afterPage.page} (after only)`)
+    }
+
+    imageContent.push({
+      type: 'image_url' as const,
+      image_url: { url: `data:image/png;base64,${afterPage.base64}` },
+    })
+  }
 
   const reviewMessages = [
     {
       role: 'system' as const,
-      content: `You are the visual QA reviewer for Shluchim Exchange, a Chabad Jewish book platform. Check the rendered PDF pages against the user's request.
+      content: `You are the visual QA reviewer for Shluchim Exchange, a Chabad Jewish book platform. You are comparing BEFORE and AFTER versions of PDF pages to verify an edit was applied correctly.
 
 The user asked: "${params.userMessage}"
 
+${hasBeforePages ? 'You will see BEFORE and AFTER images for each page. Compare them carefully.' : 'You will see the current state of the pages.'}
+
 Be strict — check for ALL of these:
-- **PAGE OVERFLOW**: Has content been pushed off its intended page? Look for pages that seem to have too much or too little content. If a page looks unusually empty, content may have been displaced FROM it. If a page looks crowded or has content cut off at the bottom, content may have overflowed TO it.
-- **CONTENT DISPLACEMENT**: Are there blank gaps where content should be, or content appearing on the wrong page?
+
+**PAGE OVERFLOW / CONTENT DISPLACEMENT (most important check):**
+- Compare pages that should NOT have changed. If a page that was NOT part of the edit request looks DIFFERENT in the before vs after, content has been displaced — this is a FAILURE.
+- Look at the page AFTER the edited page. If new content appeared there that wasn't there before, content overflowed.
+- If the total page count changed (a new blank page appeared at the end), that's overflow.
+
+**EDIT VERIFICATION:**
 - ADD IMAGE: Is a new image/illustration ACTUALLY VISIBLE? Not just text.
 - CHANGE COLOR: Is the color actually different from the standard blue/gold theme?
 - ADD TEXT: Is the new text actually visible?
-- **CULTURAL APPROPRIATENESS**: This is a Chabad Jewish platform. All images must show Jewish people/scenes. Flag any non-Jewish or inappropriate imagery.
-- Check for: text overflow, garbled Hebrew, blank pages, layout issues, overlapping elements.
+
+**CULTURAL APPROPRIATENESS:**
+- This serves Chabad-Lubavitch communities. All images must depict Jewish people/scenes.
+- Matzah must be ROUND (shmurah matzah), not square.
+- Flag any non-Jewish imagery or customs.
+
+**LAYOUT:**
+- Check for: garbled Hebrew, overlapping elements, blank pages, text cut off at edges.
 
 If you see a problem, describe it in 1-2 sentences. If everything looks correct, say "Pages look good."`,
     },
@@ -566,7 +650,7 @@ If you see a problem, describe it in 1-2 sentences. If everything looks correct,
       content: [
         {
           type: 'text' as const,
-          text: `Here are ${pages.length} rendered pages (pages ${pages.map(p => p.page).join(', ')}). Check carefully that content hasn't shifted between pages and the edit looks right.`,
+          text: `Reviewing ${pageDescriptions.join(', ')}. Compare before/after to verify only the requested changes were made and no content shifted between pages.`,
         },
         ...imageContent,
       ],
