@@ -22,15 +22,15 @@ interface StepInfo {
 }
 
 const MODELS = [
+  { id: 'openai/gpt-5.4', label: 'GPT-5.4' },
   { id: 'openai/gpt-5.1-codex-mini', label: 'GPT-5.1 Codex Mini' },
   { id: 'openai/gpt-4.1-mini', label: 'GPT-4.1 Mini' },
   { id: 'openai/gpt-4o-mini', label: 'GPT-4o Mini' },
-  { id: 'openai/gpt-5.4', label: 'GPT-5.4' },
 ]
 
 const IMAGE_MODELS = [
-  { id: 'google/gemini-2.5-flash-image', label: 'Gemini 2.5 Flash' },
   { id: 'openai/gpt-5-image-mini', label: 'GPT-5 Image' },
+  { id: 'google/gemini-2.5-flash-image', label: 'Gemini 2.5 Flash' },
   { id: 'black-forest-labs/flux.2-flex', label: 'Flux 2 Flex' },
 ]
 
