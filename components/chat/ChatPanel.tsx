@@ -29,8 +29,8 @@ const MODELS = [
 ]
 
 const IMAGE_MODELS = [
-  { id: 'openai/gpt-5-image-mini', label: 'GPT-5 Image' },
   { id: 'google/gemini-2.5-flash-image', label: 'Gemini 2.5 Flash' },
+  { id: 'openai/gpt-5-image-mini', label: 'GPT-5 Image' },
   { id: 'black-forest-labs/flux.2-flex', label: 'Flux 2 Flex' },
 ]
 
