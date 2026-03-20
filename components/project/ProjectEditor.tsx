@@ -85,6 +85,31 @@ export function ProjectEditor({
     setTimeout(() => refreshPdf(), 1500)
   }, [refreshPdf])
 
+  const [undoing, setUndoing] = useState(false)
+  const handleUndo = useCallback(async () => {
+    if (!confirm('Undo the last AI change and restore the previous version?')) return
+    setUndoing(true)
+    try {
+      const res = await fetch(`/api/project/${project.id}/undo`, { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.pdfUrl) {
+          const url = new URL(data.pdfUrl)
+          url.searchParams.set('_t', Date.now().toString())
+          setPdfUrl(url.toString())
+          setPdfKey(k => k + 1)
+        } else {
+          setTimeout(() => refreshPdf(), 1500)
+        }
+      } else {
+        const data = await res.json().catch(() => ({}))
+        alert(data.error || 'Undo failed')
+      }
+    } finally {
+      setUndoing(false)
+    }
+  }, [project.id, refreshPdf])
+
   const handleFork = useCallback(async () => {
     if (!isLoggedIn) {
       window.location.href = `/auth/login?redirect=/view/${project.id}`
@@ -162,6 +187,13 @@ export function ProjectEditor({
         <div className="flex items-center gap-2">
           {isOwner && (
             <>
+              <button
+                onClick={handleUndo}
+                disabled={undoing || compiling}
+                className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 hover:border-amber-300 disabled:opacity-50 transition-colors"
+              >
+                {undoing ? 'Undoing...' : 'Undo'}
+              </button>
               <button
                 onClick={handleCompile}
                 disabled={compiling}

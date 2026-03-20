@@ -107,6 +107,11 @@ You have FULL PERMISSION to remove ANY decorative element on ANY page. Preservin
 - \`[Uploaded: filename.png]\` → use exactly: \\\\includegraphics{images/filename.png}
 - \`[File: name.txt]...[/File]\` → text file content between the tags
 
+## Undo
+- If you realize your edits broke the layout, caused overflow, or modified the wrong sections, call undo_all_changes immediately rather than trying to patch broken edits.
+- It's better to undo and start fresh than to make the document worse with attempted fixes.
+- If the user says "undo" or "revert", call undo_all_changes.
+
 ## Conversation history
 - Use chat history to understand follow-up requests like "try again" or "undo that".
 - Previous assistant messages may contain \`[Changes applied: ...]\` tags that describe exactly what was changed (generated images, edits made). Use this to know which files exist and what was done before. NEVER overwrite or rename files mentioned in prior changes unless the user explicitly asks.`
@@ -158,6 +163,24 @@ const TOOL_DEFINITIONS: OpenAI.ChatCompletionTool[] = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'undo_all_changes',
+      description:
+        'Revert ALL changes made in this conversation and restore the document to its state before any edits. Use this if your edits caused problems you cannot fix (overflow, broken layout, content displacement).',
+      parameters: {
+        type: 'object',
+        properties: {
+          reason: {
+            type: 'string',
+            description: 'Why you are undoing (e.g. "edits caused page overflow I cannot fix")',
+          },
+        },
+        required: ['reason'],
+      },
+    },
+  },
 ]
 
 const MAX_TOOL_ROUNDS = 10
@@ -201,6 +224,9 @@ export async function* runOrchestrator(
     doc = assembled
     await uploadProjectFile(params.projectId, 'main.tex', doc)
   }
+
+  // ── Save pre-edit snapshot for undo ──────────────────────────────────
+  await uploadProjectFile(params.projectId, 'snapshots/pre-edit.tex', doc)
 
   // Build messages for the LLM
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- OpenAI message type union
@@ -284,6 +310,14 @@ export async function* runOrchestrator(
           toolResult = `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}. Do NOT use TikZ or drawing commands as a fallback.`
           yield { type: 'message', message: `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
         }
+      } else if (toolCall.function.name === 'undo_all_changes') {
+        const args = JSON.parse(toolCall.function.arguments).reason || 'undo requested'
+        console.log(`[Orchestrator] AI called undo_all_changes: ${args}`)
+        currentDoc = doc
+        documentChanged = false
+        changeLog.length = 0
+        toolResult = 'All changes have been reverted. The document is back to its original state.'
+        yield { type: 'message', message: 'Changes undone — document restored to previous version.' }
       } else {
         toolResult = `Unknown tool: ${toolCall.function.name}`
       }
@@ -630,8 +664,21 @@ export async function* runOrchestrator(
     }
   }
 
-  // Save assistant message — if the review found an issue, replace the AI's
-  // original reply to avoid contradictory messaging ("I changed it" + "it wasn't changed")
+  // ── Auto-revert if fixes failed ──────────────────────────────────────
+  // If the review found issues that couldn't be fixed, revert to the
+  // pre-edit snapshot rather than leaving a broken document.
+  if (reviewNote && compileSuccess) {
+    console.warn('[Orchestrator] Fixes failed, reverting to pre-edit snapshot')
+    await uploadProjectFile(params.projectId, 'main.tex', doc)
+    const revertCompile = await compileProject(params.projectId, doc)
+    if (revertCompile.success) {
+      currentDoc = doc
+      yield { type: 'compile_done', message: 'Reverted to previous version.' }
+    }
+    reviewNote = '\n\nThe changes caused layout issues that could not be automatically fixed, so the document was reverted to its previous state. Please try a simpler edit.'
+  }
+
+  // Save assistant message
   const compileNote = compileSuccess
     ? ''
     : '\n\n(Compilation failed — your document has been reverted to the last working version. Please try a simpler edit.)'
