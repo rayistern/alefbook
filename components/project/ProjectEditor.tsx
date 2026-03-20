@@ -28,11 +28,13 @@ export function ProjectEditor({
   pdfUrl: initialPdfUrl,
   initialMessages,
   isOwner,
+  isLoggedIn = true,
 }: {
   project: Project
   pdfUrl: string | null
   initialMessages: Message[]
   isOwner: boolean
+  isLoggedIn?: boolean
 }) {
   const [pdfUrl, setPdfUrl] = useState(initialPdfUrl)
   const [pdfKey, setPdfKey] = useState(0)
@@ -83,12 +85,16 @@ export function ProjectEditor({
   }, [refreshPdf])
 
   const handleFork = useCallback(async () => {
+    if (!isLoggedIn) {
+      window.location.href = `/auth/login?redirect=/view/${project.id}`
+      return
+    }
     const res = await fetch(`/api/project/${project.id}/fork`, { method: 'POST' })
     if (res.ok) {
       const fork = await res.json()
       window.location.href = `/project/${fork.id}`
     }
-  }, [project.id])
+  }, [project.id, isLoggedIn])
 
   const handleDownloadTex = useCallback(async () => {
     const res = await fetch(`/api/project/${project.id}/tex`)

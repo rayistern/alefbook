@@ -27,6 +27,7 @@ export default async function ViewProjectPage({ params }: { params: { id: string
       pdfUrl={pdfUrl}
       initialMessages={[]}
       isOwner={isOwner}
+      isLoggedIn={!!user}
     />
   )
 }
