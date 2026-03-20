@@ -517,42 +517,40 @@ export async function* runOrchestrator(
           console.warn(`[Review] PAGE COUNT CHANGED: ${beforePageCount} → ${afterPageCount}`)
         }
 
-        // ── Step 2: Parallel LLM reviews + page count signal ────────
-        const [pdfReview, structureReview] = await Promise.all([
-          reviewCompiledPdf({
-            projectId: params.projectId,
-            userMessage: params.userMessage,
-            model: params.model,
-            beforePages,
-            afterPdfBuffer,
-          }).catch(err => {
-            console.warn('[Review] PDF review failed:', err instanceof Error ? err.message : err)
-            return null
-          }),
-          reviewLatexStructure({
-            beforeDoc: doc,
-            afterDoc: currentDoc,
-            userMessage: params.userMessage,
-            model: params.model,
-          }).catch(err => {
-            console.warn('[Review] Structure review failed:', err instanceof Error ? err.message : err)
-            return null
-          }),
-        ])
-
-        // Combine all findings
-        const issues: string[] = []
-        if (pageCountChanged) {
-          issues.push(`PAGE OVERFLOW DETECTED: Page count changed from ${beforePageCount} to ${afterPageCount}. Content is spilling across page boundaries. You MUST remove spacing, decorations, or shrink elements to fit everything back to ${beforePageCount} pages.`)
-        }
-        if (pdfReview && !pdfReview.toLowerCase().includes('look good') && !pdfReview.toLowerCase().includes('looks good')) {
-          issues.push(`Visual review: ${pdfReview}`)
-        }
-        if (structureReview && !structureReview.toLowerCase().includes('look good') && !structureReview.toLowerCase().includes('looks good')) {
-          issues.push(`Structure review: ${structureReview}`)
+        // ── Step 2: Only act on deterministic page count check ─────
+        // LLM visual reviews produce too many false positives (flagging
+        // minor reflow as "content displacement"). Only trigger the fix
+        // loop when the page count actually changed — that's a reliable
+        // signal of real overflow.
+        if (!pageCountChanged) {
+          // Run LLM reviews in background for logging only
+          Promise.all([
+            reviewCompiledPdf({
+              projectId: params.projectId,
+              userMessage: params.userMessage,
+              model: params.model,
+              beforePages,
+              afterPdfBuffer,
+            }).catch(() => null),
+            reviewLatexStructure({
+              beforeDoc: doc,
+              afterDoc: currentDoc,
+              userMessage: params.userMessage,
+              model: params.model,
+            }).catch(() => null),
+          ]).then(([pdfReview, structureReview]) => {
+            if (pdfReview) console.log(`[Review] Visual (info only): ${pdfReview.slice(0, 200)}`)
+            if (structureReview) console.log(`[Review] Structure (info only): ${structureReview.slice(0, 200)}`)
+          })
+          console.log(`[Review] Page count unchanged (${afterPageCount}), edits accepted`)
+          break // All good
         }
 
-        if (issues.length === 0) {
+        const issues: string[] = [
+          `PAGE OVERFLOW DETECTED: Page count changed from ${beforePageCount} to ${afterPageCount}. Content is spilling across page boundaries. You MUST remove spacing, decorations, or shrink elements to fit everything back to ${beforePageCount} pages.`
+        ]
+
+        if (false) { // placeholder for future: issues.length === 0
           console.log(`[Review] Round ${fixRound + 1}: All checks passed`)
           break // Everything looks good
         }
