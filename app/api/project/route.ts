@@ -35,6 +35,13 @@ export async function POST(request: NextRequest) {
   const tid = templateId || 'blank'
   const template = getTemplate(tid, pageCount || 10)
 
+  // For template projects, use the template's known page count
+  const templatePageCounts: Record<string, number> = {
+    'haggadah': 52,
+    'haggadah-kids': 52,
+  }
+  const effectivePageCount = pageCount || templatePageCounts[tid] || 10
+
   // Create project record
   const { data: project, error } = await supabase
     .from('projects')
@@ -42,7 +49,7 @@ export async function POST(request: NextRequest) {
       user_id: user.id,
       name: name || 'Untitled Book',
       template_id: tid,
-      page_count: pageCount || 0,
+      page_count: effectivePageCount,
     })
     .select()
     .single()

@@ -3,6 +3,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import os from 'os'
 import { createServiceClient } from '@/lib/supabase/server'
+import { getPdfPageCount } from './pdf-to-image'
 
 export interface CompileResult {
   success: boolean
@@ -86,13 +87,22 @@ export async function compileProject(
         return { success: false, errors: [`PDF upload failed: ${uploadError.message}`] }
       }
 
-      // Update project status
+      // Count pages in the compiled PDF
+      let pageCount: number | undefined
+      try {
+        pageCount = await getPdfPageCount(pdfFile)
+      } catch {
+        // non-fatal — page_count just won't be updated
+      }
+
+      // Update project status (and page_count if we got it)
       await supabase
         .from('projects')
         .update({
           status: 'ready',
           pdf_path: pdfStoragePath,
           compile_error: null,
+          ...(pageCount ? { page_count: pageCount } : {}),
         })
         .eq('id', projectId)
 
