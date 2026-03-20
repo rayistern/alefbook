@@ -504,7 +504,9 @@ async function reviewCompiledPdf(params: {
       [
         {
           role: 'system' as const,
-          content: `You pick which PDF pages to visually review after an edit. The PDF has ${totalPages} pages. Return ONLY a JSON array of 3-5 page numbers, e.g. [1, 3, 7]. Always include page 1 and the last page.
+          content: `You pick which PDF pages to visually review after an edit. The PDF has ${totalPages} pages. Return ONLY a JSON array of 5-8 page numbers, e.g. [1, 3, 5, 7, 10]. Always include page 1 and the last page.
+
+IMPORTANT: Include the page that was edited AND its neighboring pages (the page before and after). Content overflow often pushes elements to the NEXT page, so always check adjacent pages.
 
 Common reference: Cover=page 1, TOC~page 3, Kadesh~page 5, Maggid~page 7, Hallel/Nirtzah near end.`,
         },
@@ -520,7 +522,7 @@ Common reference: Cover=page 1, TOC~page 3, Kadesh~page 5, Maggid~page 7, Hallel
     if (match) {
       pagesToRender = JSON.parse(match[0])
         .filter((n: number) => n >= 1 && n <= totalPages)
-        .slice(0, 6)
+        .slice(0, 8)
     } else {
       pagesToRender = [1, Math.ceil(totalPages / 2), totalPages]
     }
@@ -529,7 +531,7 @@ Common reference: Cover=page 1, TOC~page 3, Kadesh~page 5, Maggid~page 7, Hallel
   }
 
   if (!pagesToRender.includes(1)) pagesToRender.unshift(1)
-  pagesToRender = Array.from(new Set(pagesToRender)).sort((a, b) => a - b).slice(0, 6)
+  pagesToRender = Array.from(new Set(pagesToRender)).sort((a, b) => a - b).slice(0, 8)
 
   console.log(`[AI Review] PDF has ${totalPages} pages, inspecting: ${pagesToRender.join(', ')}`)
 
@@ -544,15 +546,18 @@ Common reference: Cover=page 1, TOC~page 3, Kadesh~page 5, Maggid~page 7, Hallel
   const reviewMessages = [
     {
       role: 'system' as const,
-      content: `You are the visual QA reviewer for Shluchim Exchange. Check the rendered PDF pages against the user's request.
+      content: `You are the visual QA reviewer for Shluchim Exchange, a Chabad Jewish book platform. Check the rendered PDF pages against the user's request.
 
 The user asked: "${params.userMessage}"
 
-Be strict:
+Be strict — check for ALL of these:
+- **PAGE OVERFLOW**: Has content been pushed off its intended page? Look for pages that seem to have too much or too little content. If a page looks unusually empty, content may have been displaced FROM it. If a page looks crowded or has content cut off at the bottom, content may have overflowed TO it.
+- **CONTENT DISPLACEMENT**: Are there blank gaps where content should be, or content appearing on the wrong page?
 - ADD IMAGE: Is a new image/illustration ACTUALLY VISIBLE? Not just text.
 - CHANGE COLOR: Is the color actually different from the standard blue/gold theme?
 - ADD TEXT: Is the new text actually visible?
-- Check for: text overflow, garbled Hebrew, blank pages, layout issues.
+- **CULTURAL APPROPRIATENESS**: This is a Chabad Jewish platform. All images must show Jewish people/scenes. Flag any non-Jewish or inappropriate imagery.
+- Check for: text overflow, garbled Hebrew, blank pages, layout issues, overlapping elements.
 
 If you see a problem, describe it in 1-2 sentences. If everything looks correct, say "Pages look good."`,
     },
@@ -561,7 +566,7 @@ If you see a problem, describe it in 1-2 sentences. If everything looks correct,
       content: [
         {
           type: 'text' as const,
-          text: `Here are ${pages.length} rendered pages (pages ${pages.map(p => p.page).join(', ')}). Verify the edit looks right.`,
+          text: `Here are ${pages.length} rendered pages (pages ${pages.map(p => p.page).join(', ')}). Check carefully that content hasn't shifted between pages and the edit looks right.`,
         },
         ...imageContent,
       ],
