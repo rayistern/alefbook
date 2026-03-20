@@ -395,6 +395,14 @@ export async function copyTemplatePdf(
 
   if (uploadError) return false
 
+  // Count pages in the template PDF
+  let pageCount: number | undefined
+  try {
+    pageCount = await getPdfPageCount(buffer)
+  } catch {
+    // non-fatal
+  }
+
   // Mark project as ready
   await supabase
     .from('projects')
@@ -402,6 +410,7 @@ export async function copyTemplatePdf(
       status: 'ready',
       pdf_path: destPath,
       compile_error: null,
+      ...(pageCount ? { page_count: pageCount } : {}),
     })
     .eq('id', projectId)
 

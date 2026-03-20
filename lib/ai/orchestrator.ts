@@ -49,6 +49,13 @@ You help users edit their LaTeX documents, generate images, and answer questions
 - Do not remove \\\\usepackage declarations unless explicitly asked.
 - Do NOT reference image filenames that are not already in the document or provided via [Uploaded:] or generate_image. Never invent filenames like "chabad-logo.png" — only use images that exist.
 
+## SCOPE DISCIPLINE — CRITICAL
+- ONLY edit the specific page/section the user asked about. If the user says "front cover", ONLY touch content between \`%%% ---- COVER PAGE ----\` and the next \`\\\\clearpage\`.
+- NEVER touch other sections "while you're at it" or to "improve" the document.
+- Each search_replace call should target ONE section. Your search text must start with or contain the section marker of the page you're editing.
+- If you need to make room on a page, only remove/shrink elements ON THAT SAME PAGE. Never modify other pages to compensate.
+- After all edits, the ONLY difference between the old and new document should be within the requested section(s). Everything else must be byte-for-byte identical.
+
 ## Page overflow awareness — CRITICAL
 The document uses a 7×10in page with ~8.2in of usable vertical space. Content MUST NOT spill across page boundaries.
 
@@ -325,6 +332,36 @@ export async function* runOrchestrator(
 
   currentDoc = sanitized
   console.log(`[Orchestrator] Document changed: ${doc.length} -> ${currentDoc.length} chars`)
+
+  // ── Scope check: log which sections were modified ──────────────────
+  try {
+    const sectionPattern = /^(%%% ---- .+? ----)/gm
+    const getSections = (text: string) => {
+      const sections: { name: string; content: string }[] = []
+      const markers = Array.from(text.matchAll(sectionPattern))
+      for (let i = 0; i < markers.length; i++) {
+        const start = markers[i].index!
+        const end = i + 1 < markers.length ? markers[i + 1].index! : text.length
+        sections.push({ name: markers[i][1], content: text.slice(start, end) })
+      }
+      return sections
+    }
+    const beforeSections = getSections(doc)
+    const afterSections = getSections(currentDoc)
+    const changed: string[] = []
+    for (const bs of beforeSections) {
+      const as = afterSections.find(s => s.name === bs.name)
+      if (!as || as.content !== bs.content) changed.push(bs.name)
+    }
+    for (const as of afterSections) {
+      if (!beforeSections.find(s => s.name === as.name)) changed.push(`NEW: ${as.name}`)
+    }
+    if (changed.length > 0) {
+      console.log(`[Orchestrator] Sections modified: ${changed.join(', ')}`)
+    }
+  } catch {
+    // non-fatal diagnostic
+  }
 
   // Upload modified document
   yield { type: 'status', message: 'Saving changes...' }
