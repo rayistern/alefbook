@@ -19,7 +19,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   fontconfig \
   ca-certificates \
   poppler-utils \
-  && rm -rf /var/lib/apt/lists/*
+  imagemagick \
+  && rm -rf /var/lib/apt/lists/* \
+  && if [ -f /etc/ImageMagick-6/policy.xml ]; then \
+       sed -i 's/<policy domain="coder" rights="none" pattern="PDF"/<policy domain="coder" rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml; \
+     fi
 
 # Install custom fonts if any
 COPY templates/fonts/ /usr/local/share/fonts/

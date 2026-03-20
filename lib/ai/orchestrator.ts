@@ -5,6 +5,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { renderPdfPages, getPdfPageCount } from '@/lib/latex/pdf-to-image'
 import { applyEdits, selfCorrectWithTool } from './latex-edit-tool'
 import { sanitizeLatex, validateLatex } from './latex-editor'
+import { processImage, ImageOperation } from '@/lib/images/process'
 
 export interface TaskEvent {
   type: 'status' | 'compile_start' | 'compile_done' | 'compile_error' | 'message' | 'done'
@@ -103,6 +104,21 @@ You have FULL PERMISSION to remove ANY decorative element on ANY page. Preservin
   - Style should be warm and family-friendly
 - Do NOT dump all these guidelines into every prompt — only include what's relevant to the specific image being generated.
 
+## process_image rules
+- Use process_image to enhance images AFTER generating or uploading them.
+- Common use cases:
+  - **feather**: Soft-fade edges to white so the image blends into the page. Great for photos or illustrations that look too sharp/boxy.
+  - **remove-background**: Attempts to remove white/light backgrounds. Works best on images with solid-color backgrounds. Use a higher fuzz value (25-40) for off-white backgrounds.
+  - **trim**: Remove extra whitespace around the image edges.
+  - **round-corners**: Give the image rounded corners for a softer look.
+  - **shadow**: Add a drop shadow for a 3D effect.
+  - **grayscale** / **sepia**: Convert to grayscale or sepia tone.
+  - **brightness-contrast**: Adjust brightness and contrast.
+  - **resize**: Resize to specific pixel dimensions.
+- You can chain multiple operations in one call (e.g., trim + feather + shadow).
+- The processed image is saved as a NEW file — update the \\includegraphics reference via search_replace.
+- Do NOT process images unless the user asks or it would clearly improve the result (e.g., a photo with a busy background being inserted into a decorated page).
+
 ## File uploads
 - \`[Uploaded: filename.png]\` → use exactly: \\\\includegraphics{images/filename.png}
 - \`[File: name.txt]...[/File]\` → text file content between the tags
@@ -160,6 +176,48 @@ const TOOL_DEFINITIONS: OpenAI.ChatCompletionTool[] = [
           },
         },
         required: ['prompt'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'process_image',
+      description:
+        'Process an existing image with ImageMagick operations (feather edges, remove background, trim, shadow, round corners, grayscale, sepia, resize, brightness/contrast). Returns the new filename. Then use search_replace to update the \\includegraphics reference.',
+      parameters: {
+        type: 'object',
+        properties: {
+          filename: {
+            type: 'string',
+            description: 'The image filename to process (e.g. "images/gen-1234.png" or "images/uploaded.png")',
+          },
+          operations: {
+            type: 'array',
+            description: 'List of operations to apply in order',
+            items: {
+              type: 'object',
+              properties: {
+                type: {
+                  type: 'string',
+                  enum: ['feather', 'remove-background', 'trim', 'border', 'shadow', 'round-corners', 'grayscale', 'sepia', 'brightness-contrast', 'resize'],
+                  description: 'The operation type',
+                },
+                radius: { type: 'number', description: 'For feather/round-corners: pixel radius (default 20)' },
+                fuzz: { type: 'number', description: 'For remove-background/trim: color tolerance percentage (default 20)' },
+                width: { type: 'number', description: 'For resize: target width in pixels. For border: border width in pixels.' },
+                height: { type: 'number', description: 'For resize: target height in pixels (optional, maintains aspect ratio if omitted)' },
+                color: { type: 'string', description: 'For border: border color (default "white")' },
+                opacity: { type: 'number', description: 'For shadow: opacity 0-100 (default 60)' },
+                sigma: { type: 'number', description: 'For shadow: blur sigma (default 4)' },
+                brightness: { type: 'number', description: 'For brightness-contrast: -100 to 100 (default 0)' },
+                contrast: { type: 'number', description: 'For brightness-contrast: -100 to 100 (default 0)' },
+              },
+              required: ['type'],
+            },
+          },
+        },
+        required: ['filename', 'operations'],
       },
     },
   },
@@ -309,6 +367,36 @@ export async function* runOrchestrator(
         } catch (err) {
           toolResult = `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}. Do NOT use TikZ or drawing commands as a fallback.`
           yield { type: 'message', message: `Image generation failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
+        }
+      } else if (toolCall.function.name === 'process_image') {
+        yield { type: 'status', message: 'Processing image...' }
+        try {
+          const args = JSON.parse(toolCall.function.arguments)
+          const filename = args.filename.replace(/^images\//, '')
+          // Download the image from Supabase
+          const imgPath = `projects/${params.projectId}/images/${filename}`
+          const { data: imgBlob, error: dlError } = await supabase.storage
+            .from('projects')
+            .download(imgPath)
+
+          if (dlError || !imgBlob) {
+            throw new Error(`Could not download image ${filename}: ${dlError?.message ?? 'not found'}`)
+          }
+
+          const inputBuffer = Buffer.from(await imgBlob.arrayBuffer())
+          const operations: ImageOperation[] = args.operations
+          const outputBuffer = await processImage(inputBuffer, operations)
+
+          const newFilename = `proc-${Date.now()}.png`
+          await uploadProjectImage(params.projectId, newFilename, outputBuffer)
+
+          const opNames = operations.map((o: ImageOperation) => o.type).join(', ')
+          toolResult = `Image processed (${opNames}) and saved as images/${newFilename}. Use search_replace to update the \\includegraphics reference from images/${filename} to images/${newFilename}.`
+          yield { type: 'message', message: `Image processed: ${newFilename}` }
+          changeLog.push(`processed image: images/${filename} → images/${newFilename} (${opNames})`)
+        } catch (err) {
+          toolResult = `Image processing failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+          yield { type: 'message', message: `Image processing failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
         }
       } else if (toolCall.function.name === 'undo_all_changes') {
         const args = JSON.parse(toolCall.function.arguments).reason || 'undo requested'
