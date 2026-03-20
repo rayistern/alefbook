@@ -38,10 +38,12 @@ export function ChatPanel({
   projectId,
   initialMessages,
   onDone,
+  onFocus,
 }: {
   projectId: string
   initialMessages: Message[]
   onDone?: () => void
+  onFocus?: () => void
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState('')
@@ -272,7 +274,7 @@ export function ChatPanel({
         <h3 className="text-sm font-semibold text-foreground">AI Assistant</h3>
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="rounded-lg p-1.5 hover:bg-purple-50 transition-colors"
+          className="rounded-lg p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-purple-50 transition-colors"
           title="Model settings"
         >
           <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -286,7 +288,7 @@ export function ChatPanel({
       {showSettings && (
         <div className="p-3 border-b border-purple-100 bg-purple-50/50 space-y-2">
           <div>
-            <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">AI Model</label>
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">AI Model</label>
             <select
               value={model}
               onChange={(e) => setModel(e.target.value)}
@@ -298,7 +300,7 @@ export function ChatPanel({
             </select>
           </div>
           <div>
-            <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Image Model</label>
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Image Model</label>
             <select
               value={imageModel}
               onChange={(e) => setImageModel(e.target.value)}
@@ -349,7 +351,7 @@ export function ChatPanel({
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                     </svg>
                   </div>
-                  <span className="text-[11px] font-medium text-muted-foreground">AI</span>
+                  <span className="text-xs font-medium text-muted-foreground">AI</span>
                 </div>
                 <div className="rounded-2xl rounded-tl-md bg-purple-50/70 px-4 py-2.5">
                   <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -391,13 +393,14 @@ export function ChatPanel({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={onFocus}
             placeholder="Describe what you'd like to change..."
             rows={2}
             disabled={isLoading}
             className="w-full px-4 pt-3 pb-1 text-sm resize-none border-0 bg-transparent focus:outline-none disabled:opacity-50 placeholder:text-muted-foreground/60"
           />
           <div className="flex justify-between items-center px-3 pb-2">
-            <label className="cursor-pointer rounded-lg p-1.5 hover:bg-purple-50 transition-colors text-muted-foreground hover:text-purple-600" title="Attach file (image or text)">
+            <label className="cursor-pointer rounded-lg p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-purple-50 transition-colors text-muted-foreground hover:text-purple-600" title="Attach file (image or text)">
               <input type="file" accept="image/*,.txt,.md,.csv,.json,.tex,.html,.xml,.rtf,.srt,.log" onChange={handleFileUpload} className="hidden" />
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -406,7 +409,7 @@ export function ChatPanel({
             {isLoading ? (
               <button
                 onClick={handleStop}
-                className="rounded-lg bg-red-50 border border-red-200 px-4 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 transition-all flex items-center gap-1.5"
+                className="rounded-lg bg-red-50 border border-red-200 px-4 py-1.5 min-h-[44px] text-xs font-medium text-red-600 hover:bg-red-100 transition-all flex items-center gap-1.5"
                 title="Stop generation"
               >
                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -418,7 +421,7 @@ export function ChatPanel({
               <button
                 onClick={handleSubmit}
                 disabled={!input.trim()}
-                className="rounded-lg gradient-bg px-4 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-30 transition-all shadow-sm shadow-purple-500/20"
+                className="rounded-lg gradient-bg px-4 py-1.5 min-h-[44px] min-w-[44px] text-xs font-medium text-white hover:opacity-90 disabled:opacity-30 transition-all shadow-sm shadow-purple-500/20 flex items-center justify-center"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { ChatPanel } from '@/components/chat/ChatPanel'
 import { PdfViewer } from '@/components/pdf/PdfViewer'
 import { ShareDialog } from '@/components/project/ShareDialog'
@@ -41,6 +41,18 @@ export function ProjectEditor({
   const [compiling, setCompiling] = useState(false)
   const [showShare, setShowShare] = useState(false)
   const texUploadRef = useRef<HTMLInputElement>(null)
+
+  // Mobile responsive state
+  const [isMobile, setIsMobile] = useState(false)
+  const [mobilePanel, setMobilePanel] = useState<'book' | 'chat'>('book')
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    setIsMobile(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const refreshPdf = useCallback(async () => {
     try {
@@ -167,13 +179,13 @@ export function ProjectEditor({
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="bg-white border-b px-4 py-2.5 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+      <header className="bg-white border-b px-2 md:px-4 py-2.5 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2 md:gap-3 shrink-0 min-w-0">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0">
             <img src="/logo.png" alt="Shluchim Exchange" className="w-7 h-7 rounded-lg object-contain" />
           </Link>
-          <div className="w-px h-5 bg-purple-100" />
-          <span className="text-sm font-medium truncate max-w-[200px]">{project.name}</span>
+          <div className="w-px h-5 bg-purple-100 shrink-0" />
+          <span className="text-sm font-medium truncate max-w-[120px] md:max-w-[200px]">{project.name}</span>
           {compiling && (
             <span className="flex items-center gap-1.5 text-xs text-purple-600">
               <svg className="animate-spin w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
@@ -184,43 +196,53 @@ export function ProjectEditor({
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2 overflow-x-auto">
           {isOwner && (
             <>
               <button
                 onClick={handleUndo}
                 disabled={undoing || compiling}
-                className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 hover:border-amber-300 disabled:opacity-50 transition-colors"
+                className="rounded-lg border border-amber-200 bg-amber-50 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium text-amber-700 hover:bg-amber-100 hover:border-amber-300 disabled:opacity-50 transition-colors whitespace-nowrap flex items-center gap-1.5 shrink-0"
+                title="Undo last AI change"
               >
-                {undoing ? 'Undoing...' : 'Undo'}
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a5 5 0 015 5v2M3 10l4-4m-4 4l4 4" />
+                </svg>
+                <span className="hidden md:inline">{undoing ? 'Undoing...' : 'Undo'}</span>
               </button>
               <button
                 onClick={handleCompile}
                 disabled={compiling}
-                className="rounded-lg border border-purple-100 px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 disabled:opacity-50 transition-colors"
+                className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium hover:bg-purple-50 hover:border-purple-200 disabled:opacity-50 transition-colors whitespace-nowrap flex items-center gap-1.5 shrink-0"
+                title="Regenerate PDF"
               >
-                Regenerate PDF
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="hidden md:inline">Regenerate PDF</span>
               </button>
               <button
                 onClick={() => setShowShare(true)}
-                className="rounded-lg border border-purple-100 px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5"
+                className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                title="Share"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
-                Share
+                <span className="hidden md:inline">Share</span>
               </button>
             </>
           )}
           {!isOwner && (
             <button
               onClick={handleFork}
-              className="rounded-lg gradient-bg px-4 py-1.5 text-xs font-medium text-white hover:opacity-90 transition-opacity shadow-sm shadow-purple-500/25 flex items-center gap-1.5"
+              className="rounded-lg gradient-bg px-2 md:px-4 py-1.5 min-h-[44px] text-xs font-medium text-white hover:opacity-90 transition-opacity shadow-sm shadow-purple-500/25 flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              title="Make a Copy"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
               </svg>
-              Make a Copy
+              <span className="hidden md:inline">Make a Copy</span>
             </button>
           )}
           {pdfUrl && (
@@ -228,33 +250,36 @@ export function ProjectEditor({
               href={pdfUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-purple-100 px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5"
+              className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              title="Download PDF"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              PDF
+              <span className="hidden sm:inline">PDF</span>
             </a>
           )}
           <button
             onClick={handleDownloadTex}
-            className="rounded-lg border border-purple-100 px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5"
+            className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
+            title="Download LaTeX"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            LaTeX
+            <span className="hidden md:inline">LaTeX</span>
           </button>
           {isOwner && (
             <>
               <button
                 onClick={() => texUploadRef.current?.click()}
-                className="rounded-lg border border-purple-100 px-3 py-1.5 text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5"
+                className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                title="Upload LaTeX"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
                 </svg>
-                Upload LaTeX
+                <span className="hidden md:inline">Upload LaTeX</span>
               </button>
               <input
                 ref={texUploadRef}
@@ -280,22 +305,71 @@ export function ProjectEditor({
       )}
 
       {/* Main content: Chat + PDF */}
-      <div className="flex-1 flex min-h-0">
-        {/* Chat Panel (left) */}
+      <div className="flex-1 flex flex-col md:flex-row min-h-0">
+        {/* PDF Canvas — on mobile: top panel; on desktop: right side */}
+        <div
+          className={`
+            bg-gradient-to-br from-slate-50 to-purple-50/30 transition-all duration-300 overflow-hidden
+            md:order-2 md:flex-1
+            ${isMobile && isOwner
+              ? mobilePanel === 'book'
+                ? 'flex-[3] min-h-0'
+                : 'flex-[0_0_48px] min-h-[48px] cursor-pointer'
+              : 'flex-1'
+            }
+          `}
+          onClick={isMobile && isOwner && mobilePanel !== 'book' ? () => setMobilePanel('book') : undefined}
+        >
+          {/* Collapsed label for mobile */}
+          {isMobile && isOwner && mobilePanel !== 'book' && (
+            <div className="flex items-center justify-center h-full gap-2 text-xs font-medium text-purple-600">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              Tap to view PDF
+            </div>
+          )}
+          {/* Show PDF when not collapsed on mobile, or always on desktop */}
+          {!(isMobile && isOwner && mobilePanel !== 'book') && (
+            <PdfViewer key={pdfKey} url={pdfUrl} />
+          )}
+        </div>
+
+        {/* Chat Panel — on mobile: bottom panel; on desktop: left side */}
         {isOwner && (
-          <div className="w-[420px] border-r border-purple-100 flex flex-col shrink-0 bg-white">
-            <ChatPanel
-              projectId={project.id}
-              initialMessages={initialMessages}
-              onDone={handleChatDone}
-            />
+          <div
+            className={`
+              border-purple-100 flex flex-col bg-white transition-all duration-300 overflow-hidden
+              md:order-1 md:w-[420px] md:border-r md:shrink-0
+              ${isMobile
+                ? mobilePanel === 'chat'
+                  ? 'flex-[3] min-h-0 border-t'
+                  : 'flex-[0_0_48px] min-h-[48px] cursor-pointer border-t'
+                : ''
+              }
+            `}
+            onClick={isMobile && mobilePanel !== 'chat' ? () => setMobilePanel('chat') : undefined}
+          >
+            {/* Collapsed label for mobile */}
+            {isMobile && mobilePanel !== 'chat' && (
+              <div className="flex items-center justify-center h-full gap-2 text-xs font-medium text-purple-600">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                Tap to chat with AI
+              </div>
+            )}
+            {/* Show chat when expanded (or on desktop always) */}
+            {!(isMobile && mobilePanel !== 'chat') && (
+              <ChatPanel
+                projectId={project.id}
+                initialMessages={initialMessages}
+                onDone={handleChatDone}
+                onFocus={() => { if (isMobile) setMobilePanel('chat') }}
+              />
+            )}
           </div>
         )}
-
-        {/* PDF Canvas (right) */}
-        <div className="flex-1 bg-gradient-to-br from-slate-50 to-purple-50/30">
-          <PdfViewer key={pdfKey} url={pdfUrl} />
-        </div>
       </div>
 
       {showShare && (

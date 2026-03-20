@@ -48,7 +48,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex gradient-bg-subtle">
       {/* Left panel - branding */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-bg items-center justify-center p-12">
+      <div className="hidden lg:flex lg:w-1/2 gradient-bg items-center justify-center p-8 xl:p-12">
         <div className="max-w-md text-white">
           <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-8">
             <img src="/logo.png" alt="Shluchim Exchange" className="w-10 h-10 object-contain" />
@@ -77,7 +77,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
         <div className="w-full max-w-sm space-y-6">
           <div className="lg:hidden flex items-center gap-2 justify-center mb-4">
             <img src="/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
@@ -100,7 +100,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-xl border border-purple-100 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 transition-colors"
+              className="w-full rounded-xl border border-purple-100 bg-white px-4 py-2.5 min-h-[44px] text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 transition-colors"
             />
             <input
               type="password"
@@ -109,7 +109,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full rounded-xl border border-purple-100 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 transition-colors"
+              className="w-full rounded-xl border border-purple-100 bg-white px-4 py-2.5 min-h-[44px] text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 transition-colors"
             />
 
             {error && <p className="text-sm text-destructive">{error}</p>}
@@ -118,7 +118,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl gradient-bg px-4 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-opacity disabled:opacity-50 shadow-lg shadow-purple-500/25"
+              className="w-full rounded-xl gradient-bg px-4 py-2.5 min-h-[44px] text-sm font-medium text-white hover:opacity-90 transition-opacity disabled:opacity-50 shadow-lg shadow-purple-500/25"
             >
               {loading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
             </button>
@@ -128,7 +128,7 @@ export default function LoginPage() {
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-purple-600 font-medium hover:text-purple-700 transition-colors"
+              className="text-purple-600 font-medium hover:text-purple-700 transition-colors py-2 px-3 -my-2 rounded-lg"
             >
               {isSignUp ? 'Sign in' : 'Sign up'}
             </button>

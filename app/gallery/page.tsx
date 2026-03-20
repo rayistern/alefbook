@@ -33,7 +33,7 @@ export default function GalleryPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <img src="/logo.png" alt="Shluchim Exchange" className="w-7 h-7 rounded-lg object-contain" />
@@ -42,10 +42,10 @@ export default function GalleryPage() {
             <span className="text-muted-foreground text-sm">/</span>
             <span className="text-sm font-medium">Gallery</span>
           </div>
-          <div className="flex items-center gap-1 bg-purple-50 rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-purple-50 rounded-xl p-1 self-start sm:self-auto">
             <button
               onClick={() => setSort('newest')}
-              className={`rounded-lg px-4 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-lg px-3 sm:px-4 py-1.5 min-h-[44px] text-xs font-medium transition-all ${
                 sort === 'newest'
                   ? 'bg-white text-purple-700 shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
@@ -55,7 +55,7 @@ export default function GalleryPage() {
             </button>
             <button
               onClick={() => setSort('forks')}
-              className={`rounded-lg px-4 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-lg px-3 sm:px-4 py-1.5 min-h-[44px] text-xs font-medium transition-all ${
                 sort === 'forks'
                   ? 'bg-white text-purple-700 shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
@@ -69,13 +69,13 @@ export default function GalleryPage() {
 
       {/* Hero */}
       <div className="gradient-bg-subtle border-b">
-        <div className="max-w-6xl mx-auto px-6 py-10 text-center">
-          <h1 className="text-3xl font-bold">Community Gallery</h1>
-          <p className="text-muted-foreground mt-2">Discover books created by the community. Fork any project to make it your own.</p>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 text-center">
+          <h1 className="text-2xl sm:text-3xl font-bold">Community Gallery</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-2">Discover books created by the community. Fork any project to make it your own.</p>
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map(i => (

@@ -34,12 +34,12 @@ function LandingPage() {
     <div className="min-h-screen bg-background">
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
-            <span className="text-lg font-bold">Shluchim Exchange</span>
+            <span className="text-base sm:text-lg font-bold">Shluchim Exchange</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/gallery"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -48,7 +48,7 @@ function LandingPage() {
             </Link>
             <Link
               href="/auth/login"
-              className="rounded-full gradient-bg px-5 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25"
+              className="rounded-full gradient-bg px-4 sm:px-5 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25"
             >
               Get Started
             </Link>
@@ -57,7 +57,7 @@ function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+      <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 gradient-bg-subtle" />
         <div className="absolute top-20 left-1/4 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl" />
@@ -69,7 +69,7 @@ function LandingPage() {
             Powered by AI
           </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
             Create beautiful books
             <span className="block gradient-text">with AI</span>
           </h1>
@@ -97,7 +97,7 @@ function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4">How it works</h2>
           <p className="text-center text-muted-foreground mb-16 max-w-lg mx-auto">
@@ -125,7 +125,7 @@ function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 gradient-bg-subtle">
+      <section className="py-12 sm:py-20 px-4 sm:px-6 gradient-bg-subtle">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to create?</h2>
           <p className="text-muted-foreground mb-8">
@@ -142,7 +142,7 @@ function LandingPage() {
 
       {/* Footer */}
       <footer className="py-8 px-6 border-t">
-        <div className="max-w-6xl mx-auto flex items-center justify-between text-sm text-muted-foreground">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="Shluchim Exchange" className="w-5 h-5 rounded object-contain" />
             <span>Shluchim Exchange</span>
@@ -179,12 +179,12 @@ function Dashboard({ projects }: { projects: DashboardProject[] }) {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-white/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="Shluchim Exchange" className="w-8 h-8 rounded-lg object-contain" />
-            <span className="text-lg font-bold">Shluchim Exchange</span>
+            <span className="text-base sm:text-lg font-bold">Shluchim Exchange</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <Link href="/gallery" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Gallery
             </Link>
@@ -193,15 +193,15 @@ function Dashboard({ projects }: { projects: DashboardProject[] }) {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h2 className="text-2xl font-bold">My Books</h2>
             <p className="text-sm text-muted-foreground mt-1">Create and manage your book projects</p>
           </div>
           <Link
             href="/project/new"
-            className="rounded-full gradient-bg px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25"
+            className="rounded-full gradient-bg px-6 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25 text-center shrink-0"
           >
             + New Book
           </Link>

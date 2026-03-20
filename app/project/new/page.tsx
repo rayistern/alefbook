@@ -65,7 +65,7 @@ export default function NewProjectPage() {
     <div className="min-h-screen gradient-bg-subtle">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-xl border-b sticky top-0 z-50">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-3">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img src="/logo.png" alt="Shluchim Exchange" className="w-7 h-7 rounded-lg object-contain" />
             <span className="text-sm font-bold">Shluchim Exchange</span>
@@ -75,13 +75,13 @@ export default function NewProjectPage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-10">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold">Create a new book</h1>
-          <p className="text-muted-foreground mt-2">Choose a template and start customizing with AI</p>
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <div className="text-center mb-8 sm:mb-10">
+          <h1 className="text-2xl sm:text-3xl font-bold">Create a new book</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-2">Choose a template and start customizing with AI</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-purple-100 p-8 shadow-sm space-y-8">
+        <div className="bg-white rounded-2xl border border-purple-100 p-5 sm:p-8 shadow-sm space-y-6 sm:space-y-8">
           {/* Book name */}
           <div>
             <label className="text-sm font-medium">Book name</label>
