@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   // Verify ownership
   const { data: project } = await supabase
     .from('projects')
-    .select('id, user_id')
+    .select('id, user_id, template_id')
     .eq('id', projectId)
     .single()
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  const result = await compileProject(projectId)
+  const result = await compileProject(projectId, undefined, project.template_id)
 
   if (result.success) {
     const pdfUrl = await getProjectPdfUrl(projectId)

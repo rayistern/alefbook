@@ -22,7 +22,8 @@ export interface CompileResult {
  */
 export async function compileProject(
   projectId: string,
-  mainTexContent?: string
+  mainTexContent?: string,
+  templateId?: string
 ): Promise<CompileResult> {
   const supabase = createServiceClient()
   const tmpDir = path.join(os.tmpdir(), `alefbook-${projectId}-${Date.now()}`)
@@ -60,8 +61,18 @@ export async function compileProject(
     // includes /app/newImages_whitebg// etc. No need to copy them into
     // the work dir — and doing so would overwrite user-uploaded images.
 
+    // Look up templateId if not provided (fallback for callers that don't pass it)
+    if (!templateId) {
+      const { data: proj } = await supabase
+        .from('projects')
+        .select('template_id')
+        .eq('id', projectId)
+        .single()
+      templateId = proj?.template_id ?? undefined
+    }
+
     // Compile
-    const result = await runLatexmk(tmpDir)
+    const result = await runLatexmk(tmpDir, templateId)
 
     console.log(`[Compiler] Compilation ${result.success ? 'SUCCEEDED' : 'FAILED'}${result.errors?.length ? ': ' + result.errors.join('; ') : ''}`)
 
@@ -166,13 +177,18 @@ async function downloadFolder(
   }
 }
 
-function runLatexmk(workDir: string): Promise<CompileResult> {
+function runLatexmk(workDir: string, templateId?: string): Promise<CompileResult> {
   // Tell TeX where to find template images (bundled in Docker at /app/)
   const appDir = process.cwd()
+  const adultImages = path.join(appDir, 'templates', 'haggadah-images') + '//'
+  const kidsImages = path.join(appDir, 'templates', 'haggadah-kids-images') + '//'
+  // Put the correct image directory first so LaTeX finds the right images
+  const imageDirs = templateId === 'haggadah-kids'
+    ? [kidsImages, adultImages]
+    : [adultImages, kidsImages]
   const texInputs = [
     workDir + '//',  // recursive so user images in subdirs are found first
-    path.join(appDir, 'templates', 'haggadah-images') + '//',
-    path.join(appDir, 'templates', 'haggadah-kids-images') + '//',
+    ...imageDirs,
     '', // trailing colon = include default search paths
   ].join(':')
 
