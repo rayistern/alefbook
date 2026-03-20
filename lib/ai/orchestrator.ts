@@ -50,16 +50,39 @@ You help users edit their LaTeX documents, generate images, and answer questions
 - Do NOT reference image filenames that are not already in the document or provided via [Uploaded:] or generate_image. Never invent filenames like "chabad-logo.png" — only use images that exist.
 
 ## Page overflow awareness — CRITICAL
-- Each page/section of this document has a FIXED layout. Content MUST stay on its own page.
-- NEVER just insert new content without compensating. When adding an image, text block, or spacing:
-  1. Calculate the approximate vertical space the new element will take
-  2. REMOVE or SHRINK existing elements on the SAME page to make room
-  3. Verify that the total content still fits on one page
-- **Decorative elements are expendable.** On special pages (cover, back cover, title page), you have FULL PERMISSION to remove or shrink decorative elements to make room: \\\\pgfornament commands, decorative TikZ rules, \\\\bigstar nodes, fancy borders, ornamental dividers, extra \\\\vspace, etc. Preserving the layout is MORE IMPORTANT than preserving decorations.
-- For fixed-size sections like cover/back cover: if you add a 2-inch image, you MUST remove ~2 inches of spacing/content/decorations from that same page.
-- If you use \\\\includegraphics, always include a size parameter like [width=2in] to control the image size.
-- NEVER allow content to spill onto the next page. If unsure, make the new element SMALLER rather than risk overflow.
-- When inserting between existing elements, you are REPLACING vertical space, not adding to it. Reduce \\\\vspace commands around the insertion point.
+The document uses a 7×10in page with ~8.2in of usable vertical space. Content MUST NOT spill across page boundaries.
+
+**Space budget — know these approximate sizes:**
+- \\\\includegraphics[width=3in]{...} → typically ~3in tall + 20pt padding ≈ 3.3in
+- \\\\includegraphics[width=2in]{...} → typically ~2in tall + 20pt padding ≈ 2.3in
+- \\\\pgfornament[width=3cm]{...} → ~0.5in tall
+- \\\\vspace{Xin} → exactly X inches
+- \\\\vspace{Xpt} → X/72 inches
+- A TikZ decorative rule/divider → ~0.3–0.5in
+- \\\\sedersection{...} header block → ~2in
+- \\\\sederdivider → ~0.8in
+- A text paragraph → ~0.3–0.5in per paragraph
+
+**When adding ANY element, you MUST make room FIRST:**
+1. Identify the page/section you're editing (between its \\\\clearpage or \\\\newpage boundaries)
+2. Calculate how much vertical space the new element needs
+3. BEFORE inserting, remove or shrink elements on that SAME page to free up at LEAST that much space
+4. Only THEN insert the new element
+
+**What to remove/shrink (in order of priority):**
+1. \\\\vspace commands — reduce or eliminate them first
+2. \\\\pgfornament, decorative TikZ drawings, \\\\bigstar nodes, ornamental dividers
+3. Decorative border/frame TikZ code
+4. \\\\sederdivider commands
+5. Blank lines between elements
+6. Font sizes (use \\\\small or \\\\footnotesize to shrink text)
+You have FULL PERMISSION to remove ANY decorative element on ANY page. Preserving layout is ALWAYS more important than decorations.
+
+**Hard rules:**
+- ALWAYS use a size parameter on \\\\includegraphics: [width=2in] or [width=0.4\\\\textwidth]. Start SMALL (2in) — you can always make it bigger later, but overflow is much harder to fix.
+- NEVER allow content to spill onto the next page. If in doubt, remove MORE space than you think you need.
+- When inserting between existing elements, you are REPLACING vertical space, not adding to it.
+- After making your edits, mentally walk through the page top-to-bottom and estimate total height. If it exceeds ~8in, shrink more.
 
 ## generate_image rules
 - NEVER use TikZ, pgfplots, or LaTeX drawing commands for illustrations.
@@ -307,8 +330,8 @@ export async function* runOrchestrator(
   yield { type: 'status', message: 'Saving changes...' }
   await uploadProjectFile(params.projectId, 'main.tex', currentDoc)
 
-  // ── Capture "before" PDF pages for comparison ─────────────────────────
-  // Render pages from the existing PDF before we overwrite it with the new compile
+  // ── Capture "before" PDF state for comparison ──────────────────────────
+  let beforePageCount = 0
   let beforePages: { page: number; base64: string }[] = []
   try {
     const { data: proj } = await supabase
@@ -324,182 +347,249 @@ export async function* runOrchestrator(
 
       if (pdfBlob) {
         const pdfBuf = Buffer.from(await pdfBlob.arrayBuffer())
-        const totalPages = await getPdfPageCount(pdfBuf).catch(() => 40)
-        // Render all pages (at low res) so we can compare any page after
-        const allPageNums = Array.from({ length: Math.min(totalPages, 50) }, (_, i) => i + 1)
+        beforePageCount = await getPdfPageCount(pdfBuf).catch(() => 0)
+        const allPageNums = Array.from({ length: Math.min(beforePageCount || 40, 50) }, (_, i) => i + 1)
         beforePages = await renderPdfPages(pdfBuf, allPageNums, 100)
-        console.log(`[Review] Captured ${beforePages.length} "before" pages for comparison`)
+        console.log(`[Review] Before: ${beforePageCount} pages, captured ${beforePages.length} images`)
       }
     }
   } catch (err) {
-    console.warn('[Review] Could not capture before pages:', err instanceof Error ? err.message : err)
+    console.warn('[Review] Could not capture before state:', err instanceof Error ? err.message : err)
   }
 
-  // ── Compile with self-correction loop ─────────────────────────────────
+  // ── Compile → verify → fix loop ──────────────────────────────────────
+  // After compile, check page count deterministically. If pages increased,
+  // that's overflow — give the fix agent concrete feedback and rendered
+  // pages so it can SEE the problem and fix it. Up to 2 fix rounds.
 
   yield { type: 'compile_start', message: 'Building your book...' }
   await supabase.from('projects').update({ status: 'compiling' }).eq('id', params.projectId)
 
   let compileSuccess = false
-  const maxRetries = 3
+  const maxCompileRetries = 3
+  const maxFixRounds = 2
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  // ── Phase 1: Compile (with LaTeX error self-correction) ─────────────
+  for (let attempt = 1; attempt <= maxCompileRetries; attempt++) {
     const result = await compileProject(params.projectId, currentDoc)
 
     if (result.success) {
       compileSuccess = true
-      yield { type: 'compile_done', message: 'Your book is ready!' }
       break
     }
 
-    // If the error is a storage/upload issue (not a LaTeX error), don't retry
     const isUploadError = result.errors?.some(e => e.includes('PDF upload failed'))
     if (isUploadError) {
-      console.error(`[Orchestrator] PDF upload failed (storage limit?): ${result.errors?.join('; ')}`)
-      yield {
-        type: 'compile_error',
-        error: 'The compiled PDF was too large to save. Try using smaller images or fewer pages.',
-      }
+      console.error(`[Orchestrator] PDF upload failed: ${result.errors?.join('; ')}`)
+      yield { type: 'compile_error', error: 'The compiled PDF was too large to save.' }
       break
     }
 
-    if (attempt < maxRetries) {
-      console.log(`[Orchestrator] Compile failed attempt ${attempt}, errors: ${result.errors?.join('; ')}`)
-      yield { type: 'message', message: `Fixing a compile issue (attempt ${attempt}/${maxRetries})...` }
-
+    if (attempt < maxCompileRetries) {
+      console.log(`[Orchestrator] Compile attempt ${attempt} failed: ${result.errors?.join('; ')}`)
+      yield { type: 'message', message: `Fixing a compile issue (attempt ${attempt}/${maxCompileRetries})...` }
       try {
-        const beforeLen = currentDoc.length
         currentDoc = await selfCorrectWithTool({
           document: currentDoc,
           errors: result.errors ?? [],
           log: result.log ?? '',
           model: params.model,
         })
-        console.log(`[Orchestrator] Self-correction: ${beforeLen} -> ${currentDoc.length} chars`)
         await uploadProjectFile(params.projectId, 'main.tex', currentDoc)
       } catch {
         // Self-correction failed, try compiling again
       }
     } else {
-      // All compile attempts failed — revert to the original document
-      console.warn(`[Orchestrator] All ${maxRetries} compile attempts failed, reverting document`)
+      console.warn(`[Orchestrator] All ${maxCompileRetries} compile attempts failed, reverting`)
       await uploadProjectFile(params.projectId, 'main.tex', doc)
       await supabase.from('projects').update({ status: 'ready' }).eq('id', params.projectId)
-
       yield {
         type: 'compile_error',
-        error: `Compilation failed after ${maxRetries} attempts. Your document has been reverted to the last working version. Error: ${result.errors?.join('; ')}`,
+        error: `Compilation failed after ${maxCompileRetries} attempts. Your document has been reverted. Error: ${result.errors?.join('; ')}`,
       }
     }
   }
 
-  // ── Post-compile parallel review ─────────────────────────────────────
-  // Run two reviews in parallel:
-  // 1. Visual PDF review (before/after page comparison)
-  // 2. LaTeX structure review (check the document for overflow indicators)
-
+  // ── Phase 2: Post-compile verification & fix loop ───────────────────
   let reviewNote = ''
   if (compileSuccess) {
-    try {
-      yield { type: 'status', message: 'Reviewing the output...' }
+    yield { type: 'compile_done', message: 'Your book is ready!' }
 
-      // Launch both reviews in parallel
-      const [pdfReview, structureReview] = await Promise.all([
-        reviewCompiledPdf({
-          projectId: params.projectId,
-          userMessage: params.userMessage,
-          model: params.model,
-          beforePages,
-        }).catch(err => {
-          console.warn('[Review] PDF review failed:', err instanceof Error ? err.message : err)
-          return null
-        }),
-        reviewLatexStructure({
-          beforeDoc: doc,
-          afterDoc: currentDoc,
-          userMessage: params.userMessage,
-          model: params.model,
-        }).catch(err => {
-          console.warn('[Review] Structure review failed:', err instanceof Error ? err.message : err)
-          return null
-        }),
-      ])
+    for (let fixRound = 0; fixRound < maxFixRounds; fixRound++) {
+      try {
+        yield { type: 'status', message: fixRound === 0 ? 'Reviewing the output...' : 'Re-checking after fix...' }
 
-      // Combine findings
-      const issues: string[] = []
-      if (pdfReview && !pdfReview.toLowerCase().includes('look good') && !pdfReview.toLowerCase().includes('looks good')) {
-        issues.push(`Visual: ${pdfReview}`)
-      }
-      if (structureReview && !structureReview.toLowerCase().includes('look good') && !structureReview.toLowerCase().includes('looks good')) {
-        issues.push(`Structure: ${structureReview}`)
-      }
-
-      if (issues.length > 0) {
-        const combinedIssues = issues.join('\n')
-        console.warn(`[Orchestrator] Review detected issues: ${combinedIssues}`)
-        yield { type: 'status', message: 'Fixing a visual issue...' }
-
+        // ── Step 1: Deterministic page count check ──────────────────
+        let afterPageCount = 0
+        let afterPdfBuffer: Buffer | null = null
         try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const fixMessages: any[] = [
-            { role: 'system', content: SYSTEM_PROMPT },
-            {
-              role: 'user',
-              content: `## Your LaTeX document:\n\`\`\`latex\n${currentDoc}\n\`\`\`\n\n## Fix this issue:\nThe previous edit was supposed to: "${params.userMessage}"\nBut the review found these problems:\n${combinedIssues}\n\nFix the problems now. Pay special attention to page overflow — if content shifted to the next page, you need to shrink or remove elements to fit everything on the correct page.`,
-            },
-          ]
+          const { data: proj } = await supabase
+            .from('projects')
+            .select('pdf_path')
+            .eq('id', params.projectId)
+            .single()
+          if (proj?.pdf_path) {
+            const { data: pdfBlob } = await supabase.storage
+              .from('projects')
+              .download(proj.pdf_path)
+            if (pdfBlob) {
+              afterPdfBuffer = Buffer.from(await pdfBlob.arrayBuffer())
+              afterPageCount = await getPdfPageCount(afterPdfBuffer).catch(() => 0)
+            }
+          }
+        } catch {
+          // non-fatal
+        }
 
+        const pageCountChanged = beforePageCount > 0 && afterPageCount > 0 && afterPageCount !== beforePageCount
+        if (pageCountChanged) {
+          console.warn(`[Review] PAGE COUNT CHANGED: ${beforePageCount} → ${afterPageCount}`)
+        }
+
+        // ── Step 2: Parallel LLM reviews + page count signal ────────
+        const [pdfReview, structureReview] = await Promise.all([
+          reviewCompiledPdf({
+            projectId: params.projectId,
+            userMessage: params.userMessage,
+            model: params.model,
+            beforePages,
+            afterPdfBuffer,
+          }).catch(err => {
+            console.warn('[Review] PDF review failed:', err instanceof Error ? err.message : err)
+            return null
+          }),
+          reviewLatexStructure({
+            beforeDoc: doc,
+            afterDoc: currentDoc,
+            userMessage: params.userMessage,
+            model: params.model,
+          }).catch(err => {
+            console.warn('[Review] Structure review failed:', err instanceof Error ? err.message : err)
+            return null
+          }),
+        ])
+
+        // Combine all findings
+        const issues: string[] = []
+        if (pageCountChanged) {
+          issues.push(`PAGE OVERFLOW DETECTED: Page count changed from ${beforePageCount} to ${afterPageCount}. Content is spilling across page boundaries. You MUST remove spacing, decorations, or shrink elements to fit everything back to ${beforePageCount} pages.`)
+        }
+        if (pdfReview && !pdfReview.toLowerCase().includes('look good') && !pdfReview.toLowerCase().includes('looks good')) {
+          issues.push(`Visual review: ${pdfReview}`)
+        }
+        if (structureReview && !structureReview.toLowerCase().includes('look good') && !structureReview.toLowerCase().includes('looks good')) {
+          issues.push(`Structure review: ${structureReview}`)
+        }
+
+        if (issues.length === 0) {
+          console.log(`[Review] Round ${fixRound + 1}: All checks passed`)
+          break // Everything looks good
+        }
+
+        const combinedIssues = issues.join('\n\n')
+        console.warn(`[Review] Round ${fixRound + 1} issues: ${combinedIssues}`)
+        yield { type: 'status', message: 'Fixing layout issues...' }
+
+        // ── Step 3: Multi-round fix agent with tool loop ────────────
+        // Give the fix agent rendered page images so it can SEE the overflow
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fixUserContent: any[] = [
+          {
+            type: 'text' as const,
+            text: `## Your LaTeX document:\n\`\`\`latex\n${currentDoc}\n\`\`\`\n\n## PROBLEMS FOUND — YOU MUST FIX THESE:\nThe previous edit was supposed to: "${params.userMessage}"\n\n${combinedIssues}\n\n## How to fix:\n- Remove \\vspace commands, decorative \\pgfornament, TikZ drawings, \\sederdivider, and other non-essential elements\n- Shrink images: reduce [width=Xin] values\n- Use \\small or \\footnotesize to reduce text size\n- Remove blank lines\n- The goal is to get back to exactly ${beforePageCount} pages. Be aggressive — remove more than you think you need.`,
+          },
+        ]
+
+        // Attach rendered "after" pages so the fix agent can see the overflow
+        if (afterPdfBuffer) {
+          try {
+            const lastPages = afterPageCount > 0
+              ? Array.from({ length: Math.min(afterPageCount, 5) }, (_, i) => afterPageCount - i).reverse()
+              : [1]
+            const renderedPages = await renderPdfPages(afterPdfBuffer, lastPages, 120)
+            for (const rp of renderedPages) {
+              fixUserContent.push({
+                type: 'text' as const,
+                text: `--- Current page ${rp.page} of ${afterPageCount}: ---`,
+              })
+              fixUserContent.push({
+                type: 'image_url' as const,
+                image_url: { url: `data:image/png;base64,${rp.base64}` },
+              })
+            }
+          } catch {
+            // non-fatal — fix agent can still work from LaTeX alone
+          }
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fixMessages: any[] = [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: fixUserContent },
+        ]
+
+        // Give the fix agent multiple tool rounds (not just one shot)
+        let fixedDoc = currentDoc
+        let fixApplied = false
+        for (let fixToolRound = 0; fixToolRound < 5; fixToolRound++) {
           const fixResponse = await callLLMWithTools(fixMessages, TOOL_DEFINITIONS, {
             model: params.model,
-            toolChoice: 'required',
+            toolChoice: fixToolRound === 0 ? 'required' : undefined,
           })
 
-          let fixedDoc = currentDoc
-          let fixApplied = false
+          if (!fixResponse.tool_calls || fixResponse.tool_calls.length === 0) break
 
-          if (fixResponse.tool_calls) {
-            for (const rawTc of fixResponse.tool_calls) {
-              const tc = rawTc as OpenAI.ChatCompletionMessageToolCall & { function: { name: string; arguments: string } }
-              if (tc.function.name === 'search_replace') {
-                try {
-                  const args = JSON.parse(tc.function.arguments)
-                  const { result, applied } = applyEdits(fixedDoc, [
-                    { search: args.search, replace: args.replace },
-                  ])
-                  if (applied.length > 0) {
-                    fixedDoc = result
-                    fixApplied = true
-                  }
-                } catch {
-                  // skip malformed tool call
+          fixMessages.push({
+            role: 'assistant',
+            content: fixResponse.content || null,
+            tool_calls: fixResponse.tool_calls,
+          })
+
+          for (const rawTc of fixResponse.tool_calls) {
+            const tc = rawTc as OpenAI.ChatCompletionMessageToolCall & { function: { name: string; arguments: string } }
+            let toolResult = `Unknown tool: ${tc.function.name}`
+            if (tc.function.name === 'search_replace') {
+              try {
+                const args = JSON.parse(tc.function.arguments)
+                const { result, applied, failed } = applyEdits(fixedDoc, [
+                  { search: args.search, replace: args.replace },
+                ])
+                if (applied.length > 0) {
+                  fixedDoc = result
+                  fixApplied = true
+                  toolResult = 'Edit applied successfully.'
+                } else {
+                  toolResult = `Edit FAILED: ${failed[0]?.error}. Include more context.`
                 }
+              } catch {
+                toolResult = 'Edit error: invalid arguments'
               }
             }
+            fixMessages.push({ role: 'tool', tool_call_id: tc.id, content: toolResult })
           }
+        }
 
-          if (fixApplied && fixedDoc !== currentDoc) {
-            const sanitizedFix = sanitizeLatex(fixedDoc)
-            await uploadProjectFile(params.projectId, 'main.tex', sanitizedFix)
-            const fixCompile = await compileProject(params.projectId, sanitizedFix)
-            if (fixCompile.success) {
-              currentDoc = sanitizedFix
-              yield { type: 'compile_done', message: 'Fixed and recompiled!' }
-            } else {
-              reviewNote = '\n\n' + combinedIssues
-            }
+        if (fixApplied && fixedDoc !== currentDoc) {
+          const sanitizedFix = sanitizeLatex(fixedDoc)
+          await uploadProjectFile(params.projectId, 'main.tex', sanitizedFix)
+          const fixCompile = await compileProject(params.projectId, sanitizedFix)
+          if (fixCompile.success) {
+            currentDoc = sanitizedFix
+            yield { type: 'compile_done', message: 'Fixed and recompiled!' }
+            // Loop back to re-verify (next fixRound iteration)
           } else {
             reviewNote = '\n\n' + combinedIssues
+            break // Fix compile failed, stop trying
           }
-        } catch (fixErr) {
-          const msg = fixErr instanceof Error ? fixErr.message : String(fixErr)
-          console.error(`[Orchestrator] Review fix failed: ${msg}`)
-          reviewNote = '\n\n' + issues.join('\n')
+        } else {
+          reviewNote = '\n\n' + combinedIssues
+          break // No fix could be applied
         }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        console.error(`[Orchestrator] Review/fix round failed: ${msg}`)
+        break
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error(`[Orchestrator] Review failed: ${msg}`)
-      // Review failure is non-fatal — the edit+compile already succeeded
     }
   }
 
@@ -536,24 +626,25 @@ async function reviewCompiledPdf(params: {
   userMessage: string
   model?: string
   beforePages?: { page: number; base64: string }[]
+  afterPdfBuffer?: Buffer | null
 }): Promise<string | null> {
-  const supabase = createServiceClient()
+  let pdfBuffer = params.afterPdfBuffer ?? null
 
-  const { data: project } = await supabase
-    .from('projects')
-    .select('pdf_path')
-    .eq('id', params.projectId)
-    .single()
-
-  if (!project?.pdf_path) return null
-
-  const { data: pdfBlob, error } = await supabase.storage
-    .from('projects')
-    .download(project.pdf_path)
-
-  if (error || !pdfBlob) return null
-
-  const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer())
+  // Download if not provided
+  if (!pdfBuffer) {
+    const supabase = createServiceClient()
+    const { data: project } = await supabase
+      .from('projects')
+      .select('pdf_path')
+      .eq('id', params.projectId)
+      .single()
+    if (!project?.pdf_path) return null
+    const { data: pdfBlob, error } = await supabase.storage
+      .from('projects')
+      .download(project.pdf_path)
+    if (error || !pdfBlob) return null
+    pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer())
+  }
 
   let totalPages = 0
   try {
