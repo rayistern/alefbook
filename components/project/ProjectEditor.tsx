@@ -309,65 +309,60 @@ export function ProjectEditor({
         {/* PDF Canvas — on mobile: top panel; on desktop: right side */}
         <div
           className={`
-            bg-gradient-to-br from-slate-50 to-purple-50/30 transition-all duration-300 overflow-hidden
+            bg-gradient-to-br from-slate-50 to-purple-50/30 transition-all duration-300 overflow-hidden relative
             md:order-2 md:flex-1
             ${isMobile && isOwner
               ? mobilePanel === 'book'
-                ? 'flex-[3] min-h-0'
-                : 'flex-[0_0_48px] min-h-[48px] cursor-pointer'
+                ? 'flex-[9] min-h-0'
+                : 'flex-[1] cursor-pointer'
               : 'flex-1'
             }
           `}
           onClick={isMobile && isOwner && mobilePanel !== 'book' ? () => setMobilePanel('book') : undefined}
         >
-          {/* Collapsed label for mobile */}
+          {/* Collapsed overlay label for mobile — sits on top of the still-rendered PDF */}
           {isMobile && isOwner && mobilePanel !== 'book' && (
-            <div className="flex items-center justify-center h-full gap-2 text-xs font-medium text-purple-600">
+            <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-sm font-medium text-purple-600 bg-gradient-to-br from-slate-50/90 to-purple-50/90">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
               Tap to view PDF
             </div>
           )}
-          {/* Show PDF when not collapsed on mobile, or always on desktop */}
-          {!(isMobile && isOwner && mobilePanel !== 'book') && (
-            <PdfViewer key={pdfKey} url={pdfUrl} />
-          )}
+          <PdfViewer key={pdfKey} url={pdfUrl} />
         </div>
 
         {/* Chat Panel — on mobile: bottom panel; on desktop: left side */}
+        {/* NEVER unmounted on mobile — just resized — so chat state & SSE connections persist */}
         {isOwner && (
           <div
             className={`
-              border-purple-100 flex flex-col bg-white transition-all duration-300 overflow-hidden
+              border-purple-100 flex flex-col bg-white transition-all duration-300 overflow-hidden relative
               md:order-1 md:w-[420px] md:border-r md:shrink-0
               ${isMobile
                 ? mobilePanel === 'chat'
-                  ? 'flex-[3] min-h-0 border-t'
-                  : 'flex-[0_0_48px] min-h-[48px] cursor-pointer border-t'
+                  ? 'flex-[9] min-h-0 border-t'
+                  : 'flex-[1] cursor-pointer border-t'
                 : ''
               }
             `}
             onClick={isMobile && mobilePanel !== 'chat' ? () => setMobilePanel('chat') : undefined}
           >
-            {/* Collapsed label for mobile */}
+            {/* Collapsed overlay label for mobile — chat component stays mounted underneath */}
             {isMobile && mobilePanel !== 'chat' && (
-              <div className="flex items-center justify-center h-full gap-2 text-xs font-medium text-purple-600">
+              <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-sm font-medium text-purple-600 bg-white/90">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 Tap to chat with AI
               </div>
             )}
-            {/* Show chat when expanded (or on desktop always) */}
-            {!(isMobile && mobilePanel !== 'chat') && (
-              <ChatPanel
-                projectId={project.id}
-                initialMessages={initialMessages}
-                onDone={handleChatDone}
-                onFocus={() => { if (isMobile) setMobilePanel('chat') }}
-              />
-            )}
+            <ChatPanel
+              projectId={project.id}
+              initialMessages={initialMessages}
+              onDone={handleChatDone}
+              onFocus={() => { if (isMobile) setMobilePanel('chat') }}
+            />
           </div>
         )}
       </div>
