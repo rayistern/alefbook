@@ -81,7 +81,8 @@ export function ProjectEditor({
   }, [project.id])
 
   const handleChatDone = useCallback(() => {
-    refreshPdf()
+    // Short delay to let Supabase storage flush the new PDF before fetching
+    setTimeout(() => refreshPdf(), 1500)
   }, [refreshPdf])
 
   const handleFork = useCallback(async () => {

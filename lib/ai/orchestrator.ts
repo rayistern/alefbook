@@ -64,7 +64,14 @@ You help users edit their LaTeX documents, generate images, and answer questions
 ## generate_image rules
 - NEVER use TikZ, pgfplots, or LaTeX drawing commands for illustrations.
 - Always use the generate_image tool, then insert with \\\\includegraphics via search_replace.
-- Write a detailed prompt describing the desired image.
+- Write a detailed, specific prompt describing ONLY the image scene — do NOT include instructions about the document or layout in the image prompt.
+- When the image is for a Jewish/Haggadah context, incorporate these details naturally into your prompt where relevant:
+  - Matzah should be ROUND hand-made shmurah matzah (never square machine matzah)
+  - Maror is romaine lettuce or horseradish (NOT parsley — parsley is karpas, a different item)
+  - Boys/men should wear a yarmulke (kippah) and tzitzit
+  - Girls/women should wear modest clothing (skirts, not pants)
+  - Style should be warm and family-friendly
+- Do NOT dump all these guidelines into every prompt — only include what's relevant to the specific image being generated.
 
 ## File uploads
 - \`[Uploaded: filename.png]\` → use exactly: \\\\includegraphics{images/filename.png}
@@ -236,14 +243,7 @@ export async function* runOrchestrator(
         yield { type: 'status', message: 'Generating an image...' }
         try {
           const args = JSON.parse(toolCall.function.arguments)
-          // Prepend Chabad-specific context to every image prompt
-          const chabadImagePrompt = `For a Jewish Passover Haggadah. ` +
-            `IMPORTANT: Use round hand-made shmurah matzah (NOT square machine matzah). ` +
-            `Use maror (romaine lettuce or horseradish, NOT parsley — parsley is for karpas only). ` +
-            `Boys/men should wear a yarmulke (kippah) and tzitzit. Girls/women should wear skirts. ` +
-            `Style: warm, family-friendly illustration suitable for a religious Jewish text. ` +
-            args.prompt
-          const imageResult = await generateImage(chabadImagePrompt, params.imageModel)
+          const imageResult = await generateImage(args.prompt, params.imageModel)
           const filename = `gen-${Date.now()}.png`
           const buffer = Buffer.from(imageResult.b64, 'base64')
           await uploadProjectImage(params.projectId, filename, buffer)
