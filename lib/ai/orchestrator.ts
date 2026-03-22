@@ -391,9 +391,42 @@ export async function* runOrchestrator(
           await uploadProjectImage(params.projectId, newFilename, outputBuffer)
 
           const opNames = operations.map((o: ImageOperation) => o.type).join(', ')
+
+          // Visual sanity check: show the AI before/after so it can tell if the processing worked
+          const beforeB64 = inputBuffer.toString('base64')
+          const afterB64 = outputBuffer.toString('base64')
+          const sizeDiff = Math.abs(outputBuffer.length - inputBuffer.length)
+          const sizeChanged = sizeDiff > inputBuffer.length * 0.02 // >2% size change
+
+          if (!sizeChanged) {
+            console.warn(`[ImageProcess] Output nearly identical to input (${inputBuffer.length} → ${outputBuffer.length} bytes)`)
+          }
+
           toolResult = `Image processed (${opNames}) and saved as images/${newFilename}. Use search_replace to update the \\includegraphics reference from images/${filename} to images/${newFilename}.`
+
+          // Inject a visual review message so the AI can SEE if the processing worked
+          // This goes after the tool result and before the next AI turn
+          const reviewNote = sizeChanged
+            ? 'Look at the BEFORE and AFTER images. Does the processing look correct? If not, try process_image again with different parameters.'
+            : 'WARNING: The file sizes are nearly identical — the processing may not have worked. Look carefully at both images. If they look the same, try again with stronger parameters (e.g. higher fuzz for remove-background).'
+          messages.push({
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: toolResult,
+          })
+          messages.push({
+            role: 'user',
+            content: [
+              { type: 'text' as const, text: `[System: Image processing review]\n${reviewNote}\n\nBEFORE (${(inputBuffer.length / 1024).toFixed(0)}KB):` },
+              { type: 'image_url' as const, image_url: { url: `data:image/png;base64,${beforeB64}` } },
+              { type: 'text' as const, text: `AFTER (${(outputBuffer.length / 1024).toFixed(0)}KB):` },
+              { type: 'image_url' as const, image_url: { url: `data:image/png;base64,${afterB64}` } },
+            ],
+          })
           yield { type: 'message', message: `Image processed: ${newFilename}` }
           changeLog.push(`processed image: images/${filename} → images/${newFilename} (${opNames})`)
+          // Skip the normal tool result push since we already added it above
+          continue
         } catch (err) {
           toolResult = `Image processing failed: ${err instanceof Error ? err.message : 'Unknown error'}`
           yield { type: 'message', message: `Image processing failed: ${err instanceof Error ? err.message : 'Unknown error'}` }

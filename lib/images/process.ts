@@ -53,32 +53,27 @@ function buildConvertArgs(
   for (const op of operations) {
     switch (op.type) {
       case 'feather': {
-        // Vignette effect: feather edges to white
+        // Fade edges to transparent using an alpha mask with blurred border
         const radius = op.radius ?? 20
         args.push(
+          '-alpha', 'set',
           '(', '+clone',
-          '-alpha', 'extract',
-          '-draw', `fill black polygon 0,0 0,${radius} ${radius},0 fill white circle ${radius},${radius} ${radius},0`,
-          '-draw', `fill black polygon %[fx:w-1],0 %[fx:w-${radius}],0 %[fx:w-1],${radius} fill white circle %[fx:w-${radius}-1],${radius} %[fx:w-${radius}-1],0`,
-          '-draw', `fill black polygon 0,%[fx:h-1] 0,%[fx:h-${radius}] ${radius},%[fx:h-1] fill white circle ${radius},%[fx:h-${radius}-1] ${radius},%[fx:h-1]`,
-          '-draw', `fill black polygon %[fx:w-1],%[fx:h-1] %[fx:w-${radius}],%[fx:h-1] %[fx:w-1],%[fx:h-${radius}] fill white circle %[fx:w-${radius}-1],%[fx:h-${radius}-1] %[fx:w-${radius}-1],%[fx:h-1]`,
-          ')',
-          // Simpler approach: use a blur-based vignette
-          '-alpha', 'off',
+          '-channel', 'A', '-evaluate', 'set', '100%', '+channel',
+          '-background', 'none',
           '-vignette', `0x${radius}`,
-          '-background', 'white',
-          '-flatten'
+          ')',
+          '-compose', 'DstIn',
+          '-composite'
         )
         break
       }
 
       case 'remove-background': {
+        // Make matching background pixels transparent (keep alpha, no flatten)
         const fuzz = op.fuzz ?? 20
         args.push(
           '-fuzz', `${fuzz}%`,
-          '-transparent', 'white',
-          '-background', 'white',
-          '-flatten'
+          '-transparent', 'white'
         )
         break
       }
@@ -131,20 +126,17 @@ function buildConvertArgs(
       }
 
       case 'round-corners': {
+        // Round corners using an alpha mask (transparent corners)
         const radius = op.radius ?? 20
         args.push(
+          '-alpha', 'set',
           '(', '+clone',
-          '-alpha', 'extract',
-          '-draw', `fill black polygon 0,0 0,${radius} ${radius},0 fill white circle ${radius},${radius} ${radius},0`,
-          '-draw', `fill black polygon %[fx:w-1],0 %[fx:w-${radius}],0 %[fx:w-1],${radius} fill white circle %[fx:w-${radius}-1],${radius} %[fx:w-${radius}-1],0`,
-          '-draw', `fill black polygon 0,%[fx:h-1] 0,%[fx:h-${radius}] ${radius},%[fx:h-1] fill white circle ${radius},%[fx:h-${radius}-1] ${radius},%[fx:h-1]`,
-          '-draw', `fill black polygon %[fx:w-1],%[fx:h-1] %[fx:w-${radius}],%[fx:h-1] %[fx:w-1],%[fx:h-${radius}] fill white circle %[fx:w-${radius}-1],%[fx:h-${radius}-1] %[fx:w-${radius}-1],%[fx:h-1]`,
-          ')',
-          '-alpha', 'off',
-          '-compose', 'CopyOpacity',
-          '-composite',
+          '-alpha', 'transparent',
           '-background', 'white',
-          '-flatten'
+          '-draw', `roundrectangle 0,0,%[fx:w-1],%[fx:h-1],${radius},${radius}`,
+          ')',
+          '-compose', 'DstIn',
+          '-composite'
         )
         break
       }
