@@ -1,5 +1,5 @@
 import { createServerSupabase } from '@/lib/supabase/server'
-import { getProjectPdfUrl } from '@/lib/latex/compiler'
+import { getProjectPdfUrl, getProjectBleedPdfUrl } from '@/lib/latex/compiler'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/project/[id] — get project details
@@ -25,8 +25,10 @@ export async function GET(
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
-  // Get PDF URL if available
-  const pdfUrl = project.pdf_path ? await getProjectPdfUrl(params.id) : null
+  // Get PDF URLs if available
+  const [pdfUrl, bleedPdfUrl] = project.pdf_path
+    ? await Promise.all([getProjectPdfUrl(params.id), getProjectBleedPdfUrl(params.id)])
+    : [null, null]
 
   // Get chat history if owner
   let messages = null
@@ -43,6 +45,7 @@ export async function GET(
   return NextResponse.json({
     ...project,
     pdfUrl,
+    bleedPdfUrl,
     messages,
     isOwner: user?.id === project.user_id,
   })

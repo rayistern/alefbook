@@ -1,5 +1,5 @@
 import { createServerSupabase } from '@/lib/supabase/server'
-import { getProjectPdfUrl } from '@/lib/latex/compiler'
+import { getProjectPdfUrl, getProjectBleedPdfUrl } from '@/lib/latex/compiler'
 import { redirect, notFound } from 'next/navigation'
 import { ProjectEditor } from '@/components/project/ProjectEditor'
 
@@ -21,8 +21,10 @@ export default async function ProjectPage({ params }: { params: { id: string } }
   const isOwner = project.user_id === user.id
   if (!isOwner && !project.is_public) notFound()
 
-  // Get PDF URL
-  const pdfUrl = project.pdf_path ? await getProjectPdfUrl(params.id) : null
+  // Get PDF URLs (normal + bleed for print)
+  const [pdfUrl, bleedPdfUrl] = project.pdf_path
+    ? await Promise.all([getProjectPdfUrl(params.id), getProjectBleedPdfUrl(params.id)])
+    : [null, null]
 
   // Get chat history (owner only)
   let messages: { id: string; role: string; content: string; metadata: unknown; created_at: string }[] = []
@@ -40,6 +42,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
     <ProjectEditor
       project={project}
       pdfUrl={pdfUrl}
+      bleedPdfUrl={bleedPdfUrl}
       initialMessages={messages}
       isOwner={isOwner}
     />
