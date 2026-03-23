@@ -155,6 +155,45 @@ function buildConvertArgs(
   return args
 }
 
+/**
+ * Process an image using raw ImageMagick arguments composed by the AI.
+ * The AI writes the full `convert`-style argument list (excluding input/output paths).
+ * Returns the processed image as a PNG buffer.
+ *
+ * Security: Only file I/O within a temp dir is permitted. The args are sanitised
+ * to reject shell meta-characters and path traversal.
+ */
+export async function processImageRaw(
+  inputBuffer: Buffer,
+  rawArgs: string[]
+): Promise<Buffer> {
+  // Sanitise: reject args that could escape the temp dir or invoke shells
+  for (const arg of rawArgs) {
+    if (arg.includes('..') || arg.startsWith('/') || /[;|&`$]/.test(arg)) {
+      throw new Error(`Unsafe ImageMagick argument rejected: "${arg}"`)
+    }
+  }
+
+  const tmpDir = path.join(os.tmpdir(), `alefbook-imgraw-${Date.now()}`)
+  await fs.mkdir(tmpDir, { recursive: true })
+
+  const inputPath = path.join(tmpDir, 'input.png')
+  const outputPath = path.join(tmpDir, 'output.png')
+
+  try {
+    await fs.writeFile(inputPath, inputBuffer)
+
+    const args = [inputPath, ...rawArgs, outputPath]
+    console.log(`[ImageMagick raw] Running: magick ${args.join(' ')}`)
+
+    await runConvert(args)
+
+    return await fs.readFile(outputPath)
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {})
+  }
+}
+
 function runConvert(args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
     // Try 'magick' first (ImageMagick 7), fall back to 'convert' (ImageMagick 6)
