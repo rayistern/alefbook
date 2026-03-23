@@ -1136,6 +1136,12 @@ ${pageDiff ? `DETECTED: ${pageDiff}` : ''}
 - Are section markers intact and not duplicated?
 - Is \\begin{document} and \\end{document} present exactly once?
 
+**COLOR SYNTAX:**
+- Are hex colors used correctly? NEVER raw CSS-style \`#RRGGBB\` — the # character is invalid in xcolor.
+- NEVER inline HTML color syntax like \`fill={HTML}{...}\` or \`color[HTML]{...}\` inside TikZ environments (especially shipout overlays / remember picture overlays). This will fail to compile.
+- The ONLY safe way to use hex colors in TikZ: define a named color in the preamble with \`\\definecolor{name}{HTML}{RRGGBB}\`, then reference it by name (e.g. \`fill=name\`).
+- If new \\definecolor commands were added, verify they use the correct syntax: \`\\definecolor{name}{HTML}{RRGGBB}\` (no #, uppercase hex).
+
 **IMAGE REFERENCES:**
 - Does every \\includegraphics reference a plausible filename (not invented)?
 - Are image size parameters present (e.g., [width=...])? Missing sizes cause overflow.

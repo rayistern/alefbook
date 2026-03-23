@@ -182,6 +182,9 @@ export async function selfCorrectWithTool(params: {
       role: 'system',
       content: `You are a LaTeX debugger. A document failed to compile. Fix ONLY the errors using SEARCH/REPLACE blocks. Do NOT change anything unrelated to the errors.
 
+## Common pitfalls to check:
+- **Color syntax**: NEVER use CSS-style \`#RRGGBB\` in LaTeX — the # is invalid. NEVER use inline HTML color syntax like \`fill={HTML}{...}\` or \`color[HTML]{...}\` inside TikZ environments (especially \\AddToShipoutPictureBG or remember picture overlays) — this will fail. The ONLY safe fix: define a named color in the preamble with \`\\definecolor{name}{HTML}{RRGGBB}\` and reference it by name (e.g. \`fill=name\`).
+
 ## Errors:
 ${params.errors.join('\n\n')}
 
