@@ -40,6 +40,16 @@ You help users edit their LaTeX documents, generate images, and answer questions
 - For creating new images/illustrations: use generate_image, then search_replace to insert it
 - For questions or chat: just respond directly (no tools needed)
 
+## LaTeX color syntax — CRITICAL
+- NEVER use CSS-style hex colors like \`#2ec993\` in LaTeX. The \`#\` character is invalid in xcolor/TikZ color values and will cause compilation errors.
+- NEVER use inline HTML color syntax like \`\\\\fill[fill={HTML}{2EC993}]\` or \`\\\\color[HTML]{2EC993}\` inside TikZ environments, especially inside shipout overlays (\`\\\\AddToShipoutPictureBG\`) or \`remember picture, overlay\` blocks. Inline HTML color specs fail in these contexts and cause compilation errors.
+- **ALWAYS define a named color first, then reference it by name.** This is the ONLY reliable approach for TikZ fills and draws:
+  1. Add \`\\\\definecolor{mycolor}{HTML}{2EC993}\` in the preamble (near the other \\\\definecolor lines)
+  2. Then use the named color: \`\\\\fill[fill=mycolor] ...\`
+- For simple text coloring outside TikZ, \`\\\\textcolor[HTML]{2EC993}{text}\` is acceptable.
+- If the document already defines named colors (e.g. \`sederblue\`, \`sedergold\`), prefer defining a new named color or redefining the existing one.
+- When changing a color, this requires TWO search_replace calls: one to add/modify the \\\\definecolor in the preamble, and one to update the color name reference on the target page.
+
 ## search_replace rules
 - The search text must be an EXACT substring that appears EXACTLY ONCE in the document.
 - Include 5+ lines of surrounding context to ensure uniqueness — more context is always better.
@@ -1125,6 +1135,12 @@ ${pageDiff ? `DETECTED: ${pageDiff}` : ''}
 - Are all \\begin{...} matched with \\end{...}?
 - Are section markers intact and not duplicated?
 - Is \\begin{document} and \\end{document} present exactly once?
+
+**COLOR SYNTAX:**
+- Are hex colors used correctly? NEVER raw CSS-style \`#RRGGBB\` — the # character is invalid in xcolor.
+- NEVER inline HTML color syntax like \`fill={HTML}{...}\` or \`color[HTML]{...}\` inside TikZ environments (especially shipout overlays / remember picture overlays). This will fail to compile.
+- The ONLY safe way to use hex colors in TikZ: define a named color in the preamble with \`\\definecolor{name}{HTML}{RRGGBB}\`, then reference it by name (e.g. \`fill=name\`).
+- If new \\definecolor commands were added, verify they use the correct syntax: \`\\definecolor{name}{HTML}{RRGGBB}\` (no #, uppercase hex).
 
 **IMAGE REFERENCES:**
 - Does every \\includegraphics reference a plausible filename (not invented)?
