@@ -5,7 +5,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { renderPdfPages, getPdfPageCount } from '@/lib/latex/pdf-to-image'
 import { applyEdits, selfCorrectWithTool } from './latex-edit-tool'
 import { sanitizeLatex, validateLatex } from './latex-editor'
-import { processImage, ImageOperation } from '@/lib/images/process'
+import { processImage, processImageRaw, ImageOperation } from '@/lib/images/process'
 
 export interface TaskEvent {
   type: 'status' | 'compile_start' | 'compile_done' | 'compile_error' | 'message' | 'done'
@@ -104,20 +104,23 @@ You have FULL PERMISSION to remove ANY decorative element on ANY page. Preservin
   - Style should be warm and family-friendly
 - Do NOT dump all these guidelines into every prompt — only include what's relevant to the specific image being generated.
 
-## process_image rules
-- Use process_image to enhance images AFTER generating or uploading them.
-- Common use cases:
-  - **feather**: Soft-fade edges to white so the image blends into the page. Great for photos or illustrations that look too sharp/boxy.
-  - **remove-background**: Attempts to remove white/light backgrounds. Works best on images with solid-color backgrounds. Use a higher fuzz value (25-40) for off-white backgrounds.
-  - **trim**: Remove extra whitespace around the image edges.
-  - **round-corners**: Give the image rounded corners for a softer look.
-  - **shadow**: Add a drop shadow for a 3D effect.
-  - **grayscale** / **sepia**: Convert to grayscale or sepia tone.
-  - **brightness-contrast**: Adjust brightness and contrast.
-  - **resize**: Resize to specific pixel dimensions.
-- You can chain multiple operations in one call (e.g., trim + feather + shadow).
+## Image processing rules
+
+### imagemagick tool (PREFERRED for any image manipulation)
+- Use the **imagemagick** tool to run arbitrary ImageMagick \`convert\` operations on images.
+- You write the raw ImageMagick arguments yourself — you have full creative control.
+- The tool takes a filename and an array of argument strings that go between the input and output paths.
+- Example: to feather edges very slightly: \`["-alpha", "set", "-vignette", "0x3"]\`
+- Example: to add a soft 2px Gaussian blur to edges only: \`["-alpha", "set", "(", "+clone", "-channel", "A", "-morphology", "Erode", "Disk:2", "+channel", ")", "-compose", "DstIn", "-composite"]\`
+- Example: to convert to grayscale: \`["-colorspace", "Gray"]\`
+- Example: to resize to 400px wide: \`["-resize", "400x"]\`
+- You can compose ANY valid ImageMagick convert arguments. Use your knowledge of ImageMagick to craft the exact command needed.
 - The processed image is saved as a NEW file — update the \\includegraphics reference via search_replace.
-- Do NOT process images unless the user asks or it would clearly improve the result (e.g., a photo with a busy background being inserted into a decorated page).
+- Do NOT process images unless the user asks or it would clearly improve the result.
+
+### process_image tool (LEGACY — simple presets only)
+- Use process_image only for simple preset operations (feather, trim, resize, grayscale, sepia, etc.).
+- For anything that needs fine control or custom parameters, use the **imagemagick** tool instead.
 
 ## File uploads
 - \`[Uploaded: filename.png]\` → use exactly: \\\\includegraphics{images/filename.png}
@@ -218,6 +221,33 @@ const TOOL_DEFINITIONS: OpenAI.ChatCompletionTool[] = [
           },
         },
         required: ['filename', 'operations'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'imagemagick',
+      description:
+        'Run arbitrary ImageMagick convert arguments on an image. You compose the exact ImageMagick arguments yourself — full creative control over any image operation. The args array contains everything between the input and output paths (e.g. ["-alpha", "set", "-vignette", "0x3"] for subtle edge feathering). Returns the new filename.',
+      parameters: {
+        type: 'object',
+        properties: {
+          filename: {
+            type: 'string',
+            description: 'The image filename to process (e.g. "images/gen-1234.png" or "images/uploaded.png")',
+          },
+          args: {
+            type: 'array',
+            description: 'ImageMagick convert arguments to apply between input and output paths. Each element is one argument token.',
+            items: { type: 'string' },
+          },
+          description: {
+            type: 'string',
+            description: 'Brief description of what this ImageMagick command does (for the changelog)',
+          },
+        },
+        required: ['filename', 'args'],
       },
     },
   },
@@ -430,6 +460,65 @@ export async function* runOrchestrator(
         } catch (err) {
           toolResult = `Image processing failed: ${err instanceof Error ? err.message : 'Unknown error'}`
           yield { type: 'message', message: `Image processing failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
+        }
+      } else if (toolCall.function.name === 'imagemagick') {
+        yield { type: 'status', message: 'Processing image with ImageMagick...' }
+        try {
+          const args = JSON.parse(toolCall.function.arguments)
+          const filename = args.filename.replace(/^images\//, '')
+          const imgPath = `projects/${params.projectId}/images/${filename}`
+          const { data: imgBlob, error: dlError } = await supabase.storage
+            .from('projects')
+            .download(imgPath)
+
+          if (dlError || !imgBlob) {
+            throw new Error(`Could not download image ${filename}: ${dlError?.message ?? 'not found'}`)
+          }
+
+          const inputBuffer = Buffer.from(await imgBlob.arrayBuffer())
+          const rawArgs: string[] = args.args
+          const outputBuffer = await processImageRaw(inputBuffer, rawArgs)
+
+          const newFilename = `proc-${Date.now()}.png`
+          await uploadProjectImage(params.projectId, newFilename, outputBuffer)
+
+          const desc = args.description || rawArgs.join(' ')
+
+          // Visual review — same pattern as process_image
+          const beforeB64 = inputBuffer.toString('base64')
+          const afterB64 = outputBuffer.toString('base64')
+          const sizeDiff = Math.abs(outputBuffer.length - inputBuffer.length)
+          const sizeChanged = sizeDiff > inputBuffer.length * 0.02
+
+          if (!sizeChanged) {
+            console.warn(`[ImageMagick raw] Output nearly identical to input (${inputBuffer.length} → ${outputBuffer.length} bytes)`)
+          }
+
+          toolResult = `Image processed and saved as images/${newFilename}. Use search_replace to update the \\includegraphics reference from images/${filename} to images/${newFilename}.`
+
+          const imReviewNote = sizeChanged
+            ? 'Look at the BEFORE and AFTER images. Does the processing look correct? If not, try imagemagick again with different arguments.'
+            : 'WARNING: The file sizes are nearly identical — the processing may not have worked. Look carefully at both images. If they look the same, try again with different arguments.'
+          messages.push({
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: toolResult,
+          })
+          messages.push({
+            role: 'user',
+            content: [
+              { type: 'text' as const, text: `[System: ImageMagick review]\n${imReviewNote}\n\nBEFORE (${(inputBuffer.length / 1024).toFixed(0)}KB):` },
+              { type: 'image_url' as const, image_url: { url: `data:image/png;base64,${beforeB64}` } },
+              { type: 'text' as const, text: `AFTER (${(outputBuffer.length / 1024).toFixed(0)}KB):` },
+              { type: 'image_url' as const, image_url: { url: `data:image/png;base64,${afterB64}` } },
+            ],
+          })
+          yield { type: 'message', message: `Image processed: ${newFilename}` }
+          changeLog.push(`processed image: images/${filename} → images/${newFilename} (${desc})`)
+          continue
+        } catch (err) {
+          toolResult = `ImageMagick failed: ${err instanceof Error ? err.message : 'Unknown error'}. Check your arguments and try again.`
+          yield { type: 'message', message: `ImageMagick failed: ${err instanceof Error ? err.message : 'Unknown error'}` }
         }
       } else if (toolCall.function.name === 'undo_all_changes') {
         const args = JSON.parse(toolCall.function.arguments).reason || 'undo requested'
