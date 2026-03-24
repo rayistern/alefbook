@@ -88,12 +88,12 @@ Templates must be compiled after changes to generate cached PDFs shown to new pr
 ### How to compile
 Hit the admin endpoint on the deployed site:
 ```bash
-curl -s -X POST https://alefbook-production.up.railway.app/api/admin/compile-templates
+curl -s -X POST https://haggadah.shluchimexchange.ai/api/admin/compile-templates
 ```
 
 If `ADMIN_SECRET` env var is set, pass it as a query param:
 ```bash
-curl -s -X POST "https://alefbook-production.up.railway.app/api/admin/compile-templates?secret=YOUR_SECRET"
+curl -s -X POST "https://haggadah.shluchimexchange.ai/api/admin/compile-templates?secret=YOUR_SECRET"
 ```
 
 ### What it does
