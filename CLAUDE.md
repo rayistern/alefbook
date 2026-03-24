@@ -20,7 +20,6 @@ AlefBook v2 is a **LaTeX-based book creation platform**. Users chat with an AI a
 - **Image Gen**: OpenRouter (user-selectable model)
 - **PDF Viewer**: react-pdf (pdf.js)
 - **UI**: Tailwind + Radix primitives
-- **Rate Limit**: Upstash Redis
 - **Deploy**: Railway via Docker
 
 ### Key Directories
@@ -128,8 +127,6 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 OPENROUTER_API_KEY=
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
 NEXT_PUBLIC_APP_URL=
 ```
 
