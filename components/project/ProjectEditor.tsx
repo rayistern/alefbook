@@ -302,7 +302,7 @@ export function ProjectEditor({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium hover:bg-purple-50 hover:border-purple-200 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
-                title="Download print-ready PDF — flattened, with bleed &amp; crop marks"
+                title="Download flattened print-ready PDF"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -314,7 +314,7 @@ export function ProjectEditor({
                 onClick={handleGenerateBleedPdf}
                 disabled={compiling}
                 className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium hover:bg-purple-50 hover:border-purple-200 disabled:opacity-50 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
-                title="Generate &amp; download print-ready PDF with bleed &amp; crop marks"
+                title="Generate flattened print-ready PDF"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />

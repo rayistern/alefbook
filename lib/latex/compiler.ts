@@ -351,15 +351,8 @@ function parseLatexErrors(log: string): string[] {
  * extend images/backgrounds into the bleed zone at design time.
  */
 async function createBleedPdf(inputPath: string, outputPath: string): Promise<void> {
-  // Read page dimensions from the input PDF using pdfinfo
-  const { trimW, trimH } = await getPdfPageSize(inputPath)
-  const bleed = 9 // 0.125in in points (1in = 72bp)
-  const mediaW = trimW + 2 * bleed
-  const mediaH = trimH + 2 * bleed
+  console.log(`[Compiler] Creating flattened print PDF from ${inputPath}`)
 
-  console.log(`[Compiler] Creating bleed PDF: ${trimW}×${trimH}pt → ${mediaW}×${mediaH}pt (+${bleed}pt bleed)`)
-
-  // Step 1: Expand pages and flatten with Ghostscript (reliable, well-tested)
   await new Promise<void>((resolve, reject) => {
     execFile(
       'gs',
@@ -367,54 +360,23 @@ async function createBleedPdf(inputPath: string, outputPath: string): Promise<vo
         '-sDEVICE=pdfwrite',
         '-dCompatibilityLevel=1.4',
         '-dPDFSETTINGS=/prepress',
-        '-dEmbedAllFonts=true',
-        '-dSubsetFonts=true',
-        '-dCompressFonts=true',
-        '-dAutoRotatePages=/None',
-        `-dDEVICEWIDTHPOINTS=${mediaW}`,
-        `-dDEVICEHEIGHTPOINTS=${mediaH}`,
-        '-dFIXEDMEDIA',
         '-dNOPAUSE', '-dBATCH',
-        '-c', `<</PageOffset [${bleed} ${bleed}]>> setpagedevice`,
-        '-f', inputPath,
         `-sOutputFile=${outputPath}`,
+        inputPath,
       ],
       { timeout: 60_000, maxBuffer: 5 * 1024 * 1024 },
       (error, stdout, stderr) => {
         if (error) {
-          console.error('[Compiler] Bleed PDF gs error:', error.message)
+          console.error('[Compiler] Flatten PDF error:', error.message)
           console.error('[Compiler] gs stderr:', stderr?.slice(-1000))
           reject(error)
         } else {
-          console.log(`[Compiler] Bleed PDF created (flattened/prepress)`)
+          console.log('[Compiler] Flattened print PDF created')
           resolve()
         }
       }
     )
   })
-}
-
-/**
- * Read page dimensions (in points) from the first page of a PDF using pdfinfo.
- * Falls back to 7×10in (504×720pt) if parsing fails.
- */
-async function getPdfPageSize(pdfPath: string): Promise<{ trimW: number; trimH: number }> {
-  const fallback = { trimW: 504, trimH: 720 } // 7in × 10in
-  try {
-    const output = await new Promise<string>((resolve, reject) => {
-      execFile('pdfinfo', [pdfPath], { timeout: 10_000 }, (err, stdout) =>
-        err ? reject(err) : resolve(stdout)
-      )
-    })
-    // pdfinfo outputs: "Page size:      504 x 720 pts"
-    const match = output.match(/Page size:\s+([\d.]+)\s+x\s+([\d.]+)/)
-    if (match) {
-      return { trimW: Math.round(parseFloat(match[1])), trimH: Math.round(parseFloat(match[2])) }
-    }
-  } catch {
-    // non-fatal
-  }
-  return fallback
 }
 
 /**
