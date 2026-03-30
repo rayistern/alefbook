@@ -356,33 +356,10 @@ async function createBleedPdf(inputPath: string, outputPath: string): Promise<vo
   const bleed = 9 // 0.125in in points (1in = 72bp)
   const mediaW = trimW + 2 * bleed
   const mediaH = trimH + 2 * bleed
-  const markLen = 18 // crop mark length (~0.25in)
-  const gap = 2      // gap between trim edge and mark start
-
-  // Write crop marks PostScript to a temp file (avoids shell escaping issues)
-  const bl = bleed
-  const tw = trimW
-  const th = trimH
-  const cropMarksPs = path.join(path.dirname(inputPath), 'cropmarks.ps')
-  await fs.writeFile(cropMarksPs, [
-    `<< /EndPage {`,
-    `  exch pop 0 eq {`,
-    `    gsave 0.3 setlinewidth 0 setgray`,
-    `    ${bl} ${bl - gap} moveto ${bl} ${bl - gap - markLen} lineto stroke`,
-    `    ${bl - gap} ${bl} moveto ${bl - gap - markLen} ${bl} lineto stroke`,
-    `    ${bl + tw} ${bl - gap} moveto ${bl + tw} ${bl - gap - markLen} lineto stroke`,
-    `    ${bl + tw + gap} ${bl} moveto ${bl + tw + gap + markLen} ${bl} lineto stroke`,
-    `    ${bl} ${bl + th + gap} moveto ${bl} ${bl + th + gap + markLen} lineto stroke`,
-    `    ${bl - gap} ${bl + th} moveto ${bl - gap - markLen} ${bl + th} lineto stroke`,
-    `    ${bl + tw} ${bl + th + gap} moveto ${bl + tw} ${bl + th + gap + markLen} lineto stroke`,
-    `    ${bl + tw + gap} ${bl + th} moveto ${bl + tw + gap + markLen} ${bl + th} lineto stroke`,
-    `    grestore true`,
-    `  } { false } ifelse`,
-    `} >> setpagedevice`,
-  ].join('\n'))
 
   console.log(`[Compiler] Creating bleed PDF: ${trimW}×${trimH}pt → ${mediaW}×${mediaH}pt (+${bleed}pt bleed)`)
 
+  // Step 1: Expand pages and flatten with Ghostscript (reliable, well-tested)
   await new Promise<void>((resolve, reject) => {
     execFile(
       'gs',
@@ -399,7 +376,6 @@ async function createBleedPdf(inputPath: string, outputPath: string): Promise<vo
         '-dFIXEDMEDIA',
         '-dNOPAUSE', '-dBATCH',
         '-c', `<</PageOffset [${bleed} ${bleed}]>> setpagedevice`,
-        '-f', cropMarksPs,
         '-f', inputPath,
         `-sOutputFile=${outputPath}`,
       ],
