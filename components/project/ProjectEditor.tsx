@@ -314,7 +314,7 @@ export function ProjectEditor({
                     </svg>
                     <div>
                       <div className="text-xs font-medium">Download Print PDF</div>
-                      <div className="text-[10px] text-muted-foreground">With 0.125&quot; bleed &amp; crop marks</div>
+                      <div className="text-[10px] text-muted-foreground">Flattened, 0.125&quot; bleed &amp; crop marks</div>
                     </div>
                   </a>
                 </div>
