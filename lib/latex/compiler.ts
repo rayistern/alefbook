@@ -8,6 +8,7 @@ import { getPdfPageCount } from './pdf-to-image'
 export interface CompileResult {
   success: boolean
   pdfPath?: string
+  bleedPdfPath?: string
   log?: string
   errors?: string[]
 }
@@ -98,6 +99,25 @@ export async function compileProject(
         return { success: false, errors: [`PDF upload failed: ${uploadError.message}`] }
       }
 
+      // Generate bleed PDF (expanded pages with 0.125" bleed area)
+      let bleedPdfStoragePath: string | undefined
+      try {
+        const bleedPath = path.join(tmpDir, 'main-bleed.pdf')
+        await createBleedPdf(path.join(tmpDir, 'main.pdf'), bleedPath)
+        const bleedFile = await fs.readFile(bleedPath)
+        bleedPdfStoragePath = `projects/${projectId}/output/main-bleed.pdf`
+        await supabase.storage
+          .from('projects')
+          .upload(bleedPdfStoragePath, bleedFile, {
+            contentType: 'application/pdf',
+            upsert: true,
+          })
+        console.log('[Compiler] Bleed PDF uploaded to', bleedPdfStoragePath)
+      } catch (err) {
+        console.warn('[Compiler] Bleed PDF generation failed (non-fatal):', err)
+        bleedPdfStoragePath = undefined
+      }
+
       // Count pages in the compiled PDF
       let pageCount: number | undefined
       try {
@@ -117,7 +137,7 @@ export async function compileProject(
         })
         .eq('id', projectId)
 
-      return { success: true, pdfPath: pdfStoragePath, log: result.log }
+      return { success: true, pdfPath: pdfStoragePath, bleedPdfPath: bleedPdfStoragePath, log: result.log }
     } else {
       // Update project with error
       await supabase
@@ -317,6 +337,94 @@ function parseLatexErrors(log: string): string[] {
 }
 
 /**
+ * Create a bleed PDF from a trim-size PDF using Ghostscript.
+ * Expands each page by 0.125" (9pt) on every side, centering the
+ * original content. The bleed area is white — suitable for most book
+ * layouts where content doesn't extend to the edge.
+ *
+ * Also draws crop marks at each corner so the printer knows where to trim.
+ */
+async function createBleedPdf(inputPath: string, outputPath: string): Promise<void> {
+  // Read page dimensions from the input PDF using pdfinfo
+  const { trimW, trimH } = await getPdfPageSize(inputPath)
+  const bleed = 9 // 0.125in in points (1in = 72bp)
+  const mediaW = trimW + 2 * bleed
+  const mediaH = trimH + 2 * bleed
+  const markLen = 18 // crop mark length (~0.25in)
+  const gap = 2      // gap between trim edge and mark start
+
+  // PostScript snippet that draws crop marks after each page is rendered.
+  // EndPage is called with <pagecount> <reason> on stack; reason 0 = showpage.
+  const cropMarksPS = `
+<< /EndPage {
+  exch pop 0 eq {
+    gsave
+    0.3 setlinewidth 0 setgray
+    % Bottom-left corner
+    ${bleed} ${bleed - gap} moveto ${bleed} ${bleed - gap - markLen} lineto stroke
+    ${bleed - gap} ${bleed} moveto ${bleed - gap - markLen} ${bleed} lineto stroke
+    % Bottom-right corner
+    ${bleed + trimW} ${bleed - gap} moveto ${bleed + trimW} ${bleed - gap - markLen} lineto stroke
+    ${bleed + trimW + gap} ${bleed} moveto ${bleed + trimW + gap + markLen} ${bleed} lineto stroke
+    % Top-left corner
+    ${bleed} ${bleed + trimH + gap} moveto ${bleed} ${bleed + trimH + gap + markLen} lineto stroke
+    ${bleed - gap} ${bleed + trimH} moveto ${bleed - gap - markLen} ${bleed + trimH} lineto stroke
+    % Top-right corner
+    ${bleed + trimW} ${bleed + trimH + gap} moveto ${bleed + trimW} ${bleed + trimH + gap + markLen} lineto stroke
+    ${bleed + trimW + gap} ${bleed + trimH} moveto ${bleed + trimW + gap + markLen} ${bleed + trimH} lineto stroke
+    grestore
+    true
+  } { false } ifelse
+} >> setpagedevice
+`
+
+  await new Promise<void>((resolve, reject) => {
+    execFile(
+      'gs',
+      [
+        '-sDEVICE=pdfwrite',
+        '-dCompatibilityLevel=1.4',
+        `-dDEVICEWIDTHPOINTS=${mediaW}`,
+        `-dDEVICEHEIGHTPOINTS=${mediaH}`,
+        '-dFIXEDMEDIA',
+        '-dNOPAUSE', '-dBATCH', '-dQUIET',
+        '-c', `<</PageOffset [${bleed} ${bleed}]>> setpagedevice`,
+        '-c', cropMarksPS,
+        '-f', inputPath,
+        `-sOutputFile=${outputPath}`,
+      ],
+      { timeout: 60_000, maxBuffer: 5 * 1024 * 1024 },
+      (error) => (error ? reject(error) : resolve())
+    )
+  })
+
+  console.log(`[Compiler] Bleed PDF created: ${trimW}×${trimH}pt → ${mediaW}×${mediaH}pt (+${bleed}pt bleed)`)
+}
+
+/**
+ * Read page dimensions (in points) from the first page of a PDF using pdfinfo.
+ * Falls back to 7×10in (504×720pt) if parsing fails.
+ */
+async function getPdfPageSize(pdfPath: string): Promise<{ trimW: number; trimH: number }> {
+  const fallback = { trimW: 504, trimH: 720 } // 7in × 10in
+  try {
+    const output = await new Promise<string>((resolve, reject) => {
+      execFile('pdfinfo', [pdfPath], { timeout: 10_000 }, (err, stdout) =>
+        err ? reject(err) : resolve(stdout)
+      )
+    })
+    // pdfinfo outputs: "Page size:      504 x 720 pts"
+    const match = output.match(/Page size:\s+([\d.]+)\s+x\s+([\d.]+)/)
+    if (match) {
+      return { trimW: Math.round(parseFloat(match[1])), trimH: Math.round(parseFloat(match[2])) }
+    }
+  } catch {
+    // non-fatal
+  }
+  return fallback
+}
+
+/**
  * Get a signed URL for a project's compiled PDF
  */
 export async function getProjectPdfUrl(projectId: string): Promise<string | null> {
@@ -333,6 +441,22 @@ export async function getProjectPdfUrl(projectId: string): Promise<string | null
   const { data } = await supabase.storage
     .from('projects')
     .createSignedUrl(project.pdf_path, 3600) // 1 hour
+
+  return data?.signedUrl ?? null
+}
+
+/**
+ * Get a signed URL for a project's bleed PDF (print-ready with crop marks).
+ * The bleed PDF is stored alongside the normal PDF at output/main-bleed.pdf.
+ * Returns null if no bleed PDF exists (e.g. older projects compiled before this feature).
+ */
+export async function getProjectBleedPdfUrl(projectId: string): Promise<string | null> {
+  const supabase = createServiceClient()
+  const storagePath = `projects/${projectId}/output/main-bleed.pdf`
+
+  const { data } = await supabase.storage
+    .from('projects')
+    .createSignedUrl(storagePath, 3600) // 1 hour
 
   return data?.signedUrl ?? null
 }

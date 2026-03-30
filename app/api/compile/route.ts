@@ -1,5 +1,5 @@
 import { createServerSupabase } from '@/lib/supabase/server'
-import { compileProject, getProjectPdfUrl } from '@/lib/latex/compiler'
+import { compileProject, getProjectPdfUrl, getProjectBleedPdfUrl } from '@/lib/latex/compiler'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const maxDuration = 120
@@ -28,8 +28,11 @@ export async function POST(request: NextRequest) {
   const result = await compileProject(projectId, undefined, project.template_id)
 
   if (result.success) {
-    const pdfUrl = await getProjectPdfUrl(projectId)
-    return NextResponse.json({ success: true, pdfUrl })
+    const [pdfUrl, bleedPdfUrl] = await Promise.all([
+      getProjectPdfUrl(projectId),
+      getProjectBleedPdfUrl(projectId),
+    ])
+    return NextResponse.json({ success: true, pdfUrl, bleedPdfUrl })
   } else {
     return NextResponse.json({ success: false, errors: result.errors }, { status: 422 })
   }

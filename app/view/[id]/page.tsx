@@ -1,5 +1,5 @@
 import { createServerSupabase } from '@/lib/supabase/server'
-import { getProjectPdfUrl } from '@/lib/latex/compiler'
+import { getProjectPdfUrl, getProjectBleedPdfUrl } from '@/lib/latex/compiler'
 import { notFound } from 'next/navigation'
 import { ProjectEditor } from '@/components/project/ProjectEditor'
 
@@ -18,13 +18,16 @@ export default async function ViewProjectPage({ params }: { params: { id: string
   // Must be public or owned by user
   if (!project.is_public && project.user_id !== user?.id) notFound()
 
-  const pdfUrl = project.pdf_path ? await getProjectPdfUrl(params.id) : null
+  const [pdfUrl, bleedPdfUrl] = project.pdf_path
+    ? await Promise.all([getProjectPdfUrl(params.id), getProjectBleedPdfUrl(params.id)])
+    : [null, null]
   const isOwner = user?.id === project.user_id
 
   return (
     <ProjectEditor
       project={project}
       pdfUrl={pdfUrl}
+      bleedPdfUrl={bleedPdfUrl}
       initialMessages={[]}
       isOwner={isOwner}
       isLoggedIn={!!user}
