@@ -359,57 +359,63 @@ async function createBleedPdf(inputPath: string, outputPath: string): Promise<vo
   const markLen = 18 // crop mark length (~0.25in)
   const gap = 2      // gap between trim edge and mark start
 
-  // PostScript snippet that draws crop marks after each page is rendered.
-  // EndPage is called with <pagecount> <reason> on stack; reason 0 = showpage.
-  const cropMarksPS = `
-<< /EndPage {
-  exch pop 0 eq {
-    gsave
-    0.3 setlinewidth 0 setgray
-    % Bottom-left corner
-    ${bleed} ${bleed - gap} moveto ${bleed} ${bleed - gap - markLen} lineto stroke
-    ${bleed - gap} ${bleed} moveto ${bleed - gap - markLen} ${bleed} lineto stroke
-    % Bottom-right corner
-    ${bleed + trimW} ${bleed - gap} moveto ${bleed + trimW} ${bleed - gap - markLen} lineto stroke
-    ${bleed + trimW + gap} ${bleed} moveto ${bleed + trimW + gap + markLen} ${bleed} lineto stroke
-    % Top-left corner
-    ${bleed} ${bleed + trimH + gap} moveto ${bleed} ${bleed + trimH + gap + markLen} lineto stroke
-    ${bleed - gap} ${bleed + trimH} moveto ${bleed - gap - markLen} ${bleed + trimH} lineto stroke
-    % Top-right corner
-    ${bleed + trimW} ${bleed + trimH + gap} moveto ${bleed + trimW} ${bleed + trimH + gap + markLen} lineto stroke
-    ${bleed + trimW + gap} ${bleed + trimH} moveto ${bleed + trimW + gap + markLen} ${bleed + trimH} lineto stroke
-    grestore
-    true
-  } { false } ifelse
-} >> setpagedevice
-`
+  // Write crop marks PostScript to a temp file (avoids shell escaping issues)
+  const bl = bleed
+  const tw = trimW
+  const th = trimH
+  const cropMarksPs = path.join(path.dirname(inputPath), 'cropmarks.ps')
+  await fs.writeFile(cropMarksPs, [
+    `<< /EndPage {`,
+    `  exch pop 0 eq {`,
+    `    gsave 0.3 setlinewidth 0 setgray`,
+    `    ${bl} ${bl - gap} moveto ${bl} ${bl - gap - markLen} lineto stroke`,
+    `    ${bl - gap} ${bl} moveto ${bl - gap - markLen} ${bl} lineto stroke`,
+    `    ${bl + tw} ${bl - gap} moveto ${bl + tw} ${bl - gap - markLen} lineto stroke`,
+    `    ${bl + tw + gap} ${bl} moveto ${bl + tw + gap + markLen} ${bl} lineto stroke`,
+    `    ${bl} ${bl + th + gap} moveto ${bl} ${bl + th + gap + markLen} lineto stroke`,
+    `    ${bl - gap} ${bl + th} moveto ${bl - gap - markLen} ${bl + th} lineto stroke`,
+    `    ${bl + tw} ${bl + th + gap} moveto ${bl + tw} ${bl + th + gap + markLen} lineto stroke`,
+    `    ${bl + tw + gap} ${bl + th} moveto ${bl + tw + gap + markLen} ${bl + th} lineto stroke`,
+    `    grestore true`,
+    `  } { false } ifelse`,
+    `} >> setpagedevice`,
+  ].join('\n'))
+
+  console.log(`[Compiler] Creating bleed PDF: ${trimW}×${trimH}pt → ${mediaW}×${mediaH}pt (+${bleed}pt bleed)`)
 
   await new Promise<void>((resolve, reject) => {
     execFile(
       'gs',
       [
         '-sDEVICE=pdfwrite',
-        '-dCompatibilityLevel=1.4',       // flattens transparency
-        '-dPDFSETTINGS=/prepress',        // 300 DPI, embed all fonts, print-ready
-        '-dEmbedAllFonts=true',           // ensure every font is embedded
-        '-dSubsetFonts=true',             // subset to reduce size
+        '-dCompatibilityLevel=1.4',
+        '-dPDFSETTINGS=/prepress',
+        '-dEmbedAllFonts=true',
+        '-dSubsetFonts=true',
         '-dCompressFonts=true',
-        '-dAutoRotatePages=/None',        // preserve page orientation
+        '-dAutoRotatePages=/None',
         `-dDEVICEWIDTHPOINTS=${mediaW}`,
         `-dDEVICEHEIGHTPOINTS=${mediaH}`,
         '-dFIXEDMEDIA',
-        '-dNOPAUSE', '-dBATCH', '-dQUIET',
+        '-dNOPAUSE', '-dBATCH',
         '-c', `<</PageOffset [${bleed} ${bleed}]>> setpagedevice`,
-        '-c', cropMarksPS,
+        '-f', cropMarksPs,
         '-f', inputPath,
         `-sOutputFile=${outputPath}`,
       ],
       { timeout: 60_000, maxBuffer: 5 * 1024 * 1024 },
-      (error) => (error ? reject(error) : resolve())
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error('[Compiler] Bleed PDF gs error:', error.message)
+          console.error('[Compiler] gs stderr:', stderr?.slice(-1000))
+          reject(error)
+        } else {
+          console.log(`[Compiler] Bleed PDF created (flattened/prepress)`)
+          resolve()
+        }
+      }
     )
   })
-
-  console.log(`[Compiler] Bleed PDF created (flattened/prepress): ${trimW}×${trimH}pt → ${mediaW}×${mediaH}pt (+${bleed}pt bleed)`)
 }
 
 /**
