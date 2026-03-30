@@ -104,6 +104,30 @@ export function ProjectEditor({
     }
   }, [project.id])
 
+  const handleGenerateBleedPdf = useCallback(async () => {
+    setCompiling(true)
+    try {
+      const res = await fetch('/api/compile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId: project.id }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.pdfUrl) {
+          setPdfUrl(data.pdfUrl)
+          setPdfKey(k => k + 1)
+        }
+        if (data.bleedPdfUrl) {
+          setBleedPdfUrl(data.bleedPdfUrl)
+          window.open(data.bleedPdfUrl, '_blank')
+        }
+      }
+    } finally {
+      setCompiling(false)
+    }
+  }, [project.id])
+
   const handleChatDone = useCallback(() => {
     // Short delay to let Supabase storage flush the new PDF before fetching
     setTimeout(() => refreshPdf(), 1500)
@@ -287,10 +311,10 @@ export function ProjectEditor({
               </a>
             ) : (
               <button
-                onClick={handleCompile}
+                onClick={handleGenerateBleedPdf}
                 disabled={compiling}
                 className="rounded-lg border border-purple-100 px-2 md:px-3 py-1.5 min-h-[44px] text-xs font-medium hover:bg-purple-50 hover:border-purple-200 disabled:opacity-50 transition-colors flex items-center gap-1.5 whitespace-nowrap shrink-0"
-                title="Regenerate to create print-ready PDF with bleed &amp; crop marks"
+                title="Generate &amp; download print-ready PDF with bleed &amp; crop marks"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
