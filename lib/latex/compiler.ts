@@ -358,7 +358,7 @@ async function createBleedPdf(inputPath: string, outputPath: string): Promise<vo
       'gs',
       [
         '-sDEVICE=pdfwrite',
-        '-dCompatibilityLevel=1.4',
+        '-dCompatibilityLevel=1.3',
         '-dPDFSETTINGS=/prepress',
         '-dNOPAUSE', '-dBATCH',
         `-sOutputFile=${outputPath}`,
