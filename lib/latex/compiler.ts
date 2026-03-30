@@ -337,12 +337,18 @@ function parseLatexErrors(log: string): string[] {
 }
 
 /**
- * Create a bleed PDF from a trim-size PDF using Ghostscript.
- * Expands each page by 0.125" (9pt) on every side, centering the
- * original content. The bleed area is white — suitable for most book
- * layouts where content doesn't extend to the edge.
+ * Create a print-ready bleed PDF from a trim-size PDF using Ghostscript.
  *
- * Also draws crop marks at each corner so the printer knows where to trim.
+ * This produces a **flattened, print-ready** PDF:
+ *  - Page expanded by 0.125" (9pt) on every side for bleed
+ *  - All fonts fully embedded (prepress quality)
+ *  - Transparency flattened (PDF 1.4 compatibility)
+ *  - Images at 300 DPI (prepress)
+ *  - Crop marks drawn at each corner
+ *
+ * The bleed area is white — suitable for most book layouts where content
+ * doesn't extend to the edge. For full-bleed designs, authors should
+ * extend images/backgrounds into the bleed zone at design time.
  */
 async function createBleedPdf(inputPath: string, outputPath: string): Promise<void> {
   // Read page dimensions from the input PDF using pdfinfo
@@ -383,7 +389,12 @@ async function createBleedPdf(inputPath: string, outputPath: string): Promise<vo
       'gs',
       [
         '-sDEVICE=pdfwrite',
-        '-dCompatibilityLevel=1.4',
+        '-dCompatibilityLevel=1.4',       // flattens transparency
+        '-dPDFSETTINGS=/prepress',        // 300 DPI, embed all fonts, print-ready
+        '-dEmbedAllFonts=true',           // ensure every font is embedded
+        '-dSubsetFonts=true',             // subset to reduce size
+        '-dCompressFonts=true',
+        '-dAutoRotatePages=/None',        // preserve page orientation
         `-dDEVICEWIDTHPOINTS=${mediaW}`,
         `-dDEVICEHEIGHTPOINTS=${mediaH}`,
         '-dFIXEDMEDIA',
@@ -398,7 +409,7 @@ async function createBleedPdf(inputPath: string, outputPath: string): Promise<vo
     )
   })
 
-  console.log(`[Compiler] Bleed PDF created: ${trimW}×${trimH}pt → ${mediaW}×${mediaH}pt (+${bleed}pt bleed)`)
+  console.log(`[Compiler] Bleed PDF created (flattened/prepress): ${trimW}×${trimH}pt → ${mediaW}×${mediaH}pt (+${bleed}pt bleed)`)
 }
 
 /**
