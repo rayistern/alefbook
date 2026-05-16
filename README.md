@@ -120,7 +120,7 @@ Railway auto-deploys from GitHub when you push to the connected branch. There is
 2. Railway detects the `Dockerfile` automatically (configured in `railway.toml`)
 3. Add all environment variables in the Railway dashboard under **Variables**:
    - All the env vars from above
-   - Set `NEXT_PUBLIC_APP_URL` to your Railway domain (e.g., `https://alefbook-production.up.railway.app`)
+   - Set `NEXT_PUBLIC_APP_URL` to your Railway domain (e.g., `https://haggadah.shluchimexchange.ai`)
    - **PORT** is set automatically by Railway (defaults to 8080, which our Dockerfile exposes)
 4. Deploy happens automatically on push
 
