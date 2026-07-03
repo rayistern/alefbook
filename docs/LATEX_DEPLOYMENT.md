@@ -1,5 +1,13 @@
 # LaTeX Support — Deployment Guide
 
+> **STALE — annotation 2026-07-03:** Written for the transitional HTML+LaTeX
+> dual-format architecture (`format`/`latex_source` columns,
+> `migrations/001_add_latex_support.sql`), which was never adopted. The app
+> is LaTeX-only today; the live schema is `supabase/migrations/001_initial.sql`
+> and the live pipeline is `lib/latex/compiler.ts`. Kept for historical
+> context — do not follow these deployment steps. See CLAUDE.md and plan.md's
+> top annotation for the current picture.
+
 ## Overview
 
 LaTeX support adds XeLaTeX-based whole-book typesetting alongside existing HTML per-page templates. A project is either HTML or LaTeX format — never mixed.
