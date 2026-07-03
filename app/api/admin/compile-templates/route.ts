@@ -21,9 +21,24 @@ const DEFAULT_PAGE_COUNT = 10
  * Protected by ADMIN_SECRET env var (pass as ?secret=... query param).
  */
 export async function POST(request: NextRequest) {
-  // Simple auth check
+  // Fail-closed auth check. This route is whitelisted in middleware.ts (no
+  // Supabase session required), so ADMIN_SECRET is its ONLY protection.
+  // Previously this checked the secret only `if (process.env.ADMIN_SECRET)`
+  // was set — meaning an unset env var silently left a 5-minute-long,
+  // 4x-full-LaTeX-compile endpoint open to anonymous POSTs (compute-burn
+  // DoS + cache-poisoning of the template PDFs shown to new projects).
+  // Now: no ADMIN_SECRET configured → 503 with a clear message, so a
+  // misconfigured deploy is loud instead of quietly unprotected.
+  // NOTE FOR DEPLOY: set ADMIN_SECRET in Railway before merging, or the
+  // template-compile curl workflow documented in CLAUDE.md will 503.
+  if (!process.env.ADMIN_SECRET) {
+    return NextResponse.json(
+      { error: 'ADMIN_SECRET is not configured on the server; refusing to run admin compile. Set the ADMIN_SECRET env var and retry with ?secret=...' },
+      { status: 503 }
+    )
+  }
   const secret = request.nextUrl.searchParams.get('secret')
-  if (process.env.ADMIN_SECRET && secret !== process.env.ADMIN_SECRET) {
+  if (secret !== process.env.ADMIN_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -147,7 +162,10 @@ function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: strin
   return new Promise((resolve) => {
     execFile(
       'latexmk',
-      ['-xelatex', '-interaction=nonstopmode', '-halt-on-error', '-output-directory=' + workDir, 'main.tex'],
+      // -no-shell-escape mirrors lib/latex/compiler.ts: never let TeX spawn
+      // shell commands, even though template sources are repo-controlled —
+      // keeps both compile paths on the same security posture.
+      ['-xelatex', '-no-shell-escape', '-interaction=nonstopmode', '-halt-on-error', '-output-directory=' + workDir, 'main.tex'],
       {
         cwd: workDir,
         timeout: 120_000,

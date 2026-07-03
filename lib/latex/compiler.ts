@@ -220,6 +220,15 @@ function runLatexmk(workDir: string, templateId?: string): Promise<CompileResult
       'latexmk',
       [
         '-xelatex',
+        // Defense in depth: the .tex source is AI-generated / user-supplied
+        // (PUT /api/project/[id]/tex), so never allow \write18 to spawn
+        // shell commands. TeX Live's default is "restricted" shell-escape,
+        // which still whitelists some external programs — we want none.
+        // The regex sanitizer in lib/ai/latex-editor.ts strips \write18
+        // textually, but macro-expansion tricks can evade regexes; this
+        // engine-level flag is the reliable backstop. (The orphaned
+        // lib/rendering/latex.ts design already did this.)
+        '-no-shell-escape',
         '-interaction=nonstopmode',
         '-halt-on-error',
         '-output-directory=' + workDir,
