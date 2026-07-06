@@ -5,10 +5,14 @@ import path from 'path'
 import os from 'os'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getTemplate } from '@/lib/latex/templates'
+import { listTemplateIds, getTemplateImageDirs } from '@/lib/templates/registry'
 
 export const maxDuration = 300
 
-const TEMPLATES = ['blank', 'hebrew-english', 'haggadah', 'haggadah-kids']
+// Which templates to compile is now derived from the data-driven registry
+// (issue #14): a new book added to lib/templates/registry.ts is compiled here
+// automatically, with no edit to this array.
+const TEMPLATES = listTemplateIds()
 const DEFAULT_PAGE_COUNT = 10
 
 /**
@@ -55,7 +59,7 @@ export async function POST(request: NextRequest) {
         console.log(`[Admin] Copied ${template.images.length} images for ${templateId} from: ${imgSources}...`)
       }
 
-      const compileResult = await runLatexmk(tmpDir)
+      const compileResult = await runLatexmk(tmpDir, templateId)
 
       if (compileResult.success) {
         await compressPdfIfNeeded(path.join(tmpDir, 'main.pdf'))
@@ -132,15 +136,16 @@ async function compressPdfIfNeeded(pdfPath: string): Promise<void> {
   }
 }
 
-function runLatexmk(workDir: string): Promise<{ success: boolean; errors?: string[]; logTail?: string }> {
-  // Set TEXINPUTS so LaTeX can find template images (bundled at /app/)
+function runLatexmk(workDir: string, templateId?: string): Promise<{ success: boolean; errors?: string[]; logTail?: string }> {
+  // Set TEXINPUTS so LaTeX can find template images (bundled at /app/). Image
+  // dirs come from the registry per-template (issue #14) rather than a fixed
+  // haggadah list, so a new template's images are found without editing this fn.
   const appDir = process.cwd()
+  const templateImageDirs = (templateId ? getTemplateImageDirs(templateId) : [])
+    .map((dir) => path.join(appDir, dir) + '//')
   const texInputs = [
     workDir + '//',
-    path.join(appDir, 'templates', 'haggadah-images') + '//',
-    path.join(appDir, 'templates', 'haggadah-kids-images') + '//',
-    path.join(appDir, 'newImages_whitebg') + '//',
-    path.join(appDir, 'newImages') + '//',
+    ...templateImageDirs,
     '',
   ].join(':')
 
