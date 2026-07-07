@@ -1,0 +1,13 @@
+{
+  "template_id": "blessings-booklet-latex-v1",
+  "name": "Blessings Booklet (LaTeX)",
+  "description": "A minimal flowing bilingual booklet scaffold with editable blessing slots. Template #2 — the registry generalisation proof. Ships placeholder slots, not sourced liturgy.",
+  "format": "latex",
+  "page_count": 8,
+  "page_width_in": 5.5,
+  "page_height_in": 8.5,
+  "bleed_in": 0,
+  "binding": "saddle-stitch",
+  "languages": ["he", "en"],
+  "version": "1.0.0"
+}

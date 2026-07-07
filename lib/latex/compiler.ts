@@ -4,6 +4,7 @@ import path from 'path'
 import os from 'os'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getPdfPageCount } from './pdf-to-image'
+import { getTemplateImageDirs } from '@/lib/templates/registry'
 
 export interface CompileResult {
   success: boolean
@@ -198,17 +199,16 @@ async function downloadFolder(
 }
 
 function runLatexmk(workDir: string, templateId?: string): Promise<CompileResult> {
-  // Tell TeX where to find template images (bundled in Docker at /app/)
+  // Tell TeX where to find template images (bundled in Docker at /app/).
+  // Image dirs are now a per-template registry field (issue #14) rather than a
+  // hardcoded haggadah/kids branch: a template with no images contributes none,
+  // so it no longer drags the Haggadah's image path into an unrelated build.
   const appDir = process.cwd()
-  const adultImages = path.join(appDir, 'templates', 'haggadah-images') + '//'
-  const kidsImages = path.join(appDir, 'templates', 'haggadah-kids-images') + '//'
-  // Put the correct image directory first so LaTeX finds the right images
-  const imageDirs = templateId === 'haggadah-kids'
-    ? [kidsImages, adultImages]
-    : [adultImages, kidsImages]
+  const templateImageDirs = (templateId ? getTemplateImageDirs(templateId) : [])
+    .map((dir) => path.join(appDir, dir) + '//')
   const texInputs = [
     workDir + '//',  // recursive so user images in subdirs are found first
-    ...imageDirs,
+    ...templateImageDirs,
     '', // trailing colon = include default search paths
   ].join(':')
 

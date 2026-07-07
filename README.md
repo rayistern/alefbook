@@ -224,11 +224,28 @@ projects/{projectId}/
 
 ---
 
-## Templates
+## Templates & the data-driven template registry (#14)
 
-Two starter templates available when creating a new book:
+Starter templates available when creating a new book include:
 
 - **Blank** — Basic book with title page, FreeSerif font, minimal preamble
 - **Hebrew-English** — Bilingual paracol layout with Hebrew fonts, RTL support, side-by-side columns
 
-Templates are defined in `lib/latex/templates.ts` and generate `main.tex`, `preamble.tex`, and individual page files.
+As of **ALEF2 (#14)** the product layer is no longer hardwired to one book. Books are
+defined as **data rows in a template registry** (`lib/templates/registry.ts`, shape
+ported from merkos-302/mechaber) rather than hardcoded in ~4 code sites plus a
+hardcoded AI prompt and TEXINPUTS dirs. **Adding a book is now a data row** (plus, for
+file-backed books, a `source.tex` asset) — no code change, redeploy, or manual curl.
+Full data model, migration notes, and how to add a book: **`docs/TEMPLATE_REGISTRY.md`**.
+(The base LaTeX scaffold each template still generates — `main.tex`, `preamble.tex`,
+per-page files — is described in `docs/COMPILING.md`.)
+
+## Commerce — Shopify cart write-back (POC, #23)
+
+alefbook.org is a Shopify store. The **ALEF2 cart POC (#23)** keeps Shopify as the
+commerce layer and treats the designer as an external app that hands a **configured
+line item back to the native cart** (the Shutterfly/Mixbook pattern): the designer
+produces a print-ready PDF, then adds the product variant to the cart with line-item
+properties referencing the design — checkout, payment, tax, and fulfillment stay 100%
+native Shopify. It is **config-driven, mock-tested, with no live-store calls** (it does
+not touch the money path). Full pattern + integration shape: **`docs/SHOPIFY_CART_POC.md`**.

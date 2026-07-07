@@ -1,0 +1,117 @@
+%%% =====================================================================
+%%% Blessings Booklet — template #2 (registry generalisation proof)
+%%%
+%%% A minimal, self-contained flowing booklet. It exists to prove the
+%%% data-driven template registry (lib/templates/registry.ts) generalises
+%%% beyond the Haggadah: this is a brand-new book added as a data row plus
+%%% this asset file, with ZERO changes to any call site.
+%%%
+%%% CONTENT NOTE: the blessing sections ship as PLACEHOLDER slots, not sourced
+%%% liturgy. Real blessing text is a content decision for the product owner —
+%%% the designer/AI fills the slots. This deliberately demonstrates the
+%%% "editable slots" end of the static-text axis (the Haggadah is the
+%%% immutable-base-text end).
+%%%
+%%% Preamble is intentionally close to the known-good `hebrew-english`
+%%% generator (FreeSerif/FreeSans via fontspec, native XeTeX RTL) so it
+%%% compiles on the same XeLaTeX toolchain.
+%%% =====================================================================
+
+\documentclass[11pt, openany]{book}
+
+%%% ---- Page geometry: 5.5x8.5in saddle-stitch booklet trim ----
+\usepackage[
+  paperwidth=5.5in,
+  paperheight=8.5in,
+  inner=0.7in,
+  outer=0.6in,
+  top=0.7in,
+  bottom=0.7in,
+  headheight=14pt
+]{geometry}
+
+%%% ---- Fonts (XeLaTeX with Hebrew support) ----
+\usepackage{fontspec}
+\setmainfont{FreeSerif}[Ligatures=TeX]
+\setsansfont{FreeSans}
+\newfontfamily\hebrewfont[Script=Hebrew, Scale=1.15]{FreeSerif}
+\newfontfamily\hebrewfonttitle[Script=Hebrew, Scale=1.8]{FreeSerif}
+
+%%% ---- Hebrew / RTL support (native XeTeX bidi) ----
+\newenvironment{hebrew}{%
+  \par\begingroup\hebrewfont\TeXXeTstate=1\beginR\parindent=0pt\relax
+}{%
+  \endR\endgroup\par
+}
+\newcommand{\texthebrew}[1]{{\hebrewfont\TeXXeTstate=1\beginR #1\endR}}
+
+%%% ---- Colours ----
+\usepackage[dvipsnames]{xcolor}
+\definecolor{accent}{HTML}{0F766E}
+\definecolor{muted}{HTML}{6B7280}
+
+%%% ---- Layout ----
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{hyperref}
+\hypersetup{colorlinks=false, pdfborder={0 0 0}}
+
+%%% ---- Headers & Footers ----
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small\thepage}
+
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+%%% ---- A single blessing slot: an editable Hebrew + English pair ----
+%%% The designer/AI edits the arguments; the frame is fixed.
+\newcommand{\blessingslot}[3]{%
+  \section*{#1}
+  \begin{hebrew}#2\end{hebrew}
+  \vspace{0.4em}
+  {\color{muted}#3}
+  \vspace{1.2em}
+}
+
+\begin{document}
+
+%%% ---- COVER PAGE ----
+\thispagestyle{empty}
+\begin{center}
+\vspace*{2.5cm}
+
+{\color{accent}\Huge\bfseries Blessings Booklet}
+
+\vspace{0.8cm}
+
+{\large A collection of blessings}
+
+\vspace{2cm}
+
+{\hebrewfonttitle\color{accent} ברכות}
+
+\vfill
+
+{\small Created with Shluchim Exchange}
+\end{center}
+\clearpage
+
+%%% ---- BLESSING 1 ----
+\blessingslot{Blessing 1}{%
+[Hebrew text goes here — ask the AI to fill this slot with your text.]
+}{%
+[English translation goes here — ask the AI to fill this slot.]
+}
+
+%%% ---- BLESSING 2 ----
+\blessingslot{Blessing 2}{%
+[Hebrew text goes here — ask the AI to fill this slot with your text.]
+}{%
+[English translation goes here — ask the AI to fill this slot.]
+}
+
+\end{document}
