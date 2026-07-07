@@ -3,39 +3,20 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { listBookTemplates } from '@/lib/templates/registry'
 
-const templates = [
-  {
-    id: 'haggadah',
-    name: 'Passover Haggadah',
-    description: 'Complete Haggadah Shel Pesach with Hebrew/English bilingual text, decorative ornaments, and all 15 seder steps.',
-    icon: '🍷',
-    color: 'from-amber-600 to-red-700',
-    fixedPages: true,
-  },
-  {
-    id: 'haggadah-kids',
-    name: "Children's Haggadah",
-    description: "Kid-friendly Passover Haggadah with cartoon illustrations, playful fonts, and bright colors. Same complete text as the adult version.",
-    icon: '🌟',
-    color: 'from-orange-400 to-purple-500',
-    fixedPages: true,
-  },
-  {
-    id: 'hebrew-english',
-    name: 'Hebrew-English Bilingual',
-    description: 'Side-by-side bilingual layout with built-in Hebrew support and right-to-left formatting.',
-    icon: '📖',
-    color: 'from-purple-500 to-pink-500',
-  },
-  {
-    id: 'blank',
-    name: 'Blank Book',
-    description: 'Start fresh with a clean layout. Perfect for any book project.',
-    icon: '📄',
-    color: 'from-blue-500 to-cyan-500',
-  },
-]
+// Template cards are now derived from the data-driven registry (issue #14):
+// adding a book to lib/templates/registry.ts makes it appear here automatically,
+// with no edit to this page. `fixedPages` maps from the registry's page policy
+// (fixed-page books hide the page-count slider).
+const templates = listBookTemplates().map((t) => ({
+  id: t.id,
+  name: t.name,
+  description: t.description,
+  icon: t.icon,
+  color: t.cardGradient,
+  fixedPages: t.pagePolicy === 'fixed',
+}))
 
 export default function NewProjectPage() {
   const [name, setName] = useState('')

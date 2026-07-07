@@ -2,6 +2,7 @@ import { createServerSupabase } from '@/lib/supabase/server'
 import { uploadProjectFile, copyTemplatePdf, getProjectPdfUrl } from '@/lib/latex/compiler'
 import { NextRequest, NextResponse } from 'next/server'
 import { getTemplate } from '@/lib/latex/templates'
+import { getTemplatePageCount } from '@/lib/templates/registry'
 
 // GET /api/project — list user's projects
 export async function GET() {
@@ -35,12 +36,11 @@ export async function POST(request: NextRequest) {
   const tid = templateId || 'blank'
   const template = getTemplate(tid, pageCount || 10)
 
-  // For template projects, use the template's known page count
-  const templatePageCounts: Record<string, number> = {
-    'haggadah': 52,
-    'haggadah-kids': 52,
-  }
-  const effectivePageCount = pageCount || templatePageCounts[tid] || 10
+  // Page count is now a per-template policy in the registry (issue #14):
+  // fixed-page books (Haggadah) ignore the requested count and use their locked
+  // value; flowing books honour the create-slider value or fall back to the
+  // template's default. Replaces the old hardcoded `templatePageCounts` map.
+  const effectivePageCount = getTemplatePageCount(tid, pageCount)
 
   // Create project record
   const { data: project, error } = await supabase
