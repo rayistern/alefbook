@@ -1,5 +1,6 @@
 import { createServerSupabase } from '@/lib/supabase/server'
 import { uploadProjectImage } from '@/lib/latex/compiler'
+import { checkLimit } from '@/lib/rate-limit/upstash'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
@@ -8,6 +9,19 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Storage-abuse guard (20 uploads/hour/user). Fail-open when Upstash
+  // isn't configured — see lib/rate-limit/upstash.ts for the rationale.
+  const limit = await checkLimit('uploads', user.id)
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'Upload rate limit exceeded. Please wait before uploading more images.' },
+      {
+        status: 429,
+        headers: limit.retryAfterSeconds ? { 'Retry-After': String(limit.retryAfterSeconds) } : undefined,
+      }
+    )
   }
 
   const formData = await request.formData()

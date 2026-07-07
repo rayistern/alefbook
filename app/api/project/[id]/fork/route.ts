@@ -53,6 +53,26 @@ export async function POST(
   const sourcePath = `projects/${params.id}`
   await copyStorageFolder(serviceClient, sourcePath, `projects/${fork.id}`, sourcePath)
 
+  // Bugfix (2026-07-03): the copy above already brings over output/main.pdf,
+  // but the fork row was created without pdf_path/status, so a fresh fork
+  // showed "no PDF" until its first compile — even though the PDF was
+  // sitting in its storage folder. Point the fork's pdf_path at its own copy
+  // (rewrite the source project id prefix) and mark it ready, mirroring what
+  // the source row already claims.
+  if (source.pdf_path) {
+    const forkPdfPath = String(source.pdf_path).replace(
+      `projects/${params.id}/`,
+      `projects/${fork.id}/`
+    )
+    const { data: updatedFork } = await supabase
+      .from('projects')
+      .update({ pdf_path: forkPdfPath, status: 'ready' })
+      .eq('id', fork.id)
+      .select()
+      .single()
+    if (updatedFork) Object.assign(fork, updatedFork)
+  }
+
   // Increment fork count on source
   await serviceClient
     .from('projects')

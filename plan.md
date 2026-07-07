@@ -1,3 +1,14 @@
+> **STALE — annotation 2026-07-03:** This plan describes the transitional
+> "HTML + LaTeX dual-format" architecture, which was superseded. The app is
+> now LaTeX-only: one `main.tex` per project in Supabase Storage, edited via
+> search/replace tool calls by `lib/ai/orchestrator.ts`, compiled by
+> `lib/latex/compiler.ts` (latexmk/XeLaTeX). Files this plan references that
+> no longer exist or are dead: `lib/templates/loader.ts`,
+> `lib/ai/designer-agent.ts`, `lib/rendering/puppeteer.ts`, the
+> `page_states`/`format`/`latex_source` columns (`migrations/001_add_latex_support.sql`
+> was never adopted), and `lib/rendering/latex.ts` (orphaned, never imported).
+> Kept for historical context; see CLAUDE.md for the current architecture.
+
 # Plan: Add LaTeX Book Support Alongside HTML
 
 ## Overview

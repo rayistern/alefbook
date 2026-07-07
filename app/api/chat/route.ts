@@ -1,5 +1,6 @@
 import { createServerSupabase } from '@/lib/supabase/server'
 import { runOrchestrator, type TaskEvent } from '@/lib/ai/orchestrator'
+import { checkLimit } from '@/lib/rate-limit/upstash'
 import { NextRequest } from 'next/server'
 
 export const maxDuration = 300 // 5 minutes for agentic loop
@@ -10,6 +11,25 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return new Response('Unauthorized', { status: 401 })
+  }
+
+  // Cost guard: each chat turn fans out into multiple LLM calls, possible
+  // image generations, and LaTeX compiles (maxDuration 300s). checkLimit
+  // was fully implemented but never wired into any route, leaving spend
+  // unbounded per user. Fail-open when Upstash isn't configured, so this
+  // is a no-op until the env vars are set (see lib/rate-limit/upstash.ts).
+  const limit = await checkLimit('aiCalls', user.id)
+  if (!limit.allowed) {
+    return new Response(
+      JSON.stringify({ error: 'Rate limit exceeded. Please wait before sending more messages.' }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(limit.retryAfterSeconds ? { 'Retry-After': String(limit.retryAfterSeconds) } : {}),
+        },
+      }
+    )
   }
 
   const { projectId, message, model, imageModel } = await request.json()

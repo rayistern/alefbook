@@ -156,23 +156,69 @@ function buildConvertArgs(
 }
 
 /**
+ * Validate AI-composed raw ImageMagick arguments before execution.
+ *
+ * Exported separately from processImageRaw so it can be unit-tested without
+ * invoking ImageMagick. Throws on the first unsafe argument.
+ *
+ * Threat model: the args come from an LLM (prompt-injectable via user chat),
+ * we execFile (no shell), and the process runs in the app container with
+ * access to env secrets and the filesystem. The dangerous surface is
+ * ImageMagick's OWN file-handling syntax, not shell metacharacters:
+ *   - `@file` indirection (e.g. `caption:@/etc/passwd`, `-draw @file`)
+ *     reads arbitrary files into the output image — exfiltration.
+ *   - `-write path` (and `+write`) emits an extra output file anywhere the
+ *     process can write, mid-pipeline.
+ *   - script/module coders (`msl:`, `mvg:` files, `-script`, `-process`)
+ *     execute ImageMagick script files.
+ *   - `win:`/`x:`/`show:` display coders and `fd:` descriptor access are
+ *     never legitimate here.
+ * The pre-existing checks (`..`, leading `/`, shell metachars) are kept as a
+ * second layer even though execFile doesn't use a shell.
+ *
+ * Trade-off: blocking every arg containing `@` also blocks the rare-but-legal
+ * `-resize 1000000@` area-geometry form. Fail-closed is the right call — the
+ * LLM has plenty of other ways to express a resize.
+ */
+export function assertSafeRawArgs(rawArgs: string[]): void {
+  // Coder prefixes that run scripts, fetch remote/system resources, or touch
+  // the display / file descriptors. Matched case-insensitively against the
+  // start of each argument. Deliberately NOT blocked: text/caption/label/
+  // pango coders with literal strings (e.g. `label:Hello`) — those are
+  // legitimate captioning uses; their dangerous `@file` form is already
+  // covered by the global `@` rejection above.
+  const forbiddenCoderPrefixes = /^(msl|mvg|inline|ephemeral|fd|vid|show|win|x|clipboard|import|url|https?|ftp):/i
+
+  for (const arg of rawArgs) {
+    if (arg.includes('..') || arg.startsWith('/') || /[;|&`$]/.test(arg)) {
+      throw new Error(`Unsafe ImageMagick argument rejected: "${arg}"`)
+    }
+    if (arg.includes('@')) {
+      throw new Error(`Unsafe ImageMagick argument rejected (@-file indirection): "${arg}"`)
+    }
+    if (/^[-+](write|script|process)$/i.test(arg)) {
+      throw new Error(`Unsafe ImageMagick argument rejected (file/script output): "${arg}"`)
+    }
+    if (forbiddenCoderPrefixes.test(arg)) {
+      throw new Error(`Unsafe ImageMagick argument rejected (forbidden coder): "${arg}"`)
+    }
+  }
+}
+
+/**
  * Process an image using raw ImageMagick arguments composed by the AI.
  * The AI writes the full `convert`-style argument list (excluding input/output paths).
  * Returns the processed image as a PNG buffer.
  *
  * Security: Only file I/O within a temp dir is permitted. The args are sanitised
- * to reject shell meta-characters and path traversal.
+ * by assertSafeRawArgs above (shell metachars, path traversal, and
+ * ImageMagick-native file-read/write/script vectors).
  */
 export async function processImageRaw(
   inputBuffer: Buffer,
   rawArgs: string[]
 ): Promise<Buffer> {
-  // Sanitise: reject args that could escape the temp dir or invoke shells
-  for (const arg of rawArgs) {
-    if (arg.includes('..') || arg.startsWith('/') || /[;|&`$]/.test(arg)) {
-      throw new Error(`Unsafe ImageMagick argument rejected: "${arg}"`)
-    }
-  }
+  assertSafeRawArgs(rawArgs)
 
   const tmpDir = path.join(os.tmpdir(), `alefbook-imgraw-${Date.now()}`)
   await fs.mkdir(tmpDir, { recursive: true })
