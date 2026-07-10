@@ -11,6 +11,7 @@ import {
   getSystemPrompt,
   HAGGADAH_SYSTEM_PROMPT,
   GENERIC_BOOKLET_SYSTEM_PROMPT,
+  SEFER_SYSTEM_PROMPT,
 } from '../registry'
 
 // ── Registry shape & template #1 (the Haggadah) ──────────────────────────────
@@ -137,6 +138,31 @@ describe('registry lookup helpers', () => {
     expect(getSystemPrompt('haggadah')).toBe(HAGGADAH_SYSTEM_PROMPT)
     expect(getSystemPrompt('generic-booklet')).toBe(GENERIC_BOOKLET_SYSTEM_PROMPT)
     expect(getSystemPrompt('nope')).toBe(HAGGADAH_SYSTEM_PROMPT)
+  })
+
+  // ── The sefer template (Torah/seforim reframe, portfolio decision B5) ──────
+
+  it('registers the sefer template as a flowing, generator-backed Hebrew book', () => {
+    const sefer = getBookTemplate('sefer')!
+    expect(sefer.intent).toBe('sefer')
+    expect(sefer.pagePolicy).toBe('flowing')
+    expect(sefer.asset).toEqual({ kind: 'generator', generator: 'sefer' })
+    // Seforim trim, not the Haggadah's picture-book trim.
+    expect(sefer.documentSetup.pageWidthIn).toBe(6)
+    expect(sefer.documentSetup.pageHeightIn).toBe(9)
+    // No images — must not drag the Haggadah's image dirs into a sefer build.
+    expect(getTemplateImageDirs('sefer')).toEqual([])
+    expect(isFixedPageTemplate('sefer')).toBe(false)
+  })
+
+  it('gives the sefer its authorship-specific system prompt', () => {
+    expect(getTemplateSystemPrompt('sefer')).toBe(SEFER_SYSTEM_PROMPT)
+    // Shared LaTeX mechanics still included.
+    expect(SEFER_SYSTEM_PROMPT).toContain('## search_replace rules')
+    // The authorship rule: quoted mekorot are verbatim-from-the-user only.
+    expect(SEFER_SYSTEM_PROMPT).toContain('verbatim')
+    // Flowing behaviour, not the Haggadah's fixed-page discipline.
+    expect(SEFER_SYSTEM_PROMPT).toContain('flowing book')
   })
 
   it('every registry entry is internally consistent', () => {

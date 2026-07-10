@@ -1,6 +1,36 @@
-# AlefBook v2
+# AlefBook v2 — Torah & Seforim Publishing Platform
 
-LaTeX-based book creation platform. Users chat with an AI agent that edits LaTeX across an entire book (50+ pages), compiles it to PDF, and displays the result. Users can share books publicly and fork each other's work.
+AI-assisted authoring and **print-grade typesetting for Torah books**: haggadahs,
+children's Torah books, blessing booklets, and seforim of novel chidushim. Users
+chat with an AI agent that edits LaTeX across an entire book (50+ pages), compiles
+it with XeLaTeX to a press-ready PDF (real trim, bleed, Hebrew/RTL, custom fonts),
+and displays the result. Users can share books publicly and fork each other's work.
+
+**Positioning (portfolio decision B5, 2026-07-10):** alefbook is the
+Torah/seforim-specific publishing surface of the Torah-AI portfolio. Its natural
+upstream author is **mechaber** (merkos-302/mechaber), the educator source-builder
+— teachers assemble Torah sources into shiurim/source sheets there, and alefbook
+turns them into typeset, printable books. The integration seam (contract +
+converter) lives in `lib/mechaber/bridge.ts`; the phased plan is in
+`docs/MECHABER_INTEGRATION.md`.
+
+**The engine stays general.** Underneath the Torah product layer is a reusable
+LaTeX book engine: a data-driven template registry (`lib/templates/registry.ts`),
+an agentic plan-edit-compile orchestrator (`lib/ai/orchestrator.ts`), and a
+XeLaTeX compile pipeline (`lib/latex/compiler.ts`). Torah-specificity is
+expressed as *data* — template rows, system prompts, structures — not hardcoded
+into the engine, so a non-Torah book remains a registry row away.
+
+## Current book templates
+
+| Template | What it is |
+|---|---|
+| `haggadah` | Complete Hebrew/English Haggadah, fixed 52-page designed book (immutable liturgy) |
+| `haggadah-kids` | Children's edition — same text, playful styling |
+| `sefer` | Classic Hebrew sefer scaffold for authoring novel chidushim: sha'ar, hakdamah, simanim (6×9in seforim trim, RTL) |
+| `blessings-booklet` | Flowing bilingual booklet with editable blessing slots |
+| `hebrew-english` | Side-by-side bilingual scaffold |
+| `blank` | General-purpose book (the reusable engine, undressed) |
 
 ## Quick Start (Local Dev)
 
@@ -226,10 +256,9 @@ projects/{projectId}/
 
 ## Templates & the data-driven template registry (#14)
 
-Starter templates available when creating a new book include:
-
-- **Blank** — Basic book with title page, FreeSerif font, minimal preamble
-- **Hebrew-English** — Bilingual paracol layout with Hebrew fonts, RTL support, side-by-side columns
+Available starter templates are listed in the table at the top of this README
+(Haggadah, children's Haggadah, sefer, blessings booklet, plus the general
+Blank / Hebrew-English scaffolds).
 
 As of **ALEF2 (#14)** the product layer is no longer hardwired to one book. Books are
 defined as **data rows in a template registry** (`lib/templates/registry.ts`, shape

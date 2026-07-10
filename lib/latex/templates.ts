@@ -22,6 +22,7 @@ export interface TemplateFiles {
 const GENERATORS: Record<string, (pageCount: number) => string> = {
   blank: blankDoc,
   'hebrew-english': hebrewEnglishDoc,
+  sefer: seferDoc,
 }
 
 /**
@@ -143,6 +144,145 @@ Your content goes here. You can ask the AI to help you write and format this pag
 %%% Colors
 \\usepackage[dvipsnames]{xcolor}
 \\definecolor{accent}{HTML}{2563EB}
+\\definecolor{muted}{HTML}{6B7280}
+
+%%% Graphics
+\\usepackage{graphicx}
+\\usepackage{tikz}
+
+%%% Layout
+\\usepackage{fancyhdr}
+\\usepackage{titlesec}
+\\usepackage{setspace}
+\\usepackage{parskip}
+\\usepackage{hyperref}
+
+\\hypersetup{
+  colorlinks=false,
+  pdfborder={0 0 0},
+}
+
+%%% Headers & Footers
+\\pagestyle{fancy}
+\\fancyhf{}
+\\renewcommand{\\headrulewidth}{0pt}
+\\fancyfoot[C]{\\small\\thepage}
+
+%%% Spacing
+\\setlength{\\parskip}{6pt}
+\\setlength{\\parindent}{0pt}
+
+\\begin{document}
+
+${pages}
+
+\\end{document}
+`
+}
+
+/**
+ * The sefer scaffold — a classic Hebrew sefer for authoring novel chidushim,
+ * he'oros, or a kuntres. Part of the Torah/seforim reframe (portfolio decision
+ * B5): where `hebrew-english` is a side-by-side bilingual layout, this is a
+ * primarily-RTL Hebrew book in the traditional form — a sha'ar (title page),
+ * a hakdamah (author's introduction), then simanim (chapters), each opening
+ * with a bolded siman header in the style of printed seforim.
+ *
+ * Layout choices, and why:
+ * - 6×9in trim: the standard seforim/kuntres print size (unlike the 7×10
+ *   picture-book trim the Haggadah uses).
+ * - Whole-document RTL body via the same native XeTeX bidi machinery as
+ *   `hebrewEnglishDoc` (TeXXeTstate/\beginR), so no extra TeX packages beyond
+ *   what the Docker image already installs.
+ * - Placeholder text only — per the static-text discipline, the scaffold never
+ *   ships sourced Torah text; the author writes their own chidushim into it.
+ */
+function seferDoc(pageCount: number): string {
+  const pages = Array.from({ length: pageCount }, (_, i) => {
+    const n = i + 1
+    if (n === 1) {
+      return `%%% ---- Page ${n} — Sha'ar (Title Page) ----
+\\thispagestyle{empty}
+\\begin{center}
+\\vspace*{2.5cm}
+
+{\\hebrewfonttitle ספר}
+
+\\vspace{0.6cm}
+
+{\\hebrewfonttitle\\bfseries שם הספר}
+
+\\vspace{1.2cm}
+
+{\\large\\hebrewfont חידושים וביאורים}
+
+\\vspace{2.5cm}
+
+{\\large\\hebrewfont מאת המחבר}
+
+\\vfill
+
+{\\small Created with Shluchim Exchange}
+
+\\end{center}
+\\newpage`
+    }
+    if (n === 2) {
+      return `%%% ---- Page ${n} — Hakdamah (Introduction) ----
+\\begin{hebrew}
+{\\Large\\bfseries הקדמה}
+
+\\vspace{0.5em}
+
+כאן תבוא הקדמת המחבר. בקשו מהבינה המלאכותית לעזור לנסח, לערוך ולסדר את דברי הפתיחה.
+\\end{hebrew}
+\\newpage`
+    }
+    return `%%% ---- Page ${n} — Siman ----
+\\begin{hebrew}
+{\\Large\\bfseries סימן ${n - 2}}
+
+\\vspace{0.5em}
+
+תוכן הסימן יבוא כאן. כתבו את החידוש, והבינה המלאכותית תעזור בעריכה, בסידור ובהגהה.
+\\end{hebrew}
+\\newpage`
+  }).join('\n\n')
+
+  return `\\documentclass[11pt, openany]{book}
+
+%%% Page geometry — 6x9in, the standard seforim/kuntres trim
+\\usepackage[
+  paperwidth=6in,
+  paperheight=9in,
+  inner=0.85in,
+  outer=0.65in,
+  top=0.75in,
+  bottom=0.8in,
+  headheight=14pt
+]{geometry}
+
+%%% Fonts (XeLaTeX with Hebrew support)
+\\usepackage{fontspec}
+\\setmainfont{FreeSerif}[Ligatures=TeX]
+\\setsansfont{FreeSans}
+\\newfontfamily\\hebrewfont[Script=Hebrew, Scale=1.15]{FreeSerif}
+\\newfontfamily\\hebrewfontsans[Script=Hebrew, Scale=1.1]{FreeSans}
+\\newfontfamily\\hebrewfontlarge[Script=Hebrew, Scale=1.5]{FreeSerif}
+\\newfontfamily\\hebrewfonttitle[Script=Hebrew, Scale=2.0]{FreeSerif}
+
+%%% Hebrew / RTL support (native XeTeX bidi)
+\\newenvironment{hebrew}{%
+  \\par\\begingroup\\hebrewfont\\TeXXeTstate=1\\beginR\\parindent=0pt\\relax
+}{%
+  \\endR\\endgroup\\par
+}
+\\newcommand{\\texthebrew}[1]{{\\hebrewfont\\TeXXeTstate=1\\beginR #1\\endR}}
+
+%%% Colors
+\\usepackage[dvipsnames]{xcolor}
+\\definecolor{accent}{HTML}{1B3A5C}
+\\definecolor{gold}{HTML}{C5962A}
 \\definecolor{muted}{HTML}{6B7280}
 
 %%% Graphics
