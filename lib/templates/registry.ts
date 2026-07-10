@@ -154,8 +154,9 @@ export interface BookTemplate {
   cardGradient: string
   /** All current products render via XeLaTeX; kept explicit for future formats. */
   format: 'latex'
-  /** Product intent — mirrors mechaber's `intent`; drives grouping/UX later. */
-  intent: 'haggadah' | 'liturgy' | 'general'
+  /** Product intent — mirrors mechaber's `intent`; drives grouping/UX later.
+   * 'sefer' added with the Torah/seforim reframe (portfolio decision B5). */
+  intent: 'haggadah' | 'liturgy' | 'sefer' | 'general'
   pagePolicy: PagePolicy
   /** Default page count for `flowing` books / the create slider. */
   defaultPageCount: number
@@ -347,15 +348,43 @@ This template is a scaffold with clearly-marked editable slots. Fill and edit th
 ## Page behaviour
 This is a flowing book: adding content may add pages, and that is fine. Do not force content to fit a fixed page count.`
 
+/**
+ * The sefer-authoring header — part of the Torah/seforim reframe (portfolio
+ * decision B5). Serves an author writing novel chidushim/he'oros in Hebrew.
+ * Two content rules distinguish it from the generic header:
+ * 1. The author's OWN words are fully editable — this is authoring, not
+ *    wrapper-personalisation (the opposite of the Haggadah's immutable body).
+ * 2. QUOTED mekorot must be verbatim-from-the-user: the AI never sources,
+ *    paraphrases, or "corrects" a quoted pasuk/ma'amar chazal itself — the
+ *    same never-invent-sacred-text line the generic header draws, applied to
+ *    a book that quotes sources constantly.
+ */
+const SEFER_HEADER = `You are an AI assistant for a Torah sefer-authoring platform serving Chabad-Lubavitch shluchim and their communities. You help an author write, edit, and typeset a Hebrew sefer of chidushim (novel Torah insights) — a sha'ar (title page), hakdamah, and simanim.
+
+## Content rules — Torah authorship
+- The author's own chidushim and he'oros are yours to help draft, edit, and polish freely — this is their original writing.
+- Quoted sources (pesukim, ma'amarei chazal, quotations from seforim) must come from the author verbatim. NEVER source, reconstruct, paraphrase, or "fix" a quoted Torah text yourself. If the author asks for a source's text, ask them to paste the exact text.
+- Use traditional Chabad/rabbinic conventions: "Hashem" (not "God"), standard rashei teivos, respectful titles for authors of seforim.
+
+## Page behaviour
+This is a flowing book: adding simanim adds pages, and that is fine. Do not force content to fit a fixed page count.
+
+## Hebrew typography
+The body is Hebrew RTL (the hebrew environment / \\\\texthebrew). Keep the traditional sefer look: bold siman headers, generous whitespace, no decorative clutter unless asked.`
+
 /** Full Haggadah prompt = Chabad header + shared LaTeX/tool mechanics. */
 export const HAGGADAH_SYSTEM_PROMPT = `${HAGGADAH_HEADER}\n\n${SHARED_TOOL_RULES}`
 
 /** Full generic-booklet prompt = neutral header + shared LaTeX/tool mechanics. */
 export const GENERIC_BOOKLET_SYSTEM_PROMPT = `${GENERIC_HEADER}\n\n${SHARED_TOOL_RULES}`
 
+/** Full sefer prompt = Torah-authorship header + shared LaTeX/tool mechanics. */
+export const SEFER_SYSTEM_PROMPT = `${SEFER_HEADER}\n\n${SHARED_TOOL_RULES}`
+
 const SYSTEM_PROMPTS: Record<string, string> = {
   haggadah: HAGGADAH_SYSTEM_PROMPT,
   'generic-booklet': GENERIC_BOOKLET_SYSTEM_PROMPT,
+  sefer: SEFER_SYSTEM_PROMPT,
 }
 
 /** Resolve a template's system prompt, falling back to the Haggadah prompt so
@@ -550,6 +579,51 @@ export const BOOK_TEMPLATES: BookTemplate[] = [
       ] },
       { id: 'body', label: 'Body', baseTextImmutable: false, modules: [
         { type: 'page', label: 'Content page', editable: true },
+      ] },
+    ],
+  },
+
+  // ── The sefer scaffold — Torah/seforim reframe (portfolio decision B5) ──
+  // A classic Hebrew sefer for authoring novel chidushim: sha'ar, hakdamah,
+  // then simanim. Flowing (a sefer grows as the author writes), procedural
+  // (the generator parameterises page count), 6×9in seforim trim, and its own
+  // 'sefer' system prompt whose content rule is authorship-specific: the
+  // author's own words are freely editable, quoted mekorot are
+  // verbatim-from-the-user only. Ships placeholder text — never sourced Torah.
+  {
+    id: 'sefer',
+    name: 'Sefer — Chidushei Torah',
+    description:
+      'A classic Hebrew sefer scaffold for writing your own chidushim: sha’ar (title page), hakdamah, and simanim in traditional seforim style. Hebrew right-to-left throughout.',
+    icon: '\u{1F4DC}',
+    cardGradient: 'from-slate-600 to-amber-700',
+    format: 'latex',
+    intent: 'sefer',
+    pagePolicy: 'flowing',
+    defaultPageCount: 12,
+    asset: { kind: 'generator', generator: 'sefer' },
+    imageDirs: [],
+    documentSetup: {
+      pageWidthIn: 6,
+      pageHeightIn: 9,
+      bleedIn: 0,
+      binding: 'perfect',
+      languages: ['he'],
+    },
+    branding: { defaultBrandName: 'Shluchim Exchange', brandNameEnvKey: 'NEXT_PUBLIC_BRAND_NAME' },
+    systemPromptId: 'sefer',
+    structure: [
+      { id: 'shaar', label: "Sha'ar (Title Page)", baseTextImmutable: false, modules: [
+        { type: 'title', label: 'Title page', editable: true, slots: [
+          { id: 'sefer-title', label: 'Sefer title (Hebrew)', kind: 'text', editable: true },
+          { id: 'sefer-author', label: 'Author', kind: 'text', editable: true },
+        ] },
+      ] },
+      { id: 'hakdamah', label: 'Hakdamah (Introduction)', baseTextImmutable: false, modules: [
+        { type: 'hebrew-block', label: "Author's introduction", editable: true },
+      ] },
+      { id: 'simanim', label: 'Simanim (Chapters)', baseTextImmutable: false, modules: [
+        { type: 'siman', label: 'Siman', editable: true },
       ] },
     ],
   },
