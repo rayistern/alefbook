@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from 'next/server'
 // POST /api/project/[id]/undo — restore the pre-edit snapshot
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
+  const params = await paramsPromise
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
 

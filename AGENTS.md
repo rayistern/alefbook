@@ -4,14 +4,14 @@
 - Never use `&&` to chain shell commands. Run each command separately.
 
 ## Project
-- Next.js 14 app deployed to Railway via Docker.
+- Next.js 15 app deployed to Railway via Docker.
 - GitHub: github.com/rayistern/alefbook
 
 ## Architecture
 AlefBook v2 is a **LaTeX-based book creation platform**. Users chat with an AI agent that edits LaTeX across an entire book (50+ pages). Simple UI: chat panel + PDF canvas.
 
 ### Stack
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 15 (App Router)
 - **Auth**: Supabase Auth (email/password + OAuth)
 - **Database**: Supabase Postgres
 - **Storage**: Supabase Storage (LaTeX sources + compiled PDFs)

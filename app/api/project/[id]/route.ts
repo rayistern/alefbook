@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from 'next/server'
 // GET /api/project/[id] — get project details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
+  const params = await paramsPromise
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -54,8 +55,9 @@ export async function GET(
 // PATCH /api/project/[id] — update project
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
+  const params = await paramsPromise
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -90,8 +92,9 @@ export async function PATCH(
 // DELETE /api/project/[id] — delete project
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params: paramsPromise }: { params: Promise<{ id: string }> }
 ) {
+  const params = await paramsPromise
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
 
