@@ -3,7 +3,8 @@ import { getProjectPdfUrl, getProjectBleedPdfUrl } from '@/lib/latex/compiler'
 import { redirect, notFound } from 'next/navigation'
 import { ProjectEditor } from '@/components/project/ProjectEditor'
 
-export default async function ProjectPage({ params }: { params: { id: string } }) {
+export default async function ProjectPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+  const params = await paramsPromise
   const supabase = await createServerSupabase()
   const { data: { user } } = await supabase.auth.getUser()
 
